@@ -19,7 +19,6 @@
 
 # production
 /build
-/app/pdfviewer
 
 # misc
 .DS_Store
