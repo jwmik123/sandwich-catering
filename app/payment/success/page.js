@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { CheckCircle } from "lucide-react";
 import QuoteButton from "@/app/components/QuoteButton";
+import { Suspense } from "react";
 export default function PaymentSuccess() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const quoteId = searchParams.get("quoteId");
   const formData = searchParams.get("formData");
@@ -19,8 +19,6 @@ export default function PaymentSuccess() {
     setLoading(false);
   }, [quoteId]);
 
-  console.log(formData);
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -30,39 +28,41 @@ export default function PaymentSuccess() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="space-y-6">
-        <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
-          <CheckCircle className="w-5 h-5" />
-          <h2>Bevestiging</h2>
-        </div>
-
+    <Suspense fallback={<div>Loading...</div>}>
+      <div className="min-h-screen flex items-center justify-center">
         <div className="space-y-6">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-green-800 mb-2">
-              Bedankt voor uw bestelling!
-            </h3>
-            <p className="text-green-700">
-              We hebben uw bestelling ontvangen en zullen deze verwerken.
-            </p>
+          <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
+            <CheckCircle className="w-5 h-5" />
+            <h2>Bevestiging</h2>
           </div>
 
-          <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-            <h3 className="font-medium text-gray-900">Besteloverzicht</h3>
-            <div>
-              <p className="text-sm text-gray-500">Referentienummer</p>
-              <p className="font-medium">{quoteId}</p>
+          <div className="space-y-6">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+              <h3 className="text-lg font-medium text-green-800 mb-2">
+                Bedankt voor uw bestelling!
+              </h3>
+              <p className="text-green-700">
+                We hebben uw bestelling ontvangen en zullen deze verwerken.
+              </p>
             </div>
 
-            <div className="border-t pt-4 mt-4">
-              <QuoteButton
-                formData={formData}
-                buttonClasses={secondaryButtonClasses}
-              />
+            <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+              <h3 className="font-medium text-gray-900">Besteloverzicht</h3>
+              <div>
+                <p className="text-sm text-gray-500">Referentienummer</p>
+                <p className="font-medium">{quoteId}</p>
+              </div>
+
+              <div className="border-t pt-4 mt-4">
+                <QuoteButton
+                  formData={formData}
+                  buttonClasses={secondaryButtonClasses}
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </Suspense>
   );
 }
