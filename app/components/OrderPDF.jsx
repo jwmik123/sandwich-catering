@@ -114,45 +114,47 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
         </View>
 
         {/* Delivery Details */}
-        <View style={styles.deliveryDetails}>
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Bezorging</Text>
-            <View style={styles.row}>
-              <Text style={styles.label}>Datum:</Text>
-              <Text style={styles.value}>
-                {new Date(orderData.deliveryDate).toLocaleDateString("nl-NL")}
-              </Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Tijd:</Text>
-              <Text style={styles.value}>{orderData.deliveryTime}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Adres:</Text>
-              <Text style={styles.value}>
-                {orderData.street} {orderData.houseNumber}
-                {orderData.houseNumberAddition}
-                {"\n"}
-                {orderData.postalCode} {orderData.city}
-              </Text>
+        {orderData.deliveryDate && (
+          <View style={styles.deliveryDetails}>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Bezorging</Text>
+              <View style={styles.row}>
+                <Text style={styles.label}>Datum:</Text>
+                <Text style={styles.value}>
+                  {new Date(orderData.deliveryDate).toLocaleDateString("nl-NL")}
+                </Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Tijd:</Text>
+                <Text style={styles.value}>{orderData.deliveryTime}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Adres:</Text>
+                <Text style={styles.value}>
+                  {orderData.street} {orderData.houseNumber}
+                  {orderData.houseNumberAddition}
+                  {"\n"}
+                  {orderData.postalCode} {orderData.city}
+                </Text>
+              </View>
             </View>
           </View>
+        )}
 
-          {/* Company Details if applicable */}
-          {orderData.isCompany && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Bedrijfsgegevens</Text>
-              <View style={styles.row}>
-                <Text style={styles.label}>Bedrijfsnaam:</Text>
-                <Text style={styles.value}>{orderData.companyName}</Text>
-              </View>
-              <View style={styles.row}>
-                <Text style={styles.label}>BTW-nummer:</Text>
-                <Text style={styles.value}>{orderData.companyVAT}</Text>
-              </View>
+        {/* Company Details if applicable */}
+        {orderData.isCompany && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Bedrijfsgegevens</Text>
+            <View style={styles.row}>
+              <Text style={styles.label}>Bedrijfsnaam:</Text>
+              <Text style={styles.value}>{orderData.companyName}</Text>
             </View>
-          )}
-        </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>BTW-nummer:</Text>
+              <Text style={styles.value}>{orderData.companyVAT}</Text>
+            </View>
+          </View>
+        )}
 
         {/* Order Details */}
         <View style={styles.section}>
@@ -226,6 +228,12 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
               </View>
             </View>
           )}
+        </View>
+
+        {/* Allergies */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Allergieën of opmerkingen</Text>
+          <Text style={styles.value}>{orderData.allergies}</Text>
         </View>
 
         {/* Totals */}

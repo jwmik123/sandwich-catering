@@ -1,18 +1,47 @@
-"use client";
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DayPicker } from "react-day-picker";
-
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 
 function Calendar({ className, classNames, showOutsideDays = true, ...props }) {
+  const [month, setMonth] = React.useState(new Date());
+  const [windowWidth, setWindowWidth] = React.useState(
+    typeof window !== "undefined" ? window.innerWidth : 0
+  );
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const isMobile = windowWidth < 968; // sm breakpoint
+
+  const handlePreviousClick = () => {
+    const newMonth = new Date(month);
+    newMonth.setMonth(month.getMonth() - (isMobile ? 1 : 2));
+    setMonth(newMonth);
+  };
+
+  const handleNextClick = () => {
+    const newMonth = new Date(month);
+    newMonth.setMonth(month.getMonth() + (isMobile ? 1 : 2));
+    setMonth(newMonth);
+  };
+
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn("p-3", className)}
+      month={month}
+      onMonthChange={setMonth}
+      numberOfMonths={isMobile ? 1 : 2}
       classNames={{
-        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+        months: "flex space-x-4",
         month: "space-y-4",
         caption: "flex justify-center pt-1 relative items-center",
         caption_label: "text-sm font-medium",
@@ -46,17 +75,26 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }) {
         ...classNames,
       }}
       components={{
-        IconLeft: ({ className, ...props }) => (
-          <ChevronLeft className={cn("h-4 w-4", className)} {...props} />
+        IconLeft: ({ ...props }) => (
+          <ChevronLeft
+            className="h-4 w-4"
+            onClick={handlePreviousClick}
+            {...props}
+          />
         ),
-        IconRight: ({ className, ...props }) => (
-          <ChevronRight className={cn("h-4 w-4", className)} {...props} />
+        IconRight: ({ ...props }) => (
+          <ChevronRight
+            className="h-4 w-4"
+            onClick={handleNextClick}
+            {...props}
+          />
         ),
       }}
       {...props}
     />
   );
 }
+
 Calendar.displayName = "Calendar";
 
 export { Calendar };

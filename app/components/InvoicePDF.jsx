@@ -144,6 +144,12 @@ const InvoicePDF = ({
         )}
       </View>
 
+      {/* Allergies */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Allergieën of opmerkingen</Text>
+        <Text style={styles.value}>{orderDetails.allergies}</Text>
+      </View>
+
       {/* Delivery Details */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Bezorging</Text>
@@ -182,8 +188,8 @@ const InvoicePDF = ({
       {/* Payment Details */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Betalingsgegevens</Text>
-        <Text>IBAN: NL00 INGB 0000 0000 00</Text>
-        <Text>T.n.v.: LunchCatering B.V.</Text>
+        <Text>IBAN: NL05 INGB 0006 8499 73</Text>
+        <Text>T.n.v.: The Sandwich Bar Nassaukade B.V.</Text>
         <Text>O.v.v.: Factuurnummer {quoteId}</Text>
         <Text>
           Vervaldatum: {new Date(dueDate).toLocaleDateString("nl-NL")}
@@ -193,11 +199,11 @@ const InvoicePDF = ({
       {/* Footer */}
       <View style={styles.footer}>
         <Text>
-          LunchCatering B.V. | Voorbeeldstraat 1, 1234 AB Amsterdam |
-          020-1234567
+          The Sandwich Bar Nassaukade B.V. | Nassaukade 378 H, 1054AD Amsterdam
+          | +31 6 40889605
         </Text>
         <Text>
-          KVK: 12345678 | BTW: NL123456789B01 | IBAN: NL00 INGB 0000 0000 00
+          KVK: 81038739 | BTW: NL861900558B01 | IBAN: NL05 INGB 0006 8499 73
         </Text>
       </View>
     </Page>

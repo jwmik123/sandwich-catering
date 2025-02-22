@@ -3,13 +3,15 @@
 
 import { client } from "@/sanity/lib/client";
 import { renderToBuffer } from "@react-pdf/renderer";
-import { nanoid } from "nanoid";
+import { customAlphabet } from "nanoid";
 import { revalidatePath } from "next/cache";
 import OrderPDF from "@/app/components/OrderPDF";
 
+const nanoid = customAlphabet("1234567890abcdefghijklmnopqrstuvwxyz", 8);
+
 export async function generateQuote(formData, sandwichOptions) {
   try {
-    const quoteId = `Q${nanoid(8)}`;
+    const quoteId = `Q${nanoid()}`;
 
     // Generate PDF buffer
     const pdfBuffer = await renderToBuffer(
@@ -55,6 +57,7 @@ export async function generateQuote(formData, sandwichOptions) {
           formData.selectionType === "variety"
             ? formData.varietySelection
             : null,
+        allergies: formData.allergies,
       },
       deliveryDetails: {
         deliveryDate: formData.deliveryDate,

@@ -12,7 +12,6 @@ import {
   FileSearch,
 } from "lucide-react";
 import Link from "next/link";
-import { toast, ToastContainer } from "react-toastify";
 import { generateQuote } from "@/app/actions/generateQuote";
 import { Label } from "@/components/ui/label";
 import {
@@ -23,6 +22,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import MenuCategories from "@/app/components/MenuCategories";
 import { breadTypes } from "@/app/assets/constants";
@@ -31,9 +32,12 @@ import { client } from "@/sanity/lib/client";
 import { PRODUCT_QUERY } from "@/sanity/lib/queries";
 import DeliveryCalendar from "@/app/components/DeliveryCalendar";
 import QuoteButton from "@/app/components/QuoteButton";
+import Image from "next/image";
 
 const Home = () => {
   const [sandwichOptions, setSandwichOptions] = useState([]);
+  const [date, setDate] = useState(null);
+
   useEffect(() => {
     const fetchProducts = async () => {
       const products = await client.fetch(PRODUCT_QUERY);
@@ -76,6 +80,7 @@ const Home = () => {
               nonVega: 0,
               vegan: 0,
             },
+            allergies: quote.orderDetails.allergies || "",
 
             // Step 5
             deliveryDate: quote.deliveryDetails.deliveryDate,
@@ -96,30 +101,23 @@ const Home = () => {
           // Clear the stored quote
           localStorage.removeItem("restoreQuote");
 
-          // Show success message
-          toast({
-            title: "Offerte geladen",
-            description:
-              "De offerte is succesvol geladen. U kunt nu wijzigingen aanbrengen en opnieuw bestellen.",
-            status: "success",
-            duration: 5000,
-            isClosable: true,
-          });
+          // Set step to 3
+          setCurrentStep(3);
         } catch (error) {
           console.error("Error restoring quote:", error);
-          toast({
-            title: "Fout bij laden",
-            description: "Er is iets misgegaan bij het laden van de offerte.",
-            status: "error",
-            duration: 5000,
-            isClosable: true,
-          });
         }
       }
     }
   }, []);
 
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(() => {
+    // Check if we're restoring a quote (client-side only)
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      return searchParams.get("restore") ? 3 : 1; // Step 3 is the overview step
+    }
+    return 1;
+  });
 
   const [formData, setFormData] = useState({
     // Stap 1
@@ -129,7 +127,7 @@ const Home = () => {
     totalSandwiches: 0,
     // Stap 3
     selectionType: "",
-
+    allergies: "",
     varietySelection: {
       vega: 0,
       nonVega: 0,
@@ -165,13 +163,13 @@ const Home = () => {
           const totalSelected = Object.values(formData.customSelection)
             .flat()
             .reduce((total, selection) => total + selection.quantity, 0);
-          return totalSelected === formData.totalSandwiches;
+          return totalSelected >= formData.totalSandwiches;
         }
         return (
           formData.selectionType === "variety" &&
           formData.varietySelection.vega +
             formData.varietySelection.nonVega +
-            formData.varietySelection.vegan ===
+            formData.varietySelection.vegan >=
             formData.totalSandwiches
         );
       case 4:
@@ -217,11 +215,11 @@ const Home = () => {
               remaining === 1 ? "" : "s"
             } selecteren`;
           }
-          if (remaining < 0) {
-            return `U heeft ${Math.abs(remaining)} broodje${
-              Math.abs(remaining) === 1 ? "" : "s"
-            } te veel geselecteerd`;
-          }
+          // if (remaining < 0) {
+          //   return `U heeft ${Math.abs(remaining)} broodje${
+          //     Math.abs(remaining) === 1 ? "" : "s"
+          //   } te veel geselecteerd`;
+          // }
         }
         if (formData.selectionType === "variety") {
           const total =
@@ -237,6 +235,7 @@ const Home = () => {
         return "";
     }
   };
+
   const calculateTotal = (formData) => {
     if (formData.selectionType === "custom") {
       const subtotal = Object.values(formData.customSelection)
@@ -389,7 +388,7 @@ const Home = () => {
                       onClick={() =>
                         updateFormData(
                           "sandwichesPerPerson",
-                          Math.max(1, formData.sandwichesPerPerson - 0.5)
+                          Math.max(1, formData.sandwichesPerPerson - 1)
                         )
                       }
                       variant="outline"
@@ -404,7 +403,7 @@ const Home = () => {
                       onClick={() =>
                         updateFormData(
                           "sandwichesPerPerson",
-                          formData.sandwichesPerPerson + 0.5
+                          formData.sandwichesPerPerson + 1
                         )
                       }
                       variant="outline"
@@ -466,7 +465,7 @@ const Home = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div
-            className={`p-6 rounded-lg border-2 cursor-pointer transition-colors ${
+            className={`p-4 rounded-lg border-2 cursor-pointer transition-colors ${
               formData.selectionType === "custom"
                 ? "border-black bg-beige-50"
                 : "border-gray-200 hover:border-gray-300"
@@ -480,7 +479,7 @@ const Home = () => {
           </div>
 
           <div
-            className={`p-6 rounded-lg border-2 cursor-pointer transition-colors ${
+            className={`p-4 rounded-lg border-2 cursor-pointer transition-colors ${
               formData.selectionType === "variety"
                 ? "border-black bg-beige-50"
                 : "border-gray-200 hover:border-gray-300"
@@ -536,16 +535,18 @@ const Home = () => {
         )}
 
         {formData.selectionType === "variety" && (
-          <div className="space-y-6 mt-6">
-            <h3 className="text-lg font-medium text-gray-900">
-              Kies een verdeling
-            </h3>
-            <VarietySelector
-              totalSandwiches={formData.totalSandwiches}
-              formData={formData}
-              updateFormData={updateFormData}
-            />
-          </div>
+          <>
+            <div className="space-y-6 mt-6">
+              <h3 className="text-lg font-medium text-gray-900">
+                Kies een verdeling
+              </h3>
+              <VarietySelector
+                totalSandwiches={formData.totalSandwiches}
+                formData={formData}
+                updateFormData={updateFormData}
+              />
+            </div>
+          </>
         )}
       </div>
     );
@@ -598,7 +599,7 @@ const Home = () => {
                     return (
                       <div key={id} className="space-y-2">
                         <div className="font-medium text-gray-900">
-                          {sandwich.name}
+                          {sandwich?.name || "Onbekend broodje"}
                         </div>
                         {selections.map((selection, index) => {
                           const breadType = breadTypes.find(
@@ -679,6 +680,17 @@ const Home = () => {
             </div>
           )}
         </div>
+        <div>
+          <Label htmlFor="allergies" className="text-base">
+            Allergieën of opmerkingen?
+          </Label>
+          <Textarea
+            placeholder="Voeg hier allergieën of opmerkingen toe"
+            className="mt-2"
+            value={formData.allergies}
+            onChange={(e) => updateFormData("allergies", e.target.value)}
+          />
+        </div>
         <div className="border-t pt-4 mt-4">
           <QuoteButton
             formData={formData}
@@ -696,8 +708,6 @@ const Home = () => {
       </div>
     </div>
   );
-
-  const [date, setDate] = useState(null);
 
   const renderStep5 = () => (
     <>
@@ -783,31 +793,29 @@ const Home = () => {
         <div className="space-y-4">
           <h3 className="text-md font-medium text-gray-700">Contactgegevens</h3>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              E-mailadres*
-            </label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="email">E-mailadres*</Label>
+            <Input
+              id="email"
               type="email"
               value={formData.email}
               onChange={(e) => updateFormData("email", e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black"
-              required
               placeholder="uw@email.nl"
+              required
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Telefoonnummer*
-            </label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="phone">
+              Telefoonnummer* (Contactpersoon op locatie bij bezorging)
+            </Label>
+            <Input
+              id="phone"
               type="tel"
               value={formData.phoneNumber}
               onChange={(e) => updateFormData("phoneNumber", e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              required
               placeholder="06 12345678"
+              required
             />
           </div>
         </div>
@@ -815,47 +823,43 @@ const Home = () => {
         {/* Company Details Section */}
         <div className="pt-6 border-t">
           <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
+            <Checkbox
               id="isCompany"
               checked={formData.isCompany}
-              onChange={(e) => updateFormData("isCompany", e.target.checked)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              onCheckedChange={(checked) =>
+                updateFormData("isCompany", checked)
+              }
             />
-            <label
+            <Label
               htmlFor="isCompany"
-              className="text-sm font-medium text-gray-700"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               Dit is een zakelijke bestelling
-            </label>
+            </Label>
           </div>
 
           {formData.isCompany && (
             <div className="space-y-4 mt-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Bedrijfsnaam
-                </label>
-                <input
+              <div className="space-y-2">
+                <Label htmlFor="companyName">Bedrijfsnaam</Label>
+                <Input
+                  id="companyName"
                   type="text"
                   value={formData.companyName}
                   onChange={(e) =>
                     updateFormData("companyName", e.target.value)
                   }
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   required
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  BTW-nummer
-                </label>
-                <input
+              <div className="space-y-2">
+                <Label htmlFor="companyVAT">BTW-nummer</Label>
+                <Input
+                  id="companyVAT"
                   type="text"
                   value={formData.companyVAT}
                   onChange={(e) => updateFormData("companyVAT", e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   placeholder="NL123456789B01"
                   required
                 />
@@ -1001,6 +1005,12 @@ const Home = () => {
         <div className="sticky top-0 bg-white border-b z-10">
           <div className="container mx-auto p-4">
             <div className="flex items-center justify-between">
+              <Image
+                src={"/tsb-logo.png"}
+                alt="The Sandwichbar Amsterdam Logo"
+                width={100}
+                height={100}
+              />
               {/* Back Button */}
               {currentStep > 1 && (
                 <button
@@ -1089,7 +1099,7 @@ const Home = () => {
           </div>
 
           {/* Quote Lookup Link */}
-          <div className="mt-6 flex">
+          <div className="mt-6 flex justify-between items-center">
             <Link
               href="/quote/lookup"
               className="text-white bg-black px-4 py-2 rounded-md flex items-center gap-2"
@@ -1097,10 +1107,16 @@ const Home = () => {
               <FileSearch className="w-4 h-4" />
               Offerte ophalen
             </Link>
+            <span className="text-sm text-gray-500">
+              <Link href="https://mikdevelopment.nl" target="_blank">
+                <span className="text-sm text-gray-400">
+                  Powered by Mik Development
+                </span>
+              </Link>
+            </span>
           </div>
         </div>
       </div>
-      <ToastContainer />
     </div>
   );
 };

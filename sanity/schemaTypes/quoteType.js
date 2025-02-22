@@ -106,6 +106,11 @@ export const quote = defineType({
       ],
     }),
     defineField({
+      name: "allergies",
+      title: "Allergies",
+      type: "string",
+    }),
+    defineField({
       name: "deliveryDetails",
       title: "Delivery Details",
       type: "object",

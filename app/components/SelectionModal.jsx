@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -17,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { breadTypes, sauces } from "@/app/assets/constants";
+import { isDrink } from "@/lib/product-helpers";
 
 const SelectionModal = ({
   isOpen,
@@ -25,31 +25,42 @@ const SelectionModal = ({
   onAdd,
   remainingQuantity,
 }) => {
-  const [quantity, setQuantity] = React.useState(1);
+  const [quantity, setQuantity] = React.useState("1");
   const [breadType, setBreadType] = React.useState(breadTypes[0].id);
   const [sauce, setSauce] = React.useState(sauces[0].id);
+
+  // For drinks, we don't limit by remainingQuantity
+  const quantityOptions = React.useMemo(() => {
+    const maxQuantity = isDrink(sandwich) ? 10 : remainingQuantity;
+    return Array.from({ length: maxQuantity }, (_, i) => (i + 1).toString());
+  }, [remainingQuantity, sandwich]);
 
   const handleSubmit = () => {
     onAdd({
       sandwichId: sandwich.id,
-      quantity,
-      breadType,
+      quantity: parseInt(quantity),
+      breadType: isDrink(sandwich) ? null : breadType,
       sauce,
-      subTotal: calculateSubTotal(sandwich.price, breadType, quantity),
+      subTotal: calculateSubTotal(
+        sandwich.price,
+        isDrink(sandwich) ? null : breadType,
+        parseInt(quantity)
+      ),
     });
     onClose();
   };
 
   const calculateSubTotal = (basePrice, selectedBreadType, qty) => {
-    const breadSurcharge =
-      breadTypes.find((b) => b.id === selectedBreadType)?.surcharge || 0;
+    const breadSurcharge = selectedBreadType
+      ? breadTypes.find((b) => b.id === selectedBreadType)?.surcharge || 0
+      : 0;
     return (basePrice + breadSurcharge) * qty;
   };
 
   const currentSubTotal = calculateSubTotal(
     sandwich?.price || 0,
-    breadType,
-    quantity
+    isDrink(sandwich) ? null : breadType,
+    parseInt(quantity)
   );
 
   return (
@@ -62,33 +73,41 @@ const SelectionModal = ({
         <div className="grid gap-4 py-4">
           <div className="space-y-2">
             <Label>Aantal</Label>
-            <Input
-              type="number"
-              min="1"
-              max={remainingQuantity}
-              value={quantity}
-              onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-              className="w-20"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Broodsoort</Label>
-            <Select value={breadType} onValueChange={setBreadType}>
-              <SelectTrigger>
+            <Select value={quantity} onValueChange={setQuantity}>
+              <SelectTrigger className="w-20">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {breadTypes.map((bread) => (
-                  <SelectItem key={bread.id} value={bread.id}>
-                    {bread.name}
-                    {bread.surcharge > 0 &&
-                      ` (+€${bread.surcharge.toFixed(2)})`}
+                {quantityOptions.map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {value}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
+
+          {/* Only show bread type selection for non-drinks */}
+          {!isDrink(sandwich) && (
+            <div className="space-y-2">
+              <Label>Broodsoort</Label>
+              <Select value={breadType} onValueChange={setBreadType}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {breadTypes.map((bread) => (
+                    <SelectItem key={bread.id} value={bread.id}>
+                      {bread.name}
+                      {bread.surcharge > 0 &&
+                        ` (+€${bread.surcharge.toFixed(2)})`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           {sandwich.hasSauceOptions && (
             <div className="space-y-2">
               <Label>Saus</Label>
@@ -99,10 +118,7 @@ const SelectionModal = ({
                 <SelectContent>
                   <SelectItem value="geen">Geen Saus</SelectItem>
                   {sandwich.sauceOptions.map((sauceOption) => (
-                    <SelectItem
-                      key={sauceOption.name} // Using name as key since it should be unique
-                      value={sauceOption.name} // Using name as value instead of _id
-                    >
+                    <SelectItem key={sauceOption.name} value={sauceOption.name}>
                       {sauceOption.name}
                     </SelectItem>
                   ))}

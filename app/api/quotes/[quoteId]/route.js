@@ -14,6 +14,7 @@ export async function GET(request, { params }) {
           sandwichesPerPerson,
           totalSandwiches,
           selectionType,
+          allergies,
           customSelection[] {
             sandwichId->{
               _id,
@@ -29,7 +30,7 @@ export async function GET(request, { params }) {
               sauce,
               quantity,
               subTotal
-            }
+            },
           },
           varietySelection {
             vega,

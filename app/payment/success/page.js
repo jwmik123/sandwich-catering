@@ -2,8 +2,9 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle } from "lucide-react";
-import QuoteButton from "@/app/components/QuoteButton";
 import { Suspense } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 // Create a separate client component for the success content
 function SuccessContent() {
@@ -43,21 +44,21 @@ function SuccessContent() {
             <p className="text-green-700">
               We hebben uw bestelling ontvangen en zullen deze verwerken.
             </p>
+            <p className="text-green-700 mt-6">
+              U krijgt een bevestiging per e-mail.
+            </p>
           </div>
 
           <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-            <h3 className="font-medium text-gray-900">Besteloverzicht</h3>
-            <div>
-              <p className="text-sm text-gray-500">Referentienummer</p>
+            <div className="flex space-x-4 items-center">
+              <p className="text-sm text-gray-500">Referentienummer:</p>
               <p className="font-medium">{quoteId}</p>
             </div>
-
-            <div className="border-t pt-4 mt-4">
-              <QuoteButton
-                formData={formData}
-                buttonClasses={secondaryButtonClasses}
-              />
-            </div>
+          </div>
+          <div className="border-t pt-4 mt-4">
+            <Link href="/">
+              <Button>Terug naar startpagina</Button>
+            </Link>
           </div>
         </div>
       </div>

@@ -85,6 +85,11 @@ export default function OrderConfirmation({
             </Text>
           </Section>
 
+          <Section style={details}>
+            <Text style={subtitle}>Allergieën of opmerkingen</Text>
+            <Text style={detailText}>{orderDetails.allergies}</Text>
+          </Section>
+
           <Text style={paragraph}>
             Als u vragen heeft over uw bestelling, neem dan contact met ons op.
           </Text>

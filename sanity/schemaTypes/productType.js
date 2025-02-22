@@ -35,7 +35,7 @@ export const product = defineType({
           { title: "Basics", value: "basics" },
           { title: "Croissants", value: "croissants" },
           { title: "Zoetigheden", value: "zoetigheden" },
-          { title: "Frisdranken", value: "frisdranken" },
+          { title: "Dranken", value: "dranken" },
         ],
       },
     }),
