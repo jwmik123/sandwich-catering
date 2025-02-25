@@ -12,6 +12,7 @@ import {
   FileSearch,
 } from "lucide-react";
 import Link from "next/link";
+import { toast } from "react-toastify";
 import { generateQuote } from "@/app/actions/generateQuote";
 import { Label } from "@/components/ui/label";
 import {
@@ -24,7 +25,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
 import MenuCategories from "@/app/components/MenuCategories";
 import { breadTypes } from "@/app/assets/constants";
 import VarietySelector from "@/app/components/VarietySelector";
@@ -33,10 +33,12 @@ import { PRODUCT_QUERY } from "@/sanity/lib/queries";
 import DeliveryCalendar from "@/app/components/DeliveryCalendar";
 import QuoteButton from "@/app/components/QuoteButton";
 import Image from "next/image";
-
+import { postalCodeDeliveryCosts } from "@/app/assets/postals";
 const Home = () => {
   const [sandwichOptions, setSandwichOptions] = useState([]);
   const [date, setDate] = useState(null);
+  const [deliveryCost, setDeliveryCost] = useState(null);
+  const [deliveryError, setDeliveryError] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -166,7 +168,7 @@ const Home = () => {
         );
       case 4:
         return true; // Overview step is always valid
-      case 6:
+      case 5:
         // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const isEmailValid = emailRegex.test(formData.email);
@@ -203,9 +205,9 @@ const Home = () => {
             .reduce((total, selection) => total + selection.quantity, 0);
           const remaining = formData.totalSandwiches - totalSelected;
           if (remaining > 0) {
-            return `U moet nog ${remaining} broodje${
-              remaining === 1 ? "" : "s"
-            } selecteren`;
+            return `Please select ${remaining} sandwich${
+              remaining === 1 ? "" : "es"
+            }`;
           }
           // if (remaining < 0) {
           //   return `U heeft ${Math.abs(remaining)} broodje${
@@ -220,7 +222,7 @@ const Home = () => {
             formData.varietySelection.vegan;
 
           if (Number(total) !== Number(formData.totalSandwiches)) {
-            return `De verdeling moet in totaal ${formData.totalSandwiches} broodjes zijn`;
+            return `The total must be ${formData.totalSandwiches} sandwiches`;
           }
         }
         return "";
@@ -240,6 +242,33 @@ const Home = () => {
       return formData.totalSandwiches * 6.38; // Assuming €6.38 per sandwich + 9% VAT
     }
   };
+  const calculateDeliveryCost = (postalCode, orderAmount) => {
+    if (!postalCode) return null;
+
+    // Format postal code - remove spaces and take first 4 digits
+    const formattedPostal = postalCode.replace(/\s/g, "").substring(0, 4);
+
+    // Check if postal code exists in our delivery zones
+    const deliveryZone = postalCodeDeliveryCosts[formattedPostal];
+
+    if (!deliveryZone) {
+      return { error: "We do not deliver to this postal code." };
+    }
+
+    // For regular postal codes (not special zones)
+    if (typeof deliveryZone === "number") {
+      return {
+        cost: orderAmount >= 75 ? 0 : deliveryZone,
+      };
+    }
+
+    // For special zones (postal codes that require €100 for free delivery)
+    if (typeof deliveryZone === "object") {
+      return {
+        cost: orderAmount >= 100 ? 0 : deliveryZone.cost,
+      };
+    }
+  };
   const totalAmount = calculateTotal(formData);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("online");
@@ -249,7 +278,10 @@ const Home = () => {
       setIsProcessing(true);
 
       // First generate the quote
-      const result = await generateQuote(formData);
+      const result = await generateQuote({
+        ...formData,
+        deliveryCost: deliveryCost || 0,
+      });
 
       if (result.success) {
         if (paymentMethod === "invoice") {
@@ -261,8 +293,8 @@ const Home = () => {
             },
             body: JSON.stringify({
               quoteId: result.quoteId,
-              amount: totalAmount,
-              orderDetails: formData,
+              amount: totalAmount + (deliveryCost || 0),
+              orderDetails: { ...formData, deliveryCost: deliveryCost || 0 },
             }),
           });
 
@@ -281,8 +313,8 @@ const Home = () => {
             },
             body: JSON.stringify({
               quoteId: result.quoteId,
-              amount: totalAmount,
-              orderDetails: formData,
+              amount: totalAmount + (deliveryCost || 0),
+              orderDetails: { ...formData, deliveryCost: deliveryCost || 0 },
             }),
           });
 
@@ -309,7 +341,30 @@ const Home = () => {
   const updateFormData = (field, value) => {
     setFormData((prev) => {
       const newData = { ...prev, [field]: value };
+      if (field === "postalCode") {
+        const result = calculateDeliveryCost(value, totalAmount);
+        if (result?.error) {
+          setDeliveryError(result.error);
+          setDeliveryCost(null);
+        } else {
+          setDeliveryError(null);
+          setDeliveryCost(result?.cost || null);
 
+          // Add message about free delivery threshold
+          const formattedPostal = value.replace(/\s/g, "").substring(0, 4);
+          const deliveryZone = postalCodeDeliveryCosts[formattedPostal];
+
+          if (typeof deliveryZone === "object" && result.cost > 0) {
+            setDeliveryError(
+              `Free delivery available for orders over €100 in your area`
+            );
+          } else if (result.cost > 0) {
+            setDeliveryError(
+              `Free delivery available for orders over €75 in your area`
+            );
+          }
+        }
+      }
       // Automatische berekeningen
       if (field === "numberOfPeople" || field === "sandwichesPerPerson") {
         newData.totalSandwiches =
@@ -346,7 +401,7 @@ const Home = () => {
                     <SelectValue placeholder="Select number of sandwiches" />
                   </SelectTrigger>
                   <SelectContent>
-                    {[10, 20, 30, 50, 100, 200, 300, 500].map((num) => (
+                    {[15, 20, 30, 50, 100, 200, 300, 500].map((num) => (
                       <SelectItem key={num} value={num.toString()}>
                         {num} sandwiches
                       </SelectItem>
@@ -501,22 +556,12 @@ const Home = () => {
     <div className="space-y-6">
       <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
         <FileText className="w-5 h-5" />
-        <h2>Besteloverzicht</h2>
+        <h2>Order summary</h2>
       </div>
 
       <div className="space-y-4">
         <div className="bg-gray-50 p-6 rounded-lg space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-500">Number of people</p>
-              <p className="text-lg font-medium">{formData.numberOfPeople}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Sandwiches per person</p>
-              <p className="text-lg font-medium">
-                {formData.sandwichesPerPerson}
-              </p>
-            </div>
             <div>
               <p className="text-sm text-gray-500">
                 Total number of sandwiches
@@ -624,6 +669,19 @@ const Home = () => {
                   </div>
                 </div>
               </div>
+              <div className="border-t pt-4 mt-4">
+                <div className="flex justify-between text-lg font-medium">
+                  <span>Total amount</span>
+                  <span>€{(formData.totalSandwiches * 6.38).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm text-gray-500 mt-1">
+                  <span>Total number of sandwiches</span>
+                  <span>
+                    {formData.totalSandwiches}/ {formData.totalSandwiches}{" "}
+                    sandwiches
+                  </span>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -712,6 +770,17 @@ const Home = () => {
             onChange={(e) => updateFormData("postalCode", e.target.value)}
             required
           />
+          {deliveryError && (
+            <p className="text-red-500  text-sm mt-1">{deliveryError}</p>
+          )}
+          {deliveryCost === 0 && (
+            <p className="text-green-500 text-sm mt-1">Free delivery!</p>
+          )}
+          {deliveryCost > 0 && (
+            <p className="text-gray-600 text-sm mt-1">
+              Delivery cost: €{deliveryCost.toFixed(2)}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -825,28 +894,45 @@ const Home = () => {
         <h2>Payment</h2>
       </div>
 
-      {/* Price Overview */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Subtotal:</span>
             <span className="font-medium">€{totalAmount.toFixed(2)}</span>
           </div>
+          {deliveryCost !== null ? (
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Delivery:</span>
+              <span className="font-medium">
+                {deliveryCost === 0 ? "Free" : `€${deliveryCost.toFixed(2)}`}
+              </span>
+            </div>
+          ) : (
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Delivery:</span>
+              <span className="font-medium text-green-600">Free</span>
+            </div>
+          )}
           <div className="flex justify-between items-center">
             <span className="text-gray-600">VAT (9%):</span>
             <span className="font-medium">
-              €{(totalAmount * 0.09).toFixed(2)}
+              €{((totalAmount + (deliveryCost || 0)) * 0.09).toFixed(2)}
             </span>
           </div>
           <div className="border-t pt-4">
             <div className="flex justify-between items-center">
               <span className="text-lg font-bold">Total:</span>
               <span className="text-lg font-bold">
-                €{(totalAmount * 1.09).toFixed(2)}
+                €{((totalAmount + (deliveryCost || 0)) * 1.09).toFixed(2)}
               </span>
             </div>
           </div>
         </div>
+        {deliveryError && (
+          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
+            <p className="text-green-600 text-sm">{deliveryError}</p>
+          </div>
+        )}
       </div>
 
       {/* Payment Method Selection - Only show for companies */}
@@ -858,8 +944,8 @@ const Home = () => {
             <div
               className={`p-4 border rounded-lg cursor-pointer transition-colors ${
                 paymentMethod === "online"
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 hover:border-blue-300"
+                  ? "border-green-500 bg-green-50"
+                  : "border-gray-200 hover:border-green-300"
               }`}
               onClick={() => setPaymentMethod("online")}
             >
@@ -868,7 +954,7 @@ const Home = () => {
                   type="radio"
                   checked={paymentMethod === "online"}
                   onChange={() => setPaymentMethod("online")}
-                  className="text-blue-600 focus:ring-blue-500"
+                  className="text-green-600 focus:ring-green-500"
                 />
                 <div>
                   <p className="font-medium">Pay directly online</p>
@@ -882,8 +968,8 @@ const Home = () => {
             <div
               className={`p-4 border rounded-lg cursor-pointer transition-colors ${
                 paymentMethod === "invoice"
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 hover:border-blue-300"
+                  ? "border-green-500 bg-green-50"
+                  : "border-gray-200 hover:border-green-300"
               }`}
               onClick={() => setPaymentMethod("invoice")}
             >
@@ -910,8 +996,8 @@ const Home = () => {
       <button
         onClick={handlePayment}
         disabled={isProcessing}
-        className={`w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-medium 
-          hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 
+        className={`w-full px-6 py-3 bg-green-600 text-white rounded-lg font-medium 
+          hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 
           focus:ring-offset-2 transition-colors 
           ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}`}
       >
@@ -919,7 +1005,7 @@ const Home = () => {
           {isProcessing ? (
             <>
               <div className="w-5 h-5 border-t-2 border-white rounded-full animate-spin" />
-              <span>Bezig met verwerken...</span>
+              <span>Processing...</span>
             </>
           ) : (
             <>
@@ -950,11 +1036,16 @@ const Home = () => {
       <div className="mx-auto">
         {/* Top Navigation Bar */}
         <div className="sticky top-0 bg-white border-b z-10">
+          <div className="text-sm text-center bg-green-500 text-white p-2">
+            <span className="font-bold">Free delivery from €75,- </span>
+            <span className="italic">(except 1026-1028, 1035, 1101-1109).</span>
+          </div>
           <div className="container mx-auto p-4">
             <div className="flex items-center justify-between">
               <Image
                 src={"/tsb-logo.png"}
                 alt="The Sandwichbar Amsterdam Logo"
+                className="w-10 h-10 md:w-16 md:h-16"
                 width={100}
                 height={100}
               />
@@ -976,20 +1067,20 @@ const Home = () => {
 
               {/* Next Button */}
               {currentStep < steps.length && (
-                <div className="flex flex-col items-end gap-2">
-                  {getValidationMessage(currentStep) && (
-                    <p className="text-sm text-red-600">
-                      {getValidationMessage(currentStep)}
-                    </p>
-                  )}
+                <div className="flex items-end">
                   <button
-                    onClick={() => setCurrentStep((prev) => prev + 1)}
+                    onClick={() => {
+                      const validationMessage =
+                        getValidationMessage(currentStep);
+                      if (!isStepValid(currentStep) && validationMessage) {
+                        toast.error(validationMessage);
+                      } else if (isStepValid(currentStep)) {
+                        setCurrentStep((prev) => prev + 1);
+                      }
+                    }}
                     className={`${primaryButtonClasses} flex items-center gap-2 ${
-                      !isStepValid(currentStep)
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
+                      !isStepValid(currentStep) ? "opacity-50" : ""
                     }`}
-                    disabled={!isStepValid(currentStep)}
                   >
                     {currentStep === steps.length - 1 ? "Payment" : "Next"}
                     <ChevronRight className="w-4 h-4" />

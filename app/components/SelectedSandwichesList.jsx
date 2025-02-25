@@ -28,7 +28,7 @@ const SelectedSandwichesList = ({
   if (groupedSelections.length === 0) {
     return (
       <div className="bg-gray-50 p-4 rounded-lg text-gray-500 text-center mt-8">
-        Nog geen items geselecteerd
+        No items selected
       </div>
     );
   }
@@ -68,7 +68,7 @@ const SelectedSandwichesList = ({
                       onClick={() => onRemove(sandwich._id, index)}
                       className="text-red-500 hover:text-red-700 px-2 py-1 rounded-md hover:bg-red-50"
                     >
-                      Verwijderen
+                      Remove
                     </button>
                   </div>
                 ))}
@@ -96,7 +96,7 @@ const SelectedSandwichesList = ({
                       onClick={() => onRemove(sandwich._id, index)}
                       className="text-red-500 hover:text-red-700 px-2 py-1 rounded-md hover:bg-red-50"
                     >
-                      Verwijderen
+                      Remove
                     </button>
                   </div>
                 ))}

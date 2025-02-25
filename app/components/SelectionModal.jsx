@@ -29,11 +29,10 @@ const SelectionModal = ({
   const [breadType, setBreadType] = React.useState(breadTypes[0].id);
   const [sauce, setSauce] = React.useState(sauces[0].id);
 
-  // For drinks, we don't limit by remainingQuantity
+  // Create quantity options from 1 to 100, regardless of item type
   const quantityOptions = React.useMemo(() => {
-    const maxQuantity = isDrink(sandwich) ? 10 : remainingQuantity;
-    return Array.from({ length: maxQuantity }, (_, i) => (i + 1).toString());
-  }, [remainingQuantity, sandwich]);
+    return Array.from({ length: 100 }, (_, i) => (i + 1).toString());
+  }, []);
 
   const handleSubmit = () => {
     onAdd({

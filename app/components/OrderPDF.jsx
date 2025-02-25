@@ -117,19 +117,19 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
         {orderData.deliveryDate && (
           <View style={styles.deliveryDetails}>
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Bezorging</Text>
+              <Text style={styles.sectionTitle}>Delivery</Text>
               <View style={styles.row}>
-                <Text style={styles.label}>Datum:</Text>
+                <Text style={styles.label}>Date:</Text>
                 <Text style={styles.value}>
                   {new Date(orderData.deliveryDate).toLocaleDateString("nl-NL")}
                 </Text>
               </View>
               <View style={styles.row}>
-                <Text style={styles.label}>Tijd:</Text>
+                <Text style={styles.label}>Time:</Text>
                 <Text style={styles.value}>{orderData.deliveryTime}</Text>
               </View>
               <View style={styles.row}>
-                <Text style={styles.label}>Adres:</Text>
+                <Text style={styles.label}>Address:</Text>
                 <Text style={styles.value}>
                   {orderData.street} {orderData.houseNumber}
                   {orderData.houseNumberAddition}
@@ -144,13 +144,13 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
         {/* Company Details if applicable */}
         {orderData.isCompany && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Bedrijfsgegevens</Text>
+            <Text style={styles.sectionTitle}>Company Details</Text>
             <View style={styles.row}>
-              <Text style={styles.label}>Bedrijfsnaam:</Text>
+              <Text style={styles.label}>Company Name:</Text>
               <Text style={styles.value}>{orderData.companyName}</Text>
             </View>
             <View style={styles.row}>
-              <Text style={styles.label}>BTW-nummer:</Text>
+              <Text style={styles.label}>VAT Number:</Text>
               <Text style={styles.value}>{orderData.companyVAT}</Text>
             </View>
           </View>
@@ -158,17 +158,17 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
 
         {/* Order Details */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Bestelling</Text>
+          <Text style={styles.sectionTitle}>Order</Text>
 
           <View style={styles.row}>
-            <Text style={styles.label}>Totaal broodjes:</Text>
+            <Text style={styles.label}>Total sandwiches:</Text>
             <Text style={styles.value}>{orderData.totalSandwiches}</Text>
           </View>
         </View>
 
         {/* Sandwich Selection */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Geselecteerde Broodjes</Text>
+          <Text style={styles.sectionTitle}>Selected Sandwiches</Text>
           {orderData.selectionType === "custom" ? (
             // Custom selection details with sandwich names
             Object.entries(orderData.customSelection || {}).map(
@@ -182,13 +182,13 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                     style={styles.sandwichItem}
                   >
                     <Text style={styles.sandwichName}>
-                      {sandwich?.name || "Onbekend broodje"}
+                      {sandwich?.name || "Unknown sandwich"}
                     </Text>
                     <View style={styles.sandwichDetails}>
                       <Text>
-                        {`${selection.quantity}x - ${selection.breadType}`}
+                        {`${selection.quantity}x - ${selection.breadType ? selection.breadType : ""}`}
                         {selection.sauce !== "geen" &&
-                          ` met ${selection.sauce}`}
+                          ` with ${selection.sauce}`}
                       </Text>
                       <Text style={styles.bold}>
                         €{selection.subTotal.toFixed(2)}

@@ -4,7 +4,6 @@ import {
   Body,
   Container,
   Text,
-  Link,
   Preview,
   Section,
 } from "@react-email/components";
@@ -16,49 +15,48 @@ export default function OrderConfirmation({
   companyDetails,
   totalAmount,
 }) {
-  console.log(totalAmount);
   return (
     <Html>
       <Head />
-      <Preview>Bedankt voor uw bestelling bij LunchCatering</Preview>
+      <Preview>Thank you for your order at The Sandwich Bar</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Text style={title}>Bestelling Bevestigd</Text>
+          <Text style={title}>Order Confirmation</Text>
           <Text style={paragraph}>
-            Beste {companyDetails ? companyDetails.companyName : "klant"},
+            Dear {companyDetails ? companyDetails.companyName : "customer"},
           </Text>
           <Text style={paragraph}>
-            Bedankt voor uw bestelling. Hieronder vindt u de details van uw
-            bestelling:
+            Thank you for your order. Below are the details of your order:
           </Text>
 
           <Section style={details}>
-            <Text style={subtitle}>Referentienummer</Text>
+            <Text style={subtitle}>Reference number</Text>
             <Text style={detailText}>{quoteId}</Text>
 
-            <Text style={subtitle}>Bezorggegevens</Text>
+            <Text style={subtitle}>Delivery details</Text>
             <Text style={detailText}>
-              Datum:{" "}
+              Date:{" "}
               {new Date(deliveryDetails.deliveryDate).toLocaleDateString(
                 "nl-NL"
               )}
               <br />
-              Tijd: {deliveryDetails.deliveryTime}
+              Time: {deliveryDetails.deliveryTime}
               <br />
-              Adres: {deliveryDetails.street} {deliveryDetails.houseNumber}
+              Address: {deliveryDetails.street} {deliveryDetails.houseNumber}
               {deliveryDetails.houseNumberAddition}
               <br />
               {deliveryDetails.postalCode} {deliveryDetails.city}
             </Text>
 
-            <Text style={subtitle}>Bestelling</Text>
+            <Text style={subtitle}>Order</Text>
             {orderDetails.selectionType === "custom" ? (
               Object.entries(orderDetails.customSelection).map(
                 ([_, selections]) =>
                   selections.map((selection, index) => (
                     <Text key={index} style={detailText}>
-                      {selection.quantity}x - {selection.breadType}
-                      {selection.sauce !== "geen" && ` met ${selection.sauce}`}
+                      {selection.quantity}x - {selection?.breadType}
+                      {selection?.sauce !== "none" &&
+                        ` with ${selection?.sauce}`}
                       {` - €${selection.subTotal.toFixed(2)}`}
                     </Text>
                   ))
@@ -66,39 +64,39 @@ export default function OrderConfirmation({
             ) : (
               <>
                 <Text style={detailText}>
-                  Kip, Vlees, Vis: {orderDetails.varietySelection.nonVega}{" "}
-                  broodjes
+                  Chicken, Meat, Fish: {orderDetails.varietySelection.nonVega}{" "}
+                  sandwiches
                   <br />
-                  Vegetarisch: {orderDetails.varietySelection.vega} broodjes
+                  Vegetarian: {orderDetails.varietySelection.vega} sandwiches
                   <br />
-                  Vegan: {orderDetails.varietySelection.vegan} broodjes
+                  Vegan: {orderDetails.varietySelection.vegan} sandwiches
                 </Text>
               </>
             )}
 
-            <Text style={subtitle}>Totaalbedrag</Text>
+            <Text style={subtitle}>Total amount</Text>
             <Text style={detailText}>
-              Subtotaal: €{totalAmount.toFixed(2)}
+              Subtotal: €{totalAmount.toFixed(2)}
               <br />
-              BTW (9%): €{(totalAmount * 0.09).toFixed(2)}
+              VAT (9%): €{(totalAmount * 0.09).toFixed(2)}
               <br />
-              Totaal: €{(totalAmount * 1.09).toFixed(2)}
+              Total: €{(totalAmount * 1.09).toFixed(2)}
             </Text>
           </Section>
 
           <Section style={details}>
-            <Text style={subtitle}>Allergieën of opmerkingen</Text>
+            <Text style={subtitle}>Allergies or comments</Text>
             <Text style={detailText}>{orderDetails.allergies}</Text>
           </Section>
 
           <Text style={paragraph}>
-            Als u vragen heeft over uw bestelling, neem dan contact met ons op.
+            If you have any questions about your order, please contact us.
           </Text>
 
           <Text style={paragraph}>
-            Met vriendelijke groet,
+            With kind regards,
             <br />
-            Team LunchCatering
+            Team The Sandwich Bar
           </Text>
         </Container>
       </Body>

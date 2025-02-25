@@ -1,5 +1,12 @@
 // app/components/InvoicePDF.js
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  Image,
+} from "@react-pdf/renderer";
 
 const styles = StyleSheet.create({
   page: {
@@ -10,13 +17,27 @@ const styles = StyleSheet.create({
     borderBottom: 1,
     borderBottomColor: "#e5e7eb",
     paddingBottom: 10,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  headerLeft: {
+    // Added from OrderPDF
+  },
+  headerRight: {
+    // Added from OrderPDF
+  },
+  logo: {
+    width: "50px",
+    height: "50px",
   },
   title: {
     fontSize: 24,
     marginBottom: 10,
     fontWeight: "bold",
+    textTransform: "uppercase",
   },
-  invoiceDetails: {
+  invoiceId: {
     fontSize: 12,
     color: "#6b7280",
   },
@@ -25,7 +46,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: 16,
     marginBottom: 10,
     fontWeight: "bold",
   },
@@ -35,13 +56,34 @@ const styles = StyleSheet.create({
   },
   label: {
     width: "30%",
+    fontSize: 12,
     color: "#6b7280",
   },
   value: {
     width: "70%",
+    fontSize: 12,
   },
   companyInfo: {
     marginBottom: 20,
+  },
+  companyDetails: {
+    display: "flex",
+    flexDirection: "row",
+    gap: 10,
+  },
+  orderItem: {
+    display: "flex",
+    flexDirection: "row",
+    marginBottom: 10,
+    paddingLeft: 10,
+  },
+  orderDetails: {
+    display: "flex",
+    flexDirection: "row",
+    gap: 10,
+    fontSize: 12,
+    color: "#4b5563",
+    marginLeft: 10,
   },
   totalSection: {
     marginTop: 20,
@@ -51,6 +93,12 @@ const styles = StyleSheet.create({
   },
   bold: {
     fontWeight: "bold",
+    fontSize: 12,
+  },
+  deliveryDetails: {
+    display: "flex",
+    flexDirection: "row",
+    gap: 10,
   },
   footer: {
     position: "absolute",
@@ -59,8 +107,13 @@ const styles = StyleSheet.create({
     right: 30,
     fontSize: 10,
     color: "#6b7280",
+    borderTop: 1,
+    borderTopColor: "#e5e7eb",
+    paddingTop: 10,
   },
 });
+
+const imageUrl = "/tsb.png";
 
 const InvoicePDF = ({
   quoteId,
@@ -74,71 +127,107 @@ const InvoicePDF = ({
     <Page size="A4" style={styles.page}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>Factuur</Text>
-        <View style={styles.invoiceDetails}>
-          <Text>Factuurnummer: {quoteId}</Text>
-          <Text>Datum: {new Date().toLocaleDateString("nl-NL")}</Text>
-          <Text>
-            Vervaldatum: {new Date(dueDate).toLocaleDateString("nl-NL")}
+        <View style={styles.headerLeft}>
+          <Text style={styles.title}>Invoice</Text>
+          <Text style={styles.invoiceId}>Invoice Number: {quoteId}</Text>
+          <Text style={styles.invoiceId}>
+            Date: {new Date().toLocaleDateString("nl-NL")}
           </Text>
+          <Text style={styles.invoiceId}>
+            Due Date: {new Date(dueDate).toLocaleDateString("nl-NL")}
+          </Text>
+        </View>
+        <View style={styles.headerRight}>
+          <Image src={imageUrl} style={styles.logo} />
         </View>
       </View>
 
       {/* Company Details */}
-      <View style={styles.section}>
-        <View style={styles.companyInfo}>
-          <Text style={styles.sectionTitle}>Van</Text>
-          <Text>The Sandwichbar</Text>
-          <Text>Voorbeeldstraat 1</Text>
-          <Text>1234 AB Amsterdam</Text>
-          <Text>BTW: NL123456789B01</Text>
-          <Text>KVK: 12345678</Text>
+      <View style={styles.companyDetails}>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>From</Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>Company:</Text>
+            <Text style={styles.value}>The Sandwichbar</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Address:</Text>
+            <Text style={styles.value}>
+              Nassaukade 378 H,{"\n"} 1054AD Amsterdam
+            </Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>VAT:</Text>
+            <Text style={styles.value}>NL123456789B01</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>KVK:</Text>
+            <Text style={styles.value}>81038739</Text>
+          </View>
         </View>
 
-        <View style={styles.companyInfo}>
-          <Text style={styles.sectionTitle}>Aan</Text>
-          <Text>{companyDetails.name}</Text>
-          <Text>BTW: {companyDetails.vatNumber}</Text>
-          <Text>
-            {companyDetails.address.street} {companyDetails.address.houseNumber}
-            {companyDetails.address.houseNumberAddition}
-          </Text>
-          <Text>
-            {companyDetails.address.postalCode} {companyDetails.address.city}
-          </Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>To</Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>Company:</Text>
+            <Text style={styles.value}>{companyDetails.name}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>VAT:</Text>
+            <Text style={styles.value}>{companyDetails.vatNumber}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Address:</Text>
+            <Text style={styles.value}>
+              {companyDetails.address.street}{" "}
+              {companyDetails.address.houseNumber}
+              {companyDetails.address.houseNumberAddition}
+              {"\n"}
+              {companyDetails.address.postalCode} {companyDetails.address.city}
+            </Text>
+          </View>
         </View>
       </View>
 
       {/* Order Details */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Bestelling</Text>
+        <Text style={styles.sectionTitle}>Order</Text>
         {orderDetails.selectionType === "custom" ? (
-          Object.entries(orderDetails.customSelection).map(([_, selections]) =>
-            selections.map((selection, index) => (
-              <View key={index} style={styles.row}>
-                <Text style={styles.value}>
-                  {selection.quantity}x - {selection.breadType}
-                  {selection.sauce !== "geen" && ` met ${selection.sauce}`}
-                </Text>
-                <Text>€{selection.subTotal.toFixed(2)}</Text>
-              </View>
-            ))
+          Object.entries(orderDetails.customSelection).map(
+            ([sandwichId, selections]) =>
+              selections.map((selection, index) => (
+                <View key={`${sandwichId}-${index}`} style={styles.orderItem}>
+                  <View style={styles.orderDetails}>
+                    <Text>
+                      {selection.quantity}x - {selection.breadType}
+                      {selection.sauce !== "geen" && ` met ${selection.sauce}`}
+                    </Text>
+                    <Text style={styles.bold}>
+                      €{selection.subTotal.toFixed(2)}
+                    </Text>
+                  </View>
+                </View>
+              ))
           )
         ) : (
           <>
             <View style={styles.row}>
-              <Text>
-                Kip, Vlees, Vis: {orderDetails.varietySelection.nonVega}{" "}
-                broodjes
+              <Text style={styles.label}>Kip, Vlees, Vis:</Text>
+              <Text style={styles.value}>
+                {orderDetails.varietySelection.nonVega} broodjes
               </Text>
             </View>
             <View style={styles.row}>
-              <Text>
-                Vegetarisch: {orderDetails.varietySelection.vega} broodjes
+              <Text style={styles.label}>Vegetarisch:</Text>
+              <Text style={styles.value}>
+                {orderDetails.varietySelection.vega} broodjes
               </Text>
             </View>
             <View style={styles.row}>
-              <Text>Vegan: {orderDetails.varietySelection.vegan} broodjes</Text>
+              <Text style={styles.label}>Vegan:</Text>
+              <Text style={styles.value}>
+                {orderDetails.varietySelection.vegan} broodjes
+              </Text>
             </View>
           </>
         )}
@@ -146,39 +235,46 @@ const InvoicePDF = ({
 
       {/* Allergies */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Allergieën of opmerkingen</Text>
+        <Text style={styles.sectionTitle}>Allergies or comments</Text>
         <Text style={styles.value}>{orderDetails.allergies}</Text>
       </View>
 
       {/* Delivery Details */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Bezorging</Text>
-        <Text>
-          Datum:{" "}
-          {new Date(deliveryDetails.deliveryDate).toLocaleDateString("nl-NL")}
-        </Text>
-        <Text>Tijd: {deliveryDetails.deliveryTime}</Text>
-        <Text>
-          Adres: {deliveryDetails.street} {deliveryDetails.houseNumber}
-          {deliveryDetails.houseNumberAddition}
-        </Text>
-        <Text>
-          {deliveryDetails.postalCode} {deliveryDetails.city}
-        </Text>
+        <Text style={styles.sectionTitle}>Delivery</Text>
+        <View style={styles.row}>
+          <Text style={styles.label}>Date:</Text>
+          <Text style={styles.value}>
+            {new Date(deliveryDetails.deliveryDate).toLocaleDateString("nl-NL")}
+          </Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Time:</Text>
+          <Text style={styles.value}>{deliveryDetails.deliveryTime}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Address:</Text>
+          <Text style={styles.value}>
+            {deliveryDetails.street} {deliveryDetails.houseNumber}
+            {deliveryDetails.houseNumberAddition}
+            {"\n"}
+            {deliveryDetails.postalCode} {deliveryDetails.city}
+          </Text>
+        </View>
       </View>
 
       {/* Totals */}
       <View style={styles.totalSection}>
         <View style={styles.row}>
-          <Text style={styles.label}>Subtotaal:</Text>
+          <Text style={styles.label}>Subtotal:</Text>
           <Text style={styles.value}>€{amount.subtotal.toFixed(2)}</Text>
         </View>
         <View style={styles.row}>
-          <Text style={styles.label}>BTW (9%):</Text>
+          <Text style={styles.label}>VAT (9%):</Text>
           <Text style={styles.value}>€{amount.vat.toFixed(2)}</Text>
         </View>
         <View style={styles.row}>
-          <Text style={[styles.label, styles.bold]}>Totaal:</Text>
+          <Text style={[styles.label, styles.bold]}>Total:</Text>
           <Text style={[styles.value, styles.bold]}>
             €{amount.total.toFixed(2)}
           </Text>
@@ -187,13 +283,25 @@ const InvoicePDF = ({
 
       {/* Payment Details */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Betalingsgegevens</Text>
-        <Text>IBAN: NL05 INGB 0006 8499 73</Text>
-        <Text>T.n.v.: The Sandwich Bar Nassaukade B.V.</Text>
-        <Text>O.v.v.: Factuurnummer {quoteId}</Text>
-        <Text>
-          Vervaldatum: {new Date(dueDate).toLocaleDateString("nl-NL")}
-        </Text>
+        <Text style={styles.sectionTitle}>Payment Details</Text>
+        <View style={styles.row}>
+          <Text style={styles.label}>IBAN:</Text>
+          <Text style={styles.value}>NL05 INGB 0006 8499 73</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Name:</Text>
+          <Text style={styles.value}>The Sandwich Bar Nassaukade B.V.</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>O.v.v.:</Text>
+          <Text style={styles.value}>Invoice Number {quoteId}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Due Date:</Text>
+          <Text style={styles.value}>
+            {new Date(dueDate).toLocaleDateString("nl-NL")}
+          </Text>
+        </View>
       </View>
 
       {/* Footer */}
