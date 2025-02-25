@@ -72,7 +72,7 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
                 .map((item) => (
                   <div key={item._id} className="relative">
                     {/* this is the card for each sandwich */}
-                    {console.log(item)}
+
                     <div
                       key={item._id}
                       className="shadow-md p-4 relative flex justify-between gap-4 min-h-44"

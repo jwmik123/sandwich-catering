@@ -32,31 +32,31 @@ function SuccessContent() {
       <div className="space-y-6">
         <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
           <CheckCircle className="w-5 h-5" />
-          <h2>Bevestiging</h2>
+          <h2>Confirmation</h2>
         </div>
 
         <div className="space-y-6">
           <div className="bg-green-50 border border-green-200 rounded-lg p-6">
             <h3 className="text-lg font-medium text-green-800 mb-2">
-              Bedankt voor uw bestelling!
+              Thank you for your order!
             </h3>
             <p className="text-green-700">
-              We hebben uw bestelling ontvangen en zullen deze verwerken.
+              We have received your order and will process it.
             </p>
             <p className="text-green-700 mt-6">
-              U krijgt een bevestiging per e-mail.
+              You will receive a confirmation by email.
             </p>
           </div>
 
           <div className="bg-gray-50 rounded-lg p-6 space-y-4">
             <div className="flex space-x-4 items-center">
-              <p className="text-sm text-gray-500">Referentienummer:</p>
+              <p className="text-sm text-gray-500">Reference number:</p>
               <p className="font-medium">{quoteId}</p>
             </div>
           </div>
           <div className="border-t pt-4 mt-4">
             <Link href="/">
-              <Button>Terug naar startpagina</Button>
+              <Button>Back to homepage</Button>
             </Link>
           </div>
         </div>

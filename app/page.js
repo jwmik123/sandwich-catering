@@ -120,7 +120,7 @@ const Home = () => {
 
   const [formData, setFormData] = useState({
     // Stap 1
-    totalSandwiches: 0,
+    totalSandwiches: 15,
     // Stap 3
     selectionType: "",
     allergies: "",
@@ -242,6 +242,7 @@ const Home = () => {
       return formData.totalSandwiches * 6.38; // Assuming €6.38 per sandwich + 9% VAT
     }
   };
+
   const calculateDeliveryCost = (postalCode, orderAmount) => {
     if (!postalCode) return null;
 
@@ -476,7 +477,9 @@ const Home = () => {
             }`}
             onClick={() => updateFormData("selectionType", "custom")}
           >
-            <h3 className="text-lg font-medium mb-2">Self-assemble</h3>
+            <h3 className="text-lg font-medium mb-2">
+              Create your own selection
+            </h3>
             <p className="text-sm text-gray-600">Choose your sandwiches</p>
           </div>
 
@@ -572,7 +575,7 @@ const Home = () => {
               <p className="text-sm text-gray-500">Type of order</p>
               <p className="text-lg font-medium">
                 {formData.selectionType === "custom"
-                  ? "Self-assembled"
+                  ? "Create your own selection"
                   : "Variety offer"}
               </p>
             </div>
@@ -1036,9 +1039,11 @@ const Home = () => {
       <div className="mx-auto">
         {/* Top Navigation Bar */}
         <div className="sticky top-0 bg-white border-b z-10">
-          <div className="text-sm text-center bg-green-500 text-white p-2">
+          <div className="text-sm text-center bg-green-500 text-white p-2 flex space-x-2 justify-center items-center">
             <span className="font-bold">Free delivery from €75,- </span>
-            <span className="italic">(except 1026-1028, 1035, 1101-1109).</span>
+            <span className="italic text-xs">
+              some areas excluded (1026-1028, 1035, 1101-1109).
+            </span>
           </div>
           <div className="container mx-auto p-4">
             <div className="flex items-center justify-between">
