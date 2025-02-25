@@ -66,11 +66,11 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
         <h2>Delivery details</h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
+        <div className="">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Delivery date
           </label>
-          <div className="flex flex-col">
+          <div className="flex flex-col justify-center items-center">
             <Calendar
               mode="single"
               selected={date}

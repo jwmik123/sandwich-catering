@@ -93,7 +93,10 @@ const styles = StyleSheet.create({
   },
 });
 
-const imageUrl = "/tsb.png";
+const imageUrl = {
+  uri: `${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/tsb.png`,
+  method: "GET",
+};
 
 export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
   return (
