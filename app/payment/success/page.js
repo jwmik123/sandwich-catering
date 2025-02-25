@@ -6,7 +6,6 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-// Create a separate client component for the success content
 function SuccessContent() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
