@@ -212,21 +212,21 @@ const InvoicePDF = ({
         ) : (
           <>
             <View style={styles.row}>
-              <Text style={styles.label}>Kip, Vlees, Vis:</Text>
+              <Text style={styles.label}>Chicken, Meat, Fish:</Text>
               <Text style={styles.value}>
-                {orderDetails.varietySelection.nonVega} broodjes
+                {orderDetails.varietySelection.nonVega} sandwiches
               </Text>
             </View>
             <View style={styles.row}>
-              <Text style={styles.label}>Vegetarisch:</Text>
+              <Text style={styles.label}>Vegetarian:</Text>
               <Text style={styles.value}>
-                {orderDetails.varietySelection.vega} broodjes
+                {orderDetails.varietySelection.vega} sandwiches
               </Text>
             </View>
             <View style={styles.row}>
               <Text style={styles.label}>Vegan:</Text>
               <Text style={styles.value}>
-                {orderDetails.varietySelection.vegan} broodjes
+                {orderDetails.varietySelection.vegan} sandwiches
               </Text>
             </View>
           </>

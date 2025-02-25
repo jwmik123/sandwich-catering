@@ -202,21 +202,21 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
             // Variety selection details
             <View>
               <View style={styles.row}>
-                <Text style={styles.label}>Kip, Vlees, Vis:</Text>
+                <Text style={styles.label}>Chicken, Meat, Fish:</Text>
                 <Text style={styles.value}>
-                  {orderData.varietySelection.nonVega} broodjes
+                  {orderData.varietySelection.nonVega} sandwiches
                 </Text>
               </View>
               <View style={styles.row}>
-                <Text style={styles.label}>Vegetarisch:</Text>
+                <Text style={styles.label}>Vegetarian:</Text>
                 <Text style={styles.value}>
-                  {orderData.varietySelection.vega} broodjes
+                  {orderData.varietySelection.vega} sandwiches
                 </Text>
               </View>
               <View style={styles.row}>
                 <Text style={styles.label}>Vegan:</Text>
                 <Text style={styles.value}>
-                  {orderData.varietySelection.vegan} broodjes
+                  {orderData.varietySelection.vegan} sandwiches
                 </Text>
               </View>
             </View>
@@ -225,26 +225,26 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
 
         {/* Allergies */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Allergieën of opmerkingen</Text>
+          <Text style={styles.sectionTitle}>Allergies or comments</Text>
           <Text style={styles.value}>{orderData.allergies}</Text>
         </View>
 
         {/* Totals */}
         <View style={styles.totalSection}>
           <View style={styles.row}>
-            <Text style={styles.label}>Subtotaal:</Text>
+            <Text style={styles.label}>Subtotal:</Text>
             <Text style={styles.value}>
               €{calculateSubtotal(orderData).toFixed(2)}
             </Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>BTW (9%):</Text>
+            <Text style={styles.label}>VAT (9%):</Text>
             <Text style={styles.value}>
               €{(calculateSubtotal(orderData) * 0.09).toFixed(2)}
             </Text>
           </View>
           <View style={styles.row}>
-            <Text style={[styles.label, styles.bold]}>Totaal:</Text>
+            <Text style={[styles.label, styles.bold]}>Total:</Text>
             <Text style={[styles.value, styles.bold]}>
               €{(calculateSubtotal(orderData) * 1.09).toFixed(2)}
             </Text>

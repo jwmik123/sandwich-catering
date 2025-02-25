@@ -105,7 +105,7 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
                   {selectedTypes.nonVega &&
                     suggestedDistribution.nonVega > 0 && (
                       <span className="ml-2 text-sm text-blue-600">
-                        (Voorgesteld: {suggestedDistribution.nonVega})
+                        (Suggested: {suggestedDistribution.nonVega})
                       </span>
                     )}
                 </div>
@@ -115,7 +115,7 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
 
           <div className="flex flex-col">
             <Label htmlFor="vega" className="font-bold text-base">
-              Vegetarisch
+              Vegetarian
             </Label>
             <div className="flex items-center space-x-2">
               <Checkbox
