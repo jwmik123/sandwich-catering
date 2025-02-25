@@ -35,8 +35,6 @@ export async function generateQuote(formData, sandwichOptions) {
       email: formData.email,
       phoneNumber: formData.phoneNumber,
       orderDetails: {
-        numberOfPeople: formData.numberOfPeople,
-        sandwichesPerPerson: formData.sandwichesPerPerson,
         totalSandwiches: formData.totalSandwiches,
         selectionType: formData.selectionType,
         customSelection:

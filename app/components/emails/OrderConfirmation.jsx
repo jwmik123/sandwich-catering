@@ -16,6 +16,7 @@ export default function OrderConfirmation({
   companyDetails,
   totalAmount,
 }) {
+  console.log(totalAmount);
   return (
     <Html>
       <Head />

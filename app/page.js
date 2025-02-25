@@ -60,10 +60,7 @@ const Home = () => {
           // Restore form data
           setFormData({
             // Step 1
-            numberOfPeople: quote.orderDetails.numberOfPeople,
 
-            // Step 2
-            sandwichesPerPerson: quote.orderDetails.sandwichesPerPerson,
             totalSandwiches: quote.orderDetails.totalSandwiches,
 
             // Step 3
@@ -121,9 +118,6 @@ const Home = () => {
 
   const [formData, setFormData] = useState({
     // Stap 1
-    numberOfPeople: "",
-    // Stap 2
-    sandwichesPerPerson: 2,
     totalSandwiches: 0,
     // Stap 3
     selectionType: "",
@@ -155,10 +149,8 @@ const Home = () => {
   const isStepValid = (step) => {
     switch (step) {
       case 1:
-        return formData.numberOfPeople > 0;
-      case 2:
         return formData.totalSandwiches >= 15; // Minimum order requirement
-      case 3:
+      case 2:
         if (formData.selectionType === "custom") {
           const totalSelected = Object.values(formData.customSelection)
             .flat()
@@ -204,7 +196,7 @@ const Home = () => {
   // Add this function to get validation message
   const getValidationMessage = (step) => {
     switch (step) {
-      case 3:
+      case 2:
         if (formData.selectionType === "custom") {
           const totalSelected = Object.values(formData.customSelection)
             .flat()
@@ -226,7 +218,8 @@ const Home = () => {
             formData.varietySelection.vega +
             formData.varietySelection.nonVega +
             formData.varietySelection.vegan;
-          if (total !== formData.totalSandwiches) {
+
+          if (Number(total) !== Number(formData.totalSandwiches)) {
             return `De verdeling moet in totaal ${formData.totalSandwiches} broodjes zijn`;
           }
         }
@@ -244,7 +237,7 @@ const Home = () => {
       return subtotal; // excluding VAT
     } else {
       // For variety selection
-      return formData.totalSandwiches * 5.5; // Assuming €5.5 per sandwich + 9% VAT
+      return formData.totalSandwiches * 6.38; // Assuming €6.38 per sandwich + 9% VAT
     }
   };
   const totalAmount = calculateTotal(formData);
@@ -332,7 +325,7 @@ const Home = () => {
       {/* Header section */}
       <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
         <Users className="w-5 h-5" />
-        <h2>Aantal Personen & Broodjes</h2>
+        <h2>Sandwich Amount</h2>
       </div>
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex flex-row w-full md:w-1/2">
@@ -341,21 +334,21 @@ const Home = () => {
             <div className="flex flex-col md:flex-row gap-4">
               <div className="w-full mb-4">
                 <Label htmlFor="peopleSelect">
-                  Voor hoeveel personen is de lunch catering?
+                  How many sandwiches would you like?
                 </Label>
                 <Select
-                  value={formData.numberOfPeople.toString()}
+                  value={formData.totalSandwiches.toString()}
                   onValueChange={(value) =>
-                    updateFormData("numberOfPeople", value)
+                    updateFormData("totalSandwiches", value)
                   }
                 >
                   <SelectTrigger className="w-full mt-1">
-                    <SelectValue placeholder="Selecteer aantal personen" />
+                    <SelectValue placeholder="Select number of sandwiches" />
                   </SelectTrigger>
                   <SelectContent>
-                    {[10, 20, 30, 50, 100].map((num) => (
+                    {[10, 20, 30, 50, 100, 200, 300, 500].map((num) => (
                       <SelectItem key={num} value={num.toString()}>
-                        {num} personen
+                        {num} sandwiches
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -363,60 +356,26 @@ const Home = () => {
               </div>
 
               <div className="w-full mb-8">
-                <Label htmlFor="peopleInput">
-                  Of voer een specifiek aantal in:
-                </Label>
+                <Label htmlFor="peopleInput">Or enter a specific number:</Label>
                 <Input
                   id="peopleInput"
                   type="number"
                   min="1"
-                  value={formData.numberOfPeople}
+                  value={formData.totalSandwiches}
                   onChange={(e) =>
-                    updateFormData("numberOfPeople", e.target.value)
+                    updateFormData("totalSandwiches", e.target.value)
                   }
                   className="mt-1"
-                  placeholder="Voer aantal personen in"
+                  placeholder="Enter number of sandwiches"
                 />
               </div>
             </div>
 
             <div className="w-full">
               <div className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <Button
-                      onClick={() =>
-                        updateFormData(
-                          "sandwichesPerPerson",
-                          Math.max(1, formData.sandwichesPerPerson - 1)
-                        )
-                      }
-                      variant="outline"
-                      className={secondaryButtonClasses}
-                    >
-                      -
-                    </Button>
-                    <span className="text-lg font-medium">
-                      {formData.sandwichesPerPerson} broodjes per persoon
-                    </span>
-                    <Button
-                      onClick={() =>
-                        updateFormData(
-                          "sandwichesPerPerson",
-                          formData.sandwichesPerPerson + 1
-                        )
-                      }
-                      variant="outline"
-                      className={secondaryButtonClasses}
-                    >
-                      +
-                    </Button>
-                  </div>
-
-                  <div className="bg-beige-50 p-4 rounded-md text-sm text-green-500 bg-green-50">
-                    <p>* Wij adviseren 2 broodjes per persoon</p>
-                    <p>* Minimaal 15 broodjes</p>
-                  </div>
+                <div className="bg-beige-50 p-4 rounded-md text-sm text-green-500 bg-green-50">
+                  <p>* We recommend 2 sandwiches per person</p>
+                  <p>* Minimum 15 sandwiches</p>
                 </div>
               </div>
             </div>
@@ -425,27 +384,17 @@ const Home = () => {
 
         {/* Order Summary */}
         <div className="bg-gray-50 p-6 rounded-lg w-full md:w-1/2">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Samenvatting
-          </h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Summary</h3>
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-500">Aantal personen</p>
-              <p className="text-lg font-medium">{formData.numberOfPeople}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Broodjes per persoon</p>
-              <p className="text-lg font-medium">
-                {formData.sandwichesPerPerson}
-              </p>
-            </div>
             <div className="col-span-2">
-              <p className="text-sm text-gray-500">Totaal aantal broodjes</p>
+              <p className="text-sm text-gray-500">
+                Total number of sandwiches
+              </p>
               <p className="text-lg font-medium">{formData.totalSandwiches}</p>
               {formData.totalSandwiches < 15 &&
                 formData.totalSandwiches > 0 && (
                   <p className="text-sm text-red-600 mt-1">
-                    * Minimaal aantal broodjes is 15
+                    * Minimum 15 sandwiches
                   </p>
                 )}
             </div>
@@ -460,7 +409,7 @@ const Home = () => {
       <div className="space-y-6">
         <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
           <Utensils className="w-5 h-5" />
-          <h2>Kies uw Aanbod</h2>
+          <h2>Choose your Selection</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -472,10 +421,8 @@ const Home = () => {
             }`}
             onClick={() => updateFormData("selectionType", "custom")}
           >
-            <h3 className="text-lg font-medium mb-2">Zelf Samenstellen</h3>
-            <p className="text-sm text-gray-600">
-              Kies zelf de broodjes die u wilt bestellen
-            </p>
+            <h3 className="text-lg font-medium mb-2">Self-assemble</h3>
+            <p className="text-sm text-gray-600">Choose your sandwiches</p>
           </div>
 
           <div
@@ -486,10 +433,8 @@ const Home = () => {
             }`}
             onClick={() => updateFormData("selectionType", "variety")}
           >
-            <h3 className="text-lg font-medium mb-2">Gevarieerd Aanbod</h3>
-            <p className="text-sm text-gray-600">
-              Kies de verdeling tussen verschillende types broodjes
-            </p>
+            <h3 className="text-lg font-medium mb-2">Variety Offer</h3>
+            <p className="text-sm text-gray-600">Let us surprise you! :)</p>
           </div>
         </div>
 
@@ -504,7 +449,7 @@ const Home = () => {
             <div className="mt-6 bg-gray-50 p-4 rounded-lg">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-sm text-gray-500">Geselecteerde items</p>
+                  <p className="text-sm text-gray-500">Selected items</p>
                   <p className="text-lg font-medium">
                     {Object.values(formData.customSelection)
                       .flat()
@@ -516,7 +461,7 @@ const Home = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Totaalbedrag</p>
+                  <p className="text-sm text-gray-500">Total amount</p>
                   <p className="text-lg font-medium">
                     €
                     {Object.values(formData.customSelection)
@@ -526,7 +471,7 @@ const Home = () => {
                         0
                       )
                       .toFixed(2)}{" "}
-                    excl. BTW
+                    excl. VAT
                   </p>
                 </div>
               </div>
@@ -538,7 +483,7 @@ const Home = () => {
           <>
             <div className="space-y-6 mt-6">
               <h3 className="text-lg font-medium text-gray-900">
-                Kies een verdeling
+                Choose a distribution
               </h3>
               <VarietySelector
                 totalSandwiches={formData.totalSandwiches}
@@ -563,34 +508,34 @@ const Home = () => {
         <div className="bg-gray-50 p-6 rounded-lg space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-gray-500">Aantal personen</p>
+              <p className="text-sm text-gray-500">Number of people</p>
               <p className="text-lg font-medium">{formData.numberOfPeople}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Broodjes per persoon</p>
+              <p className="text-sm text-gray-500">Sandwiches per person</p>
               <p className="text-lg font-medium">
                 {formData.sandwichesPerPerson}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Totaal aantal broodjes</p>
+              <p className="text-sm text-gray-500">
+                Total number of sandwiches
+              </p>
               <p className="text-lg font-medium">{formData.totalSandwiches}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Type bestelling</p>
+              <p className="text-sm text-gray-500">Type of order</p>
               <p className="text-lg font-medium">
                 {formData.selectionType === "custom"
-                  ? "Zelf samengesteld"
-                  : "Gevarieerd aanbod"}
+                  ? "Self-assembled"
+                  : "Variety offer"}
               </p>
             </div>
           </div>
 
           {formData.selectionType === "custom" ? (
             <div className="border-t pt-4 mt-4">
-              <p className="text-sm text-gray-500 mb-2">
-                Geselecteerde broodjes
-              </p>
+              <p className="text-sm text-gray-500 mb-2">Selected sandwiches</p>
               <div className="space-y-4">
                 {Object.entries(formData.customSelection)
                   .filter(([_, selections]) => selections?.length > 0)
@@ -628,7 +573,7 @@ const Home = () => {
               </div>
               <div className="border-t pt-4 mt-4">
                 <div className="flex justify-between text-lg font-medium">
-                  <span>Totaalbedrag</span>
+                  <span>Total amount</span>
                   <span>
                     €
                     {Object.values(formData.customSelection)
@@ -641,7 +586,7 @@ const Home = () => {
                   </span>
                 </div>
                 <div className="flex justify-between text-sm text-gray-500 mt-1">
-                  <span>Totaal aantal</span>
+                  <span>Total number of sandwiches</span>
                   <span>
                     {Object.values(formData.customSelection)
                       .flat()
@@ -649,31 +594,33 @@ const Home = () => {
                         (total, selection) => total + selection.quantity,
                         0
                       )}{" "}
-                    / {formData.totalSandwiches} broodjes
+                    / {formData.totalSandwiches} sandwiches
                   </span>
                 </div>
               </div>
             </div>
           ) : (
             <div className="border-t pt-4 mt-4">
-              <p className="text-sm text-gray-500 mb-2">Verdeling broodjes</p>
+              <p className="text-sm text-gray-500 mb-2">
+                Distribution of sandwiches
+              </p>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span>Kip, Vlees, Vis</span>
-                  <span>{formData.varietySelection.nonVega} broodjes</span>
+                  <span>Chicken, Meat, Fish</span>
+                  <span>{formData.varietySelection.nonVega} sandwiches</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Vegetarisch</span>
-                  <span>{formData.varietySelection.vega} broodjes</span>
+                  <span>Vegetarian</span>
+                  <span>{formData.varietySelection.vega} sandwiches</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Vegan</span>
-                  <span>{formData.varietySelection.vegan} broodjes</span>
+                  <span>{formData.varietySelection.vegan} sandwiches</span>
                 </div>
                 <div className="pt-3 border-t">
                   <div className="flex justify-between font-medium">
-                    <span>Totaal</span>
-                    <span>{formData.totalSandwiches} broodjes</span>
+                    <span>Total</span>
+                    <span>{formData.totalSandwiches} sandwiches</span>
                   </div>
                 </div>
               </div>
@@ -682,10 +629,10 @@ const Home = () => {
         </div>
         <div>
           <Label htmlFor="allergies" className="text-base">
-            Allergieën of opmerkingen?
+            Allergies or comments?
           </Label>
           <Textarea
-            placeholder="Voeg hier allergieën of opmerkingen toe"
+            placeholder="Add allergies or comments"
             className="mt-2"
             value={formData.allergies}
             onChange={(e) => updateFormData("allergies", e.target.value)}
@@ -703,7 +650,7 @@ const Home = () => {
           onClick={() => setCurrentStep(2)}
           className="w-full px-4 py-2 rounded-md font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
         >
-          Wijzig bestelling
+          Change order
         </button>
       </div>
     </div>
@@ -720,7 +667,7 @@ const Home = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="street">Straat</Label>
+          <Label htmlFor="street">Street</Label>
           <Input
             id="street"
             type="text"
@@ -732,7 +679,7 @@ const Home = () => {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="houseNumber">Huisnummer</Label>
+            <Label htmlFor="houseNumber">House number</Label>
             <Input
               id="houseNumber"
               type="text"
@@ -742,7 +689,7 @@ const Home = () => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="houseNumberAddition">Toevoeging</Label>
+            <Label htmlFor="houseNumberAddition">Addition</Label>
             <Input
               id="houseNumberAddition"
               type="text"
@@ -768,7 +715,7 @@ const Home = () => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="city">Plaats</Label>
+          <Label htmlFor="city">City</Label>
           <Input
             id="city"
             type="text"
@@ -785,29 +732,29 @@ const Home = () => {
     <div className="space-y-6">
       <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
         <Building2 className="w-5 h-5" />
-        <h2>Contact- en Bedrijfsgegevens</h2>
+        <h2>Contact and Company details</h2>
       </div>
 
       <div className="space-y-4">
         {/* Contact Details */}
         <div className="space-y-4">
-          <h3 className="text-md font-medium text-gray-700">Contactgegevens</h3>
+          <h3 className="text-md font-medium text-gray-700">Contact details</h3>
 
           <div className="space-y-2">
-            <Label htmlFor="email">E-mailadres*</Label>
+            <Label htmlFor="email">E-mail address*</Label>
             <Input
               id="email"
               type="email"
               value={formData.email}
               onChange={(e) => updateFormData("email", e.target.value)}
-              placeholder="uw@email.nl"
+              placeholder="your@email.com"
               required
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="phone">
-              Telefoonnummer* (Contactpersoon op locatie bij bezorging)
+              Phone number* (Contact person at location during delivery)
             </Label>
             <Input
               id="phone"
@@ -834,14 +781,14 @@ const Home = () => {
               htmlFor="isCompany"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              Dit is een zakelijke bestelling
+              This is a business order
             </Label>
           </div>
 
           {formData.isCompany && (
             <div className="space-y-4 mt-4">
               <div className="space-y-2">
-                <Label htmlFor="companyName">Bedrijfsnaam</Label>
+                <Label htmlFor="companyName">Company name</Label>
                 <Input
                   id="companyName"
                   type="text"
@@ -854,7 +801,7 @@ const Home = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="companyVAT">BTW-nummer</Label>
+                <Label htmlFor="companyVAT">VAT number</Label>
                 <Input
                   id="companyVAT"
                   type="text"
@@ -875,25 +822,25 @@ const Home = () => {
     <div className="space-y-6">
       <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
         <CreditCard className="w-5 h-5" />
-        <h2>Betaling</h2>
+        <h2>Payment</h2>
       </div>
 
       {/* Price Overview */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <span className="text-gray-600">Subtotaal:</span>
+            <span className="text-gray-600">Subtotal:</span>
             <span className="font-medium">€{totalAmount.toFixed(2)}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-gray-600">BTW (9%):</span>
+            <span className="text-gray-600">VAT (9%):</span>
             <span className="font-medium">
               €{(totalAmount * 0.09).toFixed(2)}
             </span>
           </div>
           <div className="border-t pt-4">
             <div className="flex justify-between items-center">
-              <span className="text-lg font-bold">Totaal:</span>
+              <span className="text-lg font-bold">Total:</span>
               <span className="text-lg font-bold">
                 €{(totalAmount * 1.09).toFixed(2)}
               </span>
@@ -905,7 +852,7 @@ const Home = () => {
       {/* Payment Method Selection - Only show for companies */}
       {formData.isCompany && (
         <div className="space-y-4">
-          <p className="text-sm text-gray-600">Kies uw betaalmethode:</p>
+          <p className="text-sm text-gray-600">Choose your payment method:</p>
 
           <div className="space-y-3">
             <div
@@ -924,7 +871,7 @@ const Home = () => {
                   className="text-blue-600 focus:ring-blue-500"
                 />
                 <div>
-                  <p className="font-medium">Direct online betalen</p>
+                  <p className="font-medium">Pay directly online</p>
                   <p className="text-sm text-gray-500">
                     iDEAL, creditcard, etc.
                   </p>
@@ -948,9 +895,9 @@ const Home = () => {
                   className="text-blue-600 focus:ring-blue-500"
                 />
                 <div>
-                  <p className="font-medium">Betalen via factuur</p>
+                  <p className="font-medium">Pay via invoice</p>
                   <p className="text-sm text-gray-500">
-                    Binnen 14 dagen na factuurdatum
+                    Within 14 days of invoice date
                   </p>
                 </div>
               </div>
@@ -979,8 +926,8 @@ const Home = () => {
               <CreditCard className="w-5 h-5" />
               <span>
                 {paymentMethod === "invoice"
-                  ? "Bestelling plaatsen"
-                  : "Doorgaan naar betalen"}
+                  ? "Place order"
+                  : "Continue to payment"}
               </span>
             </>
           )}
@@ -990,12 +937,12 @@ const Home = () => {
   );
 
   const steps = [
-    { icon: Users, title: "Bestelling" },
-    { icon: Utensils, title: "Aanbod" },
-    { icon: FileText, title: "Overzicht" },
-    { icon: Calendar, title: "Bezorging" },
-    { icon: Building2, title: "Bedrijfsgegevens" },
-    { icon: CreditCard, title: "Betaling" },
+    { icon: Users, title: "Sandwich amount" },
+    { icon: Utensils, title: "Offer" },
+    { icon: FileText, title: "Summary" },
+    { icon: Calendar, title: "Delivery" },
+    { icon: Building2, title: "Company details" },
+    { icon: CreditCard, title: "Payment" },
   ];
 
   return (
@@ -1018,13 +965,13 @@ const Home = () => {
                   className={`${secondaryButtonClasses} flex items-center gap-2`}
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  Vorige
+                  Go back
                 </button>
               )}
 
               {/* Progress Text */}
               <div className="text-sm font-medium text-gray-500">
-                Stap {currentStep} van {steps.length}
+                Step {currentStep} of {steps.length}
               </div>
 
               {/* Next Button */}
@@ -1044,7 +991,7 @@ const Home = () => {
                     }`}
                     disabled={!isStepValid(currentStep)}
                   >
-                    {currentStep === steps.length - 1 ? "Afronden" : "Volgende"}
+                    {currentStep === steps.length - 1 ? "Payment" : "Next"}
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -1105,7 +1052,7 @@ const Home = () => {
               className="text-white bg-black px-4 py-2 rounded-md flex items-center gap-2"
             >
               <FileSearch className="w-4 h-4" />
-              Offerte ophalen
+              Load quote
             </Link>
             <span className="text-sm text-gray-500">
               <Link href="https://mikdevelopment.nl" target="_blank">

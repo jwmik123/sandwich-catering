@@ -159,14 +159,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
         {/* Order Details */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Bestelling</Text>
-          <View style={styles.row}>
-            <Text style={styles.label}>Aantal personen:</Text>
-            <Text style={styles.value}>{orderData.numberOfPeople}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Broodjes per persoon:</Text>
-            <Text style={styles.value}>{orderData.sandwichesPerPerson}</Text>
-          </View>
+
           <View style={styles.row}>
             <Text style={styles.label}>Totaal broodjes:</Text>
             <Text style={styles.value}>{orderData.totalSandwiches}</Text>
@@ -269,7 +262,7 @@ const calculateSubtotal = (orderData) => {
       .flat()
       .reduce((total, selection) => total + selection.subTotal, 0);
   } else {
-    return orderData.totalSandwiches * 5.5; // Assuming €5.5 per sandwich
+    return orderData.totalSandwiches * 6.38; // Assuming €6.38 per sandwich
   }
 };
 

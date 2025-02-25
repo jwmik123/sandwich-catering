@@ -90,7 +90,7 @@ const SelectionModal = ({
           {/* Only show bread type selection for non-drinks */}
           {!isDrink(sandwich) && (
             <div className="space-y-2">
-              <Label>Broodsoort</Label>
+              <Label>Bread type</Label>
               <Select value={breadType} onValueChange={setBreadType}>
                 <SelectTrigger>
                   <SelectValue />
@@ -110,14 +110,14 @@ const SelectionModal = ({
 
           {sandwich.hasSauceOptions && (
             <div className="space-y-2">
-              <Label>Saus</Label>
+              <Label>Sauce</Label>
               <Select value={sauce} onValueChange={setSauce}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="geen">Geen Saus</SelectItem>
-                  {sandwich.sauceOptions.map((sauceOption) => (
+                  <SelectItem value="geen">No Sauce</SelectItem>
+                  {sandwich?.sauceOptions?.map((sauceOption) => (
                     <SelectItem key={sauceOption.name} value={sauceOption.name}>
                       {sauceOption.name}
                     </SelectItem>
@@ -130,9 +130,9 @@ const SelectionModal = ({
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Annuleren
+            Cancel
           </Button>
-          <Button onClick={handleSubmit}>Toevoegen aan Bestelling</Button>
+          <Button onClick={handleSubmit}>Add to order</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

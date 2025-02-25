@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import Image from "next/image";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SelectionManager from "./SelectionManager";
 import { urlFor } from "@/sanity/lib/image";
@@ -17,8 +16,8 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
       specials: "Specials",
       basics: "Basics",
       croissants: "Croissants",
-      zoetigheden: "Zoetigheden",
-      dranken: "Dranken",
+      zoetigheden: "Sweets",
+      dranken: "Drinks",
     };
 
     // Get all categories that exist in the data

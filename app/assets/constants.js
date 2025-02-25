@@ -1,7 +1,7 @@
 // constants.js
 export const breadTypes = [
   { id: "pistolet", name: "Pistolet", surcharge: 0 },
-  { id: "spelt", name: "Speltbrood", surcharge: 0.5 },
+  { id: "spelt", name: "Spelt bread", surcharge: 0.5 },
 ];
 
 export const sauces = [

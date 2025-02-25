@@ -3,15 +3,13 @@ import { client } from "@/sanity/lib/client";
 import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
-  const { quoteId } = params;
+  const { quoteId } = await params;
 
   try {
     const quote = await client.fetch(
       `*[_type == "quote" && quoteId == $quoteId][0]{
         quoteId,
         orderDetails {
-          numberOfPeople,
-          sandwichesPerPerson,
           totalSandwiches,
           selectionType,
           allergies,

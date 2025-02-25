@@ -50,7 +50,7 @@ export default function QuoteButton({
         isGenerating ? "opacity-50 cursor-not-allowed" : ""
       }`}
     >
-      {isGenerating ? "Genereren..." : "Download Offerte (PDF)"}
+      {isGenerating ? "Generating..." : "Download Quote (PDF)"}
     </button>
   );
 }

@@ -76,10 +76,10 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           <div className="flex flex-col">
             <Label htmlFor="nonVega" className="font-bold text-base">
-              Kip, Vlees, Vis
+              Chicken, Meat, Fish
             </Label>
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -101,7 +101,7 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
                     min="0"
                     max={totalSandwiches}
                   />
-                  <span className="ml-2 text-sm text-gray-500">broodjes</span>
+                  <span className="ml-2 text-sm text-gray-500">sandwiches</span>
                   {selectedTypes.nonVega &&
                     suggestedDistribution.nonVega > 0 && (
                       <span className="ml-2 text-sm text-blue-600">
@@ -135,7 +135,7 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
                     min="0"
                     max={totalSandwiches}
                   />
-                  <span className="ml-2 text-sm text-gray-500">broodjes</span>
+                  <span className="ml-2 text-sm text-gray-500">sandwiches</span>
                   {selectedTypes.vega && suggestedDistribution.vega > 0 && (
                     <span className="ml-2 text-sm text-blue-600">
                       (Voorgesteld: {suggestedDistribution.vega})
@@ -168,7 +168,7 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
                     min="0"
                     max={totalSandwiches}
                   />
-                  <span className="ml-2 text-sm text-gray-500">broodjes</span>
+                  <span className="ml-2 text-sm text-gray-500">sandwiches</span>
                   {selectedTypes.vegan && suggestedDistribution.vegan > 0 && (
                     <span className="ml-2 text-sm text-blue-600">
                       (Voorgesteld: {suggestedDistribution.vegan})
@@ -192,16 +192,15 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
       >
         {currentTotal === totalSandwiches ? (
           <p className="text-green-700">
-            Alle {totalSandwiches} broodjes zijn verdeeld
+            All {totalSandwiches} sandwiches are distributed
           </p>
         ) : currentTotal > totalSandwiches ? (
           <p className="text-red-700">
-            U heeft {currentTotal - totalSandwiches} broodjes te veel
-            geselecteerd
+            You have {currentTotal - totalSandwiches} sandwiches too many
           </p>
         ) : (
           <p className="text-blue-700">
-            Nog {totalSandwiches - currentTotal} broodjes te verdelen
+            You have {totalSandwiches - currentTotal} sandwiches to distribute
           </p>
         )}
       </div>
@@ -210,16 +209,16 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
       <div className="border-t pt-4 mt-4">
         <div className="bg-gray-50 p-4 rounded-md space-y-2">
           <div className="flex justify-between text-sm text-gray-600">
-            <span>Prijs per broodje</span>
-            <span>€5,50</span>
+            <span>Price per sandwich</span>
+            <span>€6,38</span>
           </div>
           <div className="flex justify-between text-sm text-gray-600">
-            <span>Aantal broodjes</span>
+            <span>Number of sandwiches</span>
             <span>{currentTotal}</span>
           </div>
           <div className="flex justify-between font-medium text-gray-900 pt-2 border-t">
-            <span>Totaalbedrag</span>
-            <span>€{(currentTotal * 5.5).toFixed(2)} excl. BTW</span>
+            <span>Total amount</span>
+            <span>€{(currentTotal * 6.38).toFixed(2)} excl. VAT</span>
           </div>
         </div>
       </div>

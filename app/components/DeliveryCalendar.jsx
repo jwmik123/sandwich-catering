@@ -36,13 +36,13 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
     const selectedDate = date ? new Date(date) : null;
     const isToday = selectedDate?.toDateString() === currentDate.toDateString();
     // Start time: if today, start 2 hours from now (rounded up to next hour)
-    let startHour = 9; // Default start hour
+    let startHour = 10; // Default start hour
     if (isToday) {
       startHour = currentDate.getHours() + 2;
       if (currentDate.getMinutes() > 0) {
         startHour += 1; // Round up to next hour if we have minutes
       }
-      startHour = Math.max(startHour, 9); // Don't start earlier than 9
+      startHour = Math.max(startHour, 10); // Don't start earlier than 9
     }
     // Generate slots between start hour and 17:00 (5 PM)
     for (let hour = startHour; hour < 17; hour++) {
@@ -51,7 +51,7 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
       const timeValue = `${hour.toString().padStart(2, "0")}:00`;
       slots.push({
         value: timeValue,
-        label: `${timeValue} uur`,
+        label: `${timeValue}`,
       });
     }
     return slots;
@@ -63,12 +63,12 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
     <div className="space-y-6">
       <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
         <CalendarIcon className="w-5 h-5" />
-        <h2>Bezorggegevens</h2>
+        <h2>Delivery details</h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Bezorgdatum
+            Delivery date
           </label>
           <div className="flex flex-col">
             <Calendar
@@ -82,7 +82,7 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Bezorgtijd
+            Delivery time
           </label>
           <Select
             value={formData.deliveryTime}
@@ -90,7 +90,7 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
             disabled={!date}
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Selecteer een tijd" />
+              <SelectValue placeholder="Select a time" />
             </SelectTrigger>
             <SelectContent>
               {timeSlots.length > 0 ? (
@@ -101,7 +101,7 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
                 ))
               ) : (
                 <SelectItem value="no-slots-available" disabled>
-                  Geen tijdsloten beschikbaar
+                  No time slots available
                 </SelectItem>
               )}
             </SelectContent>
