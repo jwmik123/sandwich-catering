@@ -6,6 +6,8 @@ export const PRODUCT_QUERY = defineQuery(`*[_type == "product"] {
   name,
   description,
   image,
+  allergyInfo,
+  allergyNotes,
   price,
   category,
   dietaryType,

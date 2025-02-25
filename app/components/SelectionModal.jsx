@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -15,8 +15,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { breadTypes, sauces } from "@/app/assets/constants";
 import { isDrink } from "@/lib/product-helpers";
+import { Info } from "lucide-react";
 
 const SelectionModal = ({
   isOpen,
@@ -28,6 +35,7 @@ const SelectionModal = ({
   const [quantity, setQuantity] = React.useState("1");
   const [breadType, setBreadType] = React.useState(breadTypes[0].id);
   const [sauce, setSauce] = React.useState(sauces[0].id);
+  const [showAllergyInfo, setShowAllergyInfo] = useState(false);
 
   // Create quantity options from 1 to 100, regardless of item type
   const quantityOptions = React.useMemo(() => {
@@ -62,16 +70,40 @@ const SelectionModal = ({
     parseInt(quantity)
   );
 
+  console.log(sandwich);
+  // Helper function to display allergy information
+  const renderAllergyInfo = () => {
+    if (!sandwich?.allergyInfo || sandwich.allergyInfo.length === 0) {
+      return "No allergy information available";
+    }
+
+    return (
+      <div className="space-y-2">
+        <p className="font-medium">This product contains or may contain:</p>
+        <ul className="list-disc pl-5 text-sm">
+          {sandwich.allergyInfo.map((allergen) => (
+            <li key={allergen} className="capitalize">
+              {allergen}
+            </li>
+          ))}
+        </ul>
+        {sandwich.allergyNotes && (
+          <p className="text-sm mt-2 italic">{sandwich.allergyNotes}</p>
+        )}
+      </div>
+    );
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Selecteer Opties - {sandwich?.name}</DialogTitle>
+          <DialogTitle>Select options - {sandwich?.name}</DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
           <div className="space-y-2">
-            <Label>Aantal</Label>
+            <Label>Amount</Label>
             <Select value={quantity} onValueChange={setQuantity}>
               <SelectTrigger className="w-20">
                 <SelectValue />
@@ -127,12 +159,51 @@ const SelectionModal = ({
           )}
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit}>Add to order</Button>
+        <DialogFooter className="flex items-center justify-between w-full">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowAllergyInfo(!showAllergyInfo)}
+                  className="h-8 w-8 absolute bottom-7 left-5"
+                >
+                  <Info className="h-5 w-5 text-gray-500" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-xs">
+                <p className="text-xs">Click for allergy information</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <div>
+            <Button variant="outline" onClick={onClose} className="mr-2">
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit}>Add to order</Button>
+          </div>
         </DialogFooter>
+
+        {/* Allergy Information Dialog */}
+        {showAllergyInfo && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-bold">Allergy Information</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAllergyInfo(false)}
+                >
+                  ✕
+                </Button>
+              </div>
+              {renderAllergyInfo()}
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
