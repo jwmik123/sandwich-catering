@@ -15,6 +15,9 @@ export const metadata = {
   title: "Catering - The Sandwichbar",
   description:
     "The Sandwichbar is a catering company that provides a wide range of sandwiches to businesses.",
+  icons: {
+    icon: "/tsb.png",
+  },
 };
 
 export default function RootLayout({ children }) {
