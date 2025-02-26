@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
 });
 
 const imageUrl = {
-  uri: `${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/tsb.png`,
+  uri: `${process.env.NEXT_PUBLIC_URL || "https://catering.thesandwichbar.nl"}/tsb.png`,
   method: "GET",
 };
 
