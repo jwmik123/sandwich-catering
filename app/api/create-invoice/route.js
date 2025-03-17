@@ -60,11 +60,12 @@ export async function POST(request) {
               city: orderDetails.city,
             },
           },
-          amount: {
-            total: amount,
-            subtotal: amount / 1.09,
-            vat: amount - amount / 1.09,
-          },
+          // amount: {
+          //   total: amount,
+          //   subtotal: amount / 1.09,
+          //   vat: amount - amount / 1.09,
+          // },
+          amount,
           dueDate,
         });
       } catch (emailError) {

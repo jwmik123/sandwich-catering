@@ -166,8 +166,20 @@ const Home = () => {
             formData.varietySelection.vegan >=
             formData.totalSandwiches
         );
-      case 4:
+      case 3:
         return true; // Overview step is always valid
+      case 4:
+        // Validate delivery details
+        return (
+          formData.deliveryDate &&
+          formData.deliveryTime &&
+          formData.street &&
+          formData.houseNumber &&
+          formData.postalCode &&
+          formData.city &&
+          deliveryError !== "We do not deliver to this postal code."
+        );
+
       case 5:
         // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -226,6 +238,8 @@ const Home = () => {
           }
         }
         return "";
+      case 4:
+        return "Please fill in all fields";
       default:
         return "";
     }
@@ -359,7 +373,7 @@ const Home = () => {
             setDeliveryError(
               `Free delivery available for orders over €100 in your area`
             );
-          } else if (result.cost > 0) {
+          } else if (result?.cost > 0) {
             setDeliveryError(
               `Free delivery available for orders over €75 in your area`
             );

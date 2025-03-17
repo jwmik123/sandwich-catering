@@ -96,9 +96,9 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
                         </div>
                       </div>
 
-                      <div className="w-1/2 relative -m-4">
+                      <div className="w-1/2 relative -m-4 overflow-hidden">
                         <div
-                          className="absolute inset-0 bg-cover bg-center"
+                          className="absolute inset-0 bg-cover bg-center md:scale-125"
                           style={{
                             backgroundImage: `url(${urlFor(item.image).url()})`,
                           }}

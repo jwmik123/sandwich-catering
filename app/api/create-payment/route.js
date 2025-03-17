@@ -15,7 +15,7 @@ export async function POST(request) {
         currency: "EUR",
         value: amount.toFixed(2), // Format as string with 2 decimals
       },
-      description: `Bestelling ${quoteId}`,
+      description: `Order ${quoteId}`,
       redirectUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success?quoteId=${quoteId}&formData=${orderDetails}`,
       webhookUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhooks/mollie`,
       cancelUrl: `${process.env.NEXT_PUBLIC_BASE_URL}`,
