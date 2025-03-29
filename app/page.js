@@ -1040,7 +1040,7 @@ const Home = () => {
   );
 
   const steps = [
-    { icon: Users, title: "Sandwich amount" },
+    { icon: Users, title: "Amount of sandwiches" },
     { icon: Utensils, title: "Offer" },
     { icon: FileText, title: "Summary" },
     { icon: Calendar, title: "Delivery" },
