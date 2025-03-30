@@ -1136,7 +1136,9 @@ const Home = () => {
                   <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white border-2 border-current">
                     <StepIcon className="w-4 h-4" />
                   </div>
-                  <span className="text-xs mt-1">{step.title}</span>
+                  <span className="text-xs mt-1 hidden md:block">
+                    {step.title}
+                  </span>
                 </div>
               );
             })}
