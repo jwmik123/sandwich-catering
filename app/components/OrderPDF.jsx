@@ -58,15 +58,14 @@ const styles = StyleSheet.create({
   },
   sandwichItem: {
     display: "flex",
-    flexDirection: "row",
-
+    flexDirection: "column",
     marginBottom: 10,
     paddingLeft: 10,
   },
   sandwichName: {
     fontSize: 13,
     fontWeight: "bold",
-    marginBottom: 3,
+    marginBottom: 2,
   },
   sandwichDetails: {
     display: "flex",
@@ -179,14 +178,14 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                 const sandwich = sandwichOptions?.find(
                   (s) => s._id === sandwichId
                 );
+                const sandwichName = sandwich?.name || "Unknown sandwich";
+
                 return selections.map((selection, index) => (
                   <View
                     key={`${sandwichId}-${index}`}
                     style={styles.sandwichItem}
                   >
-                    <Text style={styles.sandwichName}>
-                      {sandwich?.name || "Unknown sandwich"}
-                    </Text>
+                    <Text style={styles.sandwichName}>{sandwichName}</Text>
                     <View style={styles.sandwichDetails}>
                       <Text>
                         {`${selection.quantity}x - ${selection.breadType ? selection.breadType : ""}`}

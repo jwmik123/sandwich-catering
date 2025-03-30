@@ -13,12 +13,18 @@ export async function generateQuote(formData, sandwichOptions) {
   try {
     const quoteId = `Q${nanoid()}`;
 
+    console.log("Generating quote with ID:", quoteId);
+    console.log(
+      "Sandwich options available:",
+      sandwichOptions ? sandwichOptions.length : 0
+    );
+
     // Generate PDF buffer
     const pdfBuffer = await renderToBuffer(
       <OrderPDF
         orderData={formData}
         quoteId={quoteId}
-        sandwichOptions={sandwichOptions}
+        sandwichOptions={sandwichOptions} // Pass sandwich options to the PDF
       />
     );
 

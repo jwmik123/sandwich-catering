@@ -1,4 +1,4 @@
-// app/components/InvoicePDF.jsx - More robust version
+// app/components/InvoicePDF.jsx - Updated to include sandwich names
 import {
   Document,
   Page,
@@ -73,9 +73,14 @@ const styles = StyleSheet.create({
   },
   orderItem: {
     display: "flex",
-    flexDirection: "row",
+    flexDirection: "column",
     marginBottom: 10,
     paddingLeft: 10,
+  },
+  sandwichName: {
+    fontSize: 13,
+    fontWeight: "bold",
+    marginBottom: 2,
   },
   orderDetails: {
     display: "flex",
@@ -123,11 +128,18 @@ const InvoicePDF = ({
   companyDetails = {},
   amount = 0,
   dueDate = new Date(),
+  sandwichOptions = [], // Add sandwichOptions parameter
 }) => {
   // Defensive coding: ensure all objects exist to prevent null references
   orderDetails = orderDetails || {};
   deliveryDetails = deliveryDetails || {};
   companyDetails = companyDetails || {};
+
+  // Function to get sandwich name from ID
+  const getSandwichName = (sandwichId) => {
+    const sandwich = sandwichOptions.find((s) => s._id === sandwichId);
+    return sandwich ? sandwich.name : "Unknown Sandwich";
+  };
 
   // Safely process the amount to ensure it always has the correct structure
   const amountData = (() => {
@@ -216,8 +228,12 @@ const InvoicePDF = ({
           const sauce = selection.sauce || "geen";
           const subTotal = selection.subTotal || 0;
 
+          // Get the sandwich name for display
+          const sandwichName = getSandwichName(sandwichId);
+
           return (
             <View key={`${sandwichId}-${index}`} style={styles.orderItem}>
+              <Text style={styles.sandwichName}>{sandwichName}</Text>
               <View style={styles.orderDetails}>
                 <Text>
                   {qty}x - {breadType}
