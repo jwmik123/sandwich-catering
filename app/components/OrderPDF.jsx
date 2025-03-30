@@ -105,10 +105,10 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.title}>Offerte</Text>
-            <Text style={styles.quoteId}>Referentienummer: {quoteId}</Text>
+            <Text style={styles.title}>Quote</Text>
+            <Text style={styles.quoteId}>Quote ID: {quoteId}</Text>
             <Text style={styles.quoteId}>
-              Datum: {new Date().toLocaleDateString("nl-NL")}
+              Date: {new Date().toLocaleDateString("nl-NL")}
             </Text>
           </View>
           <View style={styles.headerRight}>

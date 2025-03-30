@@ -402,7 +402,7 @@ const Home = () => {
       {/* Header section */}
       <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
         <Users className="w-5 h-5" />
-        <h2>Sandwich Amount</h2>
+        <h2>Amount of sandwiches</h2>
       </div>
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex flex-row w-full md:w-1/2">
@@ -1153,7 +1153,7 @@ const Home = () => {
 
         {/* Main Content */}
         <div className="container mx-auto px-4 pb-8">
-          <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="bg-white rounded-lg shadow-md p-6">
             {currentStep === 1 && renderCombinedSteps()}
             {currentStep === 2 && renderStep3()}
             {currentStep === 3 && renderStep4()}
@@ -1166,7 +1166,7 @@ const Home = () => {
           <div className="mt-6 flex justify-between items-center">
             <Link
               href="/quote/lookup"
-              className="text-white bg-black px-4 py-2 rounded-md flex items-center gap-2"
+              className="text-gray-400 px-4 py-2 underline rounded-md flex items-center gap-2"
             >
               <FileSearch className="w-4 h-4" />
               Load quote
