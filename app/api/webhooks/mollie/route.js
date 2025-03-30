@@ -3,6 +3,7 @@ import { createMollieClient } from "@mollie/api-client";
 import { client } from "@/sanity/lib/client";
 import { NextResponse } from "next/server";
 import { sendOrderConfirmation } from "@/lib/email";
+import { PRODUCT_QUERY } from "@/sanity/lib/queries"; // Make sure this import is correct
 
 const mollieClient = createMollieClient({
   apiKey: process.env.MOLLIE_TEST_API_KEY,
@@ -86,13 +87,42 @@ async function handlePaidStatus(quoteId) {
   );
 
   if (order) {
-    await sendOrderConfirmation(order);
+    try {
+      // Fetch sandwich options to include in the email
+      console.log("Fetching sandwich options for order confirmation...");
+      let sandwichOptions = [];
+      try {
+        sandwichOptions = await client.fetch(PRODUCT_QUERY);
+        console.log(
+          `Retrieved ${sandwichOptions.length} sandwich options from Sanity`
+        );
+      } catch (fetchError) {
+        console.error("Error fetching sandwich options:", fetchError);
+      }
+
+      // Add sandwich options to the order object
+      const orderWithSandwichOptions = {
+        ...order,
+        sandwichOptions,
+      };
+
+      await sendOrderConfirmation(orderWithSandwichOptions);
+      console.log(`Order confirmation sent for quote ${quoteId}`);
+    } catch (error) {
+      console.error(
+        `Failed to send order confirmation for quote ${quoteId}:`,
+        error
+      );
+    }
+  } else {
+    console.error(`Order with quoteId ${quoteId} not found for confirmation`);
   }
   // Here you would:
   // 3. Send internal notification
   // 4. Update inventory if needed
 }
 
+// Keep other helper functions
 async function sendPaymentFailureNotification(quoteId) {
   // Handle payment failure:
   // 1. Send email to customer about failed payment

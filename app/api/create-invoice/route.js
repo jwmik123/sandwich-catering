@@ -2,6 +2,7 @@
 import { client } from "@/sanity/lib/client";
 import { NextResponse } from "next/server";
 import { sendInvoiceEmail } from "@/lib/email";
+import { PRODUCT_QUERY } from "@/sanity/lib/queries"; // Make sure this import is correct
 
 export async function POST(request) {
   console.log("===== CREATE INVOICE API CALLED =====");
@@ -82,6 +83,19 @@ export async function POST(request) {
 
     console.log("Invoice created in Sanity with ID:", updatedQuote._id);
 
+    // Fetch sandwich options to include in the email
+    console.log("Fetching sandwich options for email...");
+    let sandwichOptions = [];
+    try {
+      sandwichOptions = await client.fetch(PRODUCT_QUERY);
+      console.log(
+        `Retrieved ${sandwichOptions.length} sandwich options from Sanity`
+      );
+    } catch (fetchError) {
+      console.error("Error fetching sandwich options:", fetchError);
+      console.log("Will continue with empty sandwich options");
+    }
+
     // Send invoice email with PDF
     if (orderDetails.email) {
       console.log("Preparing to send invoice email to:", orderDetails.email);
@@ -115,9 +129,12 @@ export async function POST(request) {
           companyDetails,
           amount: amountData,
           dueDate,
+          sandwichOptions, // Include sandwich options for the email
         };
 
-        console.log("Sending email with structured data...");
+        console.log(
+          "Sending email with structured data and sandwich options..."
+        );
         const emailSent = await sendInvoiceEmail(emailData);
 
         if (emailSent) {
