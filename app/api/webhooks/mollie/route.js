@@ -1,4 +1,4 @@
-// app/api/webhooks/mollie/route.js - Enhanced with better error handling
+// app/api/webhooks/mollie/route.js - Enhanced data mapping
 import { createMollieClient } from "@mollie/api-client";
 import { client } from "@/sanity/lib/client";
 import { NextResponse } from "next/server";
@@ -105,9 +105,40 @@ async function handlePaidStatus(quoteId) {
   try {
     console.log(`Handling paid status for quote ${quoteId}`);
 
-    // Fetch order details from Sanity
+    // Fetch order details from Sanity using a more comprehensive query
     const order = await client.fetch(
-      `*[_type == "quote" && quoteId == $quoteId][0]`,
+      `*[_type == "quote" && quoteId == $quoteId][0]{
+        _id,
+        quoteId,
+        email,
+        phoneNumber,
+        orderDetails {
+          totalSandwiches,
+          selectionType,
+          customSelection,
+          varietySelection,
+          allergies
+        },
+        deliveryDetails {
+          deliveryDate,
+          deliveryTime,
+          address {
+            street,
+            houseNumber,
+            houseNumberAddition,
+            postalCode,
+            city
+          }
+        },
+        companyDetails {
+          companyName,
+          companyVAT
+        },
+        status,
+        paymentStatus,
+        createdAt,
+        pdfAsset
+      }`,
       { quoteId }
     );
 
@@ -115,6 +146,11 @@ async function handlePaidStatus(quoteId) {
       console.error(`Order with quoteId ${quoteId} not found for confirmation`);
       return;
     }
+
+    console.log(
+      "Order data fetched from Sanity:",
+      JSON.stringify(order, null, 2)
+    );
 
     // Fetch sandwich options to include in the email
     console.log("Fetching sandwich options for order confirmation...");
@@ -129,44 +165,95 @@ async function handlePaidStatus(quoteId) {
       console.log("Will continue with empty sandwich options array");
     }
 
-    // Add sandwich options to the order object with safeguards
-    const orderWithSandwichOptions = {
-      ...order,
+    // Create a properly formatted order object expected by the email/PDF components
+    const formattedOrder = {
+      quoteId: order.quoteId,
+      email: order.email,
+      phoneNumber: order.phoneNumber,
+
+      // Format orderDetails
       orderDetails: {
-        ...order.orderDetails,
-        // Fix for customSelection - ensure it's always a valid object
-        customSelection: order.orderDetails?.customSelection || {},
+        totalSandwiches: order.orderDetails?.totalSandwiches || 0,
+        selectionType: order.orderDetails?.selectionType || "variety",
+        allergies: order.orderDetails?.allergies || "",
+
+        // Convert customSelection from Sanity array format to object format
+        customSelection: {},
       },
-      // Ensure sandwichOptions is a valid array
-      sandwichOptions: Array.isArray(sandwichOptions) ? sandwichOptions : [],
+
+      // Format deliveryDetails
+      deliveryDetails: {
+        deliveryDate:
+          order.deliveryDetails?.deliveryDate || new Date().toISOString(),
+        deliveryTime: order.deliveryDetails?.deliveryTime || "12:00",
+        street: order.deliveryDetails?.address?.street || "",
+        houseNumber: order.deliveryDetails?.address?.houseNumber || "",
+        houseNumberAddition:
+          order.deliveryDetails?.address?.houseNumberAddition || "",
+        postalCode: order.deliveryDetails?.address?.postalCode || "",
+        city: order.deliveryDetails?.address?.city || "",
+      },
+
+      // Format companyDetails
+      companyDetails: order.companyDetails
+        ? {
+            name: order.companyDetails.companyName || "",
+            vatNumber: order.companyDetails.companyVAT || "",
+            address: {
+              street: order.deliveryDetails?.address?.street || "",
+              houseNumber: order.deliveryDetails?.address?.houseNumber || "",
+              houseNumberAddition:
+                order.deliveryDetails?.address?.houseNumberAddition || "",
+              postalCode: order.deliveryDetails?.address?.postalCode || "",
+              city: order.deliveryDetails?.address?.city || "",
+            },
+          }
+        : null,
+
+      // Add all other necessary fields
+      status: order.status || "pending",
+      sandwichOptions: sandwichOptions,
+      createdAt: order.createdAt || new Date().toISOString(),
     };
 
-    // Safely handle nested structure format differences
-    if (order.orderDetails?.customSelection) {
-      console.log("Checking customSelection structure...");
-
-      // Check if customSelection is an array (from Sanity) or object (from form)
-      if (Array.isArray(order.orderDetails.customSelection)) {
-        console.log(
-          "customSelection is an array - converting to object format"
-        );
-
-        // Convert from Sanity array format to the format expected by email components
-        const convertedSelection = {};
-
-        order.orderDetails.customSelection.forEach((item) => {
-          if (item.sandwichId && item.sandwichId._ref) {
-            convertedSelection[item.sandwichId._ref] = item.selections || [];
-          }
-        });
-
-        orderWithSandwichOptions.orderDetails.customSelection =
-          convertedSelection;
-      }
+    // Set variety selection if available
+    if (order.orderDetails?.varietySelection) {
+      formattedOrder.orderDetails.varietySelection = {
+        vega: order.orderDetails.varietySelection.vega || 0,
+        nonVega: order.orderDetails.varietySelection.nonVega || 0,
+        vegan: order.orderDetails.varietySelection.vegan || 0,
+      };
+    } else {
+      formattedOrder.orderDetails.varietySelection = {
+        vega: 0,
+        nonVega: 0,
+        vegan: 0,
+      };
     }
 
-    console.log("Sending order confirmation...");
-    await sendOrderConfirmation(orderWithSandwichOptions);
+    // Convert customSelection from Sanity array format to object format expected by components
+    if (Array.isArray(order.orderDetails?.customSelection)) {
+      console.log("Converting customSelection array format to object format");
+
+      order.orderDetails.customSelection.forEach((item) => {
+        if (item.sandwichId && item.sandwichId._ref) {
+          formattedOrder.orderDetails.customSelection[item.sandwichId._ref] =
+            Array.isArray(item.selections) ? item.selections : [];
+        }
+      });
+    }
+
+    console.log("Sending order confirmation with formatted data");
+    console.log(
+      "Delivery details:",
+      JSON.stringify(formattedOrder.deliveryDetails, null, 2)
+    );
+    console.log(
+      "Company details:",
+      JSON.stringify(formattedOrder.companyDetails, null, 2)
+    );
+
+    await sendOrderConfirmation(formattedOrder);
     console.log(`Order confirmation sent for quote ${quoteId}`);
   } catch (error) {
     console.error(`Error in handlePaidStatus for quote ${quoteId}:`, error);
@@ -177,24 +264,15 @@ async function handlePaidStatus(quoteId) {
 // Keep other helper functions
 async function sendPaymentFailureNotification(quoteId) {
   console.log(`Would send payment failure notification for ${quoteId}`);
-  // Handle payment failure:
-  // 1. Send email to customer about failed payment
-  // 2. Provide instructions to try again
-  // 3. Log incident for support team
+  // Handle payment failure
 }
 
 async function handleExpiredPayment(quoteId) {
   console.log(`Would handle expired payment for ${quoteId}`);
-  // Handle expired payment:
-  // 1. Update order status
-  // 2. Release any held inventory
-  // 3. Notify customer if needed
+  // Handle expired payment
 }
 
 async function handleCanceledPayment(quoteId) {
   console.log(`Would handle canceled payment for ${quoteId}`);
-  // Handle canceled payment:
-  // 1. Update order status
-  // 2. Release any held inventory
-  // 3. Log cancellation
+  // Handle canceled payment
 }
