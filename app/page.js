@@ -270,6 +270,13 @@ const Home = () => {
       return { error: "We do not deliver to this postal code." };
     }
 
+    // For special always-charge postal codes
+    if (typeof deliveryZone === "object" && deliveryZone.alwaysCharge) {
+      return {
+        cost: deliveryZone.cost,
+      };
+    }
+
     // For regular postal codes (not special zones)
     if (typeof deliveryZone === "number") {
       return {
@@ -284,6 +291,7 @@ const Home = () => {
       };
     }
   };
+
   const totalAmount = calculateTotal(formData);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("online");
@@ -308,7 +316,7 @@ const Home = () => {
             },
             body: JSON.stringify({
               quoteId: result.quoteId,
-              amount: totalAmount + (deliveryCost || 0),
+              amount: (totalAmount + (deliveryCost || 0)) * 1.09, // Include VAT
               orderDetails: { ...formData, deliveryCost: deliveryCost || 0 },
             }),
           });
@@ -328,7 +336,7 @@ const Home = () => {
             },
             body: JSON.stringify({
               quoteId: result.quoteId,
-              amount: totalAmount + (deliveryCost || 0),
+              amount: (totalAmount + (deliveryCost || 0)) * 1.09, // Include VAT
               orderDetails: { ...formData, deliveryCost: deliveryCost || 0 },
             }),
           });
@@ -365,11 +373,16 @@ const Home = () => {
           setDeliveryError(null);
           setDeliveryCost(result?.cost || null);
 
-          // Add message about free delivery threshold
+          // Add message about delivery costs or free delivery threshold
           const formattedPostal = value.replace(/\s/g, "").substring(0, 4);
           const deliveryZone = postalCodeDeliveryCosts[formattedPostal];
 
-          if (typeof deliveryZone === "object" && result.cost > 0) {
+          // Special case for postal codes that always have a delivery fee
+          if (typeof deliveryZone === "object" && deliveryZone.alwaysCharge) {
+            setDeliveryError(``);
+          }
+          // Regular case with minimum order for free delivery
+          else if (typeof deliveryZone === "object" && result.cost > 0) {
             setDeliveryError(
               `Free delivery available for orders over €100 in your area`
             );
@@ -380,12 +393,6 @@ const Home = () => {
           }
         }
       }
-      // Automatische berekeningen
-      if (field === "numberOfPeople" || field === "sandwichesPerPerson") {
-        newData.totalSandwiches =
-          Number(newData.numberOfPeople) * Number(newData.sandwichesPerPerson);
-      }
-
       return newData;
     });
   };
