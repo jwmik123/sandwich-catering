@@ -50,7 +50,7 @@ function SuccessContent() {
 
           <div className="bg-gray-50 rounded-lg p-6 space-y-4">
             <div className="flex space-x-4 items-center">
-              <p className="text-sm text-gray-500">Reference number:</p>
+              <p className="text-sm text-gray-500">Quote ID:</p>
               <p className="font-medium">{quoteId}</p>
             </div>
           </div>

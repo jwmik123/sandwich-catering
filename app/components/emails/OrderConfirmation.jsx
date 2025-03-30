@@ -30,7 +30,7 @@ export default function OrderConfirmation({
           </Text>
 
           <Section style={details}>
-            <Text style={subtitle}>Reference number</Text>
+            <Text style={subtitle}>Quote ID</Text>
             <Text style={detailText}>{quoteId}</Text>
 
             <Text style={subtitle}>Delivery details</Text>
