@@ -207,7 +207,6 @@ const Home = () => {
     }
   };
 
-  // Add this function to get validation message
   const getValidationMessage = (step) => {
     switch (step) {
       case 2:
@@ -259,13 +258,10 @@ const Home = () => {
 
   const calculateDeliveryCost = (postalCode, orderAmount) => {
     if (!postalCode) return null;
-
     // Format postal code - remove spaces and take first 4 digits
     const formattedPostal = postalCode.replace(/\s/g, "").substring(0, 4);
-
     // Check if postal code exists in our delivery zones
     const deliveryZone = postalCodeDeliveryCosts[formattedPostal];
-
     if (!deliveryZone) {
       return { error: "We do not deliver to this postal code." };
     }
