@@ -400,11 +400,11 @@ const Home = () => {
         <Users className="w-5 h-5" />
         <h2>Amount of sandwiches</h2>
       </div>
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col gap-4 md:flex-row">
         <div className="flex flex-row w-full md:w-1/2">
           {/* Number of People section */}
           <div className="w-full">
-            <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex flex-col gap-4 md:flex-row">
               <div className="w-full mb-4">
                 <Label htmlFor="peopleSelect">
                   How many sandwiches would you like?
@@ -446,7 +446,7 @@ const Home = () => {
 
             <div className="w-full">
               <div className="space-y-6">
-                <div className="bg-beige-50 p-4 rounded-md text-sm text-green-500 bg-green-50">
+                <div className="p-4 text-sm text-green-500 rounded-md bg-beige-50 bg-green-50">
                   <p>* We recommend 2 sandwiches per person</p>
                   <p>* Minimum 15 sandwiches</p>
                 </div>
@@ -456,8 +456,8 @@ const Home = () => {
         </div>
 
         {/* Order Summary */}
-        <div className="bg-custom-gray/10 p-6 rounded-lg w-full md:w-1/2">
-          <h3 className="text-lg font-medium text-custom-gray mb-4">Summary</h3>
+        <div className="w-full p-6 rounded-lg bg-custom-gray/10 md:w-1/2">
+          <h3 className="mb-4 text-lg font-medium text-custom-gray">Summary</h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
               <p className="text-sm text-custom-gray">
@@ -466,7 +466,7 @@ const Home = () => {
               <p className="text-lg font-medium">{formData.totalSandwiches}</p>
               {formData.totalSandwiches < 15 &&
                 formData.totalSandwiches > 0 && (
-                  <p className="text-sm text-red-600 mt-1">
+                  <p className="mt-1 text-sm text-red-600">
                     * Minimum 15 sandwiches
                   </p>
                 )}
@@ -485,7 +485,7 @@ const Home = () => {
           <h2>Choose your Selection</h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div
             className={`p-4 rounded-lg border-2 cursor-pointer transition-colors ${
               formData.selectionType === "custom"
@@ -494,7 +494,7 @@ const Home = () => {
             }`}
             onClick={() => updateFormData("selectionType", "custom")}
           >
-            <h3 className="text-lg font-medium mb-2">
+            <h3 className="mb-2 text-lg font-medium">
               Create your own selection
             </h3>
             <p className="text-sm text-custom-gray">Choose your sandwiches</p>
@@ -508,7 +508,7 @@ const Home = () => {
             }`}
             onClick={() => updateFormData("selectionType", "variety")}
           >
-            <h3 className="text-lg font-medium mb-2">Variety Offer</h3>
+            <h3 className="mb-2 text-lg font-medium">Variety Offer</h3>
             <p className="text-sm text-custom-gray">Let us surprise you! :)</p>
           </div>
         </div>
@@ -521,8 +521,8 @@ const Home = () => {
               updateFormData={updateFormData}
             />
 
-            <div className="mt-6 bg-custom-gray/10 p-4 rounded-lg">
-              <div className="flex justify-between items-center">
+            <div className="p-4 mt-6 rounded-lg bg-custom-gray/10">
+              <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-custom-gray">Selected items</p>
                   <p className="text-lg font-medium">
@@ -556,7 +556,7 @@ const Home = () => {
 
         {formData.selectionType === "variety" && (
           <>
-            <div className="space-y-6 mt-6">
+            <div className="mt-6 space-y-6">
               <h3 className="text-lg font-medium text-gray-900">
                 Choose a distribution
               </h3>
@@ -580,7 +580,7 @@ const Home = () => {
       </div>
 
       <div className="space-y-4">
-        <div className="bg-custom-gray/10 p-6 rounded-lg space-y-4">
+        <div className="p-6 space-y-4 rounded-lg bg-custom-gray/10">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-gray-500">
@@ -599,8 +599,8 @@ const Home = () => {
           </div>
 
           {formData.selectionType === "custom" ? (
-            <div className="border-t pt-4 mt-4">
-              <p className="text-sm text-gray-500 mb-2">Selected sandwiches</p>
+            <div className="pt-4 mt-4 border-t">
+              <p className="mb-2 text-sm text-gray-500">Selected sandwiches</p>
               <div className="space-y-4">
                 {Object.entries(formData.customSelection)
                   .filter(([_, selections]) => selections?.length > 0)
@@ -619,14 +619,14 @@ const Home = () => {
                           return (
                             <div
                               key={index}
-                              className="flex justify-between text-sm pl-4"
+                              className="flex justify-between pl-4 text-sm"
                             >
                               <span className="text-gray-600">
                                 {selection.quantity}x - {breadType}
                                 {selection.sauce !== "geen" &&
                                   ` with ${selection.sauce}`}
                               </span>
-                              <span className="text-gray-900 font-medium">
+                              <span className="font-medium text-gray-900">
                                 €{selection.subTotal.toFixed(2)}
                               </span>
                             </div>
@@ -636,7 +636,7 @@ const Home = () => {
                     );
                   })}
               </div>
-              <div className="border-t pt-4 mt-4">
+              <div className="pt-4 mt-4 border-t">
                 <div className="flex justify-between text-lg font-medium">
                   <span>Total amount</span>
                   <span>
@@ -650,7 +650,7 @@ const Home = () => {
                       .toFixed(2)}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm text-gray-500 mt-1">
+                <div className="flex justify-between mt-1 text-sm text-gray-500">
                   <span>Total number of sandwiches</span>
                   <span>
                     {Object.values(formData.customSelection)
@@ -665,8 +665,8 @@ const Home = () => {
               </div>
             </div>
           ) : (
-            <div className="border-t pt-4 mt-4">
-              <p className="text-sm text-gray-500 mb-2">
+            <div className="pt-4 mt-4 border-t">
+              <p className="mb-2 text-sm text-gray-500">
                 Distribution of sandwiches
               </p>
               <div className="space-y-3">
@@ -689,12 +689,12 @@ const Home = () => {
                   </div>
                 </div>
               </div>
-              <div className="border-t pt-4 mt-4">
+              <div className="pt-4 mt-4 border-t">
                 <div className="flex justify-between text-lg font-medium">
                   <span>Total amount</span>
                   <span>€{(formData.totalSandwiches * 6.38).toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-sm text-gray-500 mt-1">
+                <div className="flex justify-between mt-1 text-sm text-gray-500">
                   <span>Total number of sandwiches</span>
                   <span>
                     {formData.totalSandwiches}/ {formData.totalSandwiches}{" "}
@@ -717,17 +717,17 @@ const Home = () => {
           />
         </div>
         <div className="flex gap-2">
-          <div className=" pt-4 mt-4 w-full">
+          <div className="w-full pt-4 mt-4 ">
             <QuoteButton
               formData={formData}
               sandwichOptions={sandwichOptions}
               buttonClasses={secondaryButtonClasses}
             />
           </div>
-          <div className=" pt-4 mt-4 w-full">
+          <div className="w-full pt-4 mt-4 ">
             <button
               onClick={() => setCurrentStep(2)}
-              className="w-full px-2 py-2 rounded-md font-medium bg-custom-gray/10 text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              className="w-full px-2 py-2 font-medium text-gray-700 rounded-md bg-custom-gray/10 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
             >
               Update order
             </button>
@@ -746,7 +746,7 @@ const Home = () => {
         formData={formData}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="street">Street</Label>
           <Input
@@ -783,7 +783,7 @@ const Home = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="postalCode">Postcode</Label>
           <Input
@@ -794,13 +794,13 @@ const Home = () => {
             required
           />
           {deliveryError && (
-            <p className="text-red-500  text-sm mt-1">{deliveryError}</p>
+            <p className="mt-1 text-sm text-red-500">{deliveryError}</p>
           )}
           {deliveryCost === 0 && (
-            <p className="text-green-500 text-sm mt-1">Free delivery!</p>
+            <p className="mt-1 text-sm text-green-500">Free delivery!</p>
           )}
           {deliveryCost > 0 && (
-            <p className="text-gray-600 text-sm mt-1">
+            <p className="mt-1 text-sm text-gray-600">
               Delivery cost: €{deliveryCost.toFixed(2)}
             </p>
           )}
@@ -830,7 +830,7 @@ const Home = () => {
       <div className="space-y-4">
         {/* Contact Details */}
         <div className="space-y-4">
-          <h3 className="text-md font-medium text-gray-700">Contact details</h3>
+          <h3 className="font-medium text-gray-700 text-md">Contact details</h3>
 
           <div className="space-y-2">
             <Label htmlFor="email">E-mail address*</Label>
@@ -878,7 +878,7 @@ const Home = () => {
           </div>
 
           {formData.isCompany && (
-            <div className="space-y-4 mt-4">
+            <div className="mt-4 space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="companyName">Company name</Label>
                 <Input
@@ -917,33 +917,33 @@ const Home = () => {
         <h2>Payment</h2>
       </div>
 
-      <div className="bg-custom-gray/10 rounded-lg border border-gray-200 p-6">
+      <div className="p-6 border border-gray-200 rounded-lg bg-custom-gray/10">
         <div className="space-y-4">
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <span className="text-gray-600">Subtotal:</span>
             <span className="font-medium">€{totalAmount.toFixed(2)}</span>
           </div>
           {deliveryCost !== null ? (
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <span className="text-gray-600">Delivery:</span>
               <span className="font-medium">
                 {deliveryCost === 0 ? "Free" : `€${deliveryCost.toFixed(2)}`}
               </span>
             </div>
           ) : (
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <span className="text-gray-600">Delivery:</span>
               <span className="font-medium text-green-600">Free</span>
             </div>
           )}
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <span className="text-gray-600">VAT (9%):</span>
             <span className="font-medium">
               €{((totalAmount + (deliveryCost || 0)) * 0.09).toFixed(2)}
             </span>
           </div>
-          <div className="border-t pt-4">
-            <div className="flex justify-between items-center">
+          <div className="pt-4 border-t">
+            <div className="flex items-center justify-between">
               <span className="text-lg font-bold">Total:</span>
               <span className="text-lg font-bold">
                 €{((totalAmount + (deliveryCost || 0)) * 1.09).toFixed(2)}
@@ -952,8 +952,8 @@ const Home = () => {
           </div>
         </div>
         {deliveryError && (
-          <div className="mt-4 p-3 bg-accent border border-accent rounded-md">
-            <p className="text-accent-foreground text-sm">{deliveryError}</p>
+          <div className="p-3 mt-4 border rounded-md bg-accent border-accent">
+            <p className="text-sm text-accent-foreground">{deliveryError}</p>
           </div>
         )}
       </div>
@@ -1056,19 +1056,19 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="sticky top-0 bg-background border-b z-10">
-        <div className="text-sm text-center bg-accent text-accent-foreground p-2 flex space-x-2 justify-center items-center">
+      <div className="sticky top-0 z-10 border-b bg-background">
+        <div className="flex items-center justify-center p-2 space-x-2 text-sm text-center bg-accent text-accent-foreground">
           <span className="font-bold">Free delivery from €75,- </span>
-          <span className="italic text-xs">
+          <span className="text-xs italic">
             some areas excluded (1026-1028, 1035, 1101-1109).
           </span>
         </div>
-        <div className="container mx-auto p-4">
+        <div className="container p-4 mx-auto">
           <div className="flex items-center justify-between">
             <Image
               src={"/tsb-logo.png"}
               alt="The Sandwichbar Amsterdam Logo"
-              className="w-10 md:w-32"
+              className="w-16 md:w-24"
               width={250}
               height={250}
             />
@@ -1114,7 +1114,7 @@ const Home = () => {
       </div>
 
       {/* Progress Steps */}
-      <div className="container mx-auto px-4 py-4">
+      <div className="container px-4 py-4 mx-auto">
         <div className="flex items-center justify-between mb-4">
           {steps.map((step, index) => {
             const StepIcon = step.icon;
@@ -1129,19 +1129,19 @@ const Home = () => {
                       : "text-gray-400"
                 }`}
               >
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-background border-2 border-current">
+                <div className="flex items-center justify-center w-8 h-8 border-2 border-current rounded-full bg-background">
                   <StepIcon className="w-4 h-4" />
                 </div>
-                <span className="text-xs mt-1 hidden md:block">
+                <span className="hidden mt-1 text-xs md:block">
                   {step.title}
                 </span>
               </div>
             );
           })}
         </div>
-        <div className="h-2 bg-muted rounded-full">
+        <div className="h-2 rounded-full bg-muted">
           <div
-            className="h-full bg-primary rounded-full transition-all duration-300"
+            className="h-full transition-all duration-300 rounded-full bg-primary"
             style={{
               width: `${((currentStep - 1) / (steps.length - 1)) * 100}%`,
             }}
@@ -1150,8 +1150,8 @@ const Home = () => {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 pb-8">
-        <div className="bg-background rounded-lg shadow-md p-6">
+      <div className="container px-4 pb-8 mx-auto">
+        <div className="p-6 rounded-lg shadow-md bg-background">
           {currentStep === 1 && renderCombinedSteps()}
           {currentStep === 2 && renderStep3()}
           {currentStep === 3 && renderStep4()}
@@ -1161,10 +1161,10 @@ const Home = () => {
         </div>
 
         {/* Quote Lookup Link */}
-        <div className="mt-6 flex justify-between items-center">
+        <div className="flex items-center justify-between mt-6">
           <Link
             href="/quote/lookup"
-            className="text-gray-400 px-4 py-2  rounded-md flex items-center gap-2"
+            className="flex items-center gap-2 px-4 py-2 text-gray-400 rounded-md"
           >
             <FileSearch className="w-4 h-4" />
             Load quote
@@ -1178,11 +1178,11 @@ const Home = () => {
           </span>
         </div>
         {/* Full width image container */}
-        <div className="w-full mt-8 flex justify-center">
+        <div className="flex justify-center w-full mt-8">
           <Image
             src="/tsb-logo-full.png"
             alt="Company Logo"
-            className="max-w-full h-auto"
+            className="h-auto max-w-full"
             width={250}
             height={250}
           />
