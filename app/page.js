@@ -624,7 +624,7 @@ const Home = () => {
                               <span className="text-gray-600">
                                 {selection.quantity}x - {breadType}
                                 {selection.sauce !== "geen" &&
-                                  ` met ${selection.sauce}`}
+                                  ` with ${selection.sauce}`}
                               </span>
                               <span className="text-gray-900 font-medium">
                                 €{selection.subTotal.toFixed(2)}
@@ -1164,7 +1164,7 @@ const Home = () => {
         <div className="mt-6 flex justify-between items-center">
           <Link
             href="/quote/lookup"
-            className="text-gray-400 px-4 py-2 underline rounded-md flex items-center gap-2"
+            className="text-gray-400 px-4 py-2  rounded-md flex items-center gap-2"
           >
             <FileSearch className="w-4 h-4" />
             Load quote

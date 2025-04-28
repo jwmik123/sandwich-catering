@@ -142,7 +142,7 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
                   </span>
                   {selectedTypes.vega && suggestedDistribution.vega > 0 && (
                     <span className="ml-2 text-sm text-blue-600">
-                      (Voorgesteld: {suggestedDistribution.vega})
+                      (Suggested: {suggestedDistribution.vega})
                     </span>
                   )}
                 </div>
@@ -177,7 +177,7 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
                   </span>
                   {selectedTypes.vegan && suggestedDistribution.vegan > 0 && (
                     <span className="ml-2 text-sm text-blue-600">
-                      (Voorgesteld: {suggestedDistribution.vegan})
+                      (Suggested: {suggestedDistribution.vegan})
                     </span>
                   )}
                 </div>

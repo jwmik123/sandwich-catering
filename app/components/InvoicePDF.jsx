@@ -237,7 +237,7 @@ const InvoicePDF = ({
               <View style={styles.orderDetails}>
                 <Text>
                   {qty}x - {breadType}
-                  {sauce !== "geen" && ` met ${sauce}`}
+                  {sauce !== "geen" && ` with ${sauce}`}
                 </Text>
                 <Text style={styles.bold}>€{subTotal.toFixed(2)}</Text>
               </View>

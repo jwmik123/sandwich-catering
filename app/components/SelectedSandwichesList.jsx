@@ -39,11 +39,11 @@ const SelectedSandwichesList = ({
     const sauceOption = sandwich.sauceOptions?.find(
       (sauce) => sauce.name === sauceId
     );
-    return sauceOption ? ` met ${sauceOption.name}` : "";
+    return sauceOption ? ` with ${sauceOption.name}` : "";
   };
 
   return (
-    <div className="bg-muted px-4 py-2 mt-8 rounded-lg">
+    <div className="bg-custom-gray/10 px-4 py-2 mt-8 rounded-lg">
       <div className="divide-y divide-gray-300">
         {/* Render Sandwiches */}
         {sandwichSelections.length > 0 && (
