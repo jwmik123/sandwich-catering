@@ -27,7 +27,7 @@ const SelectedSandwichesList = ({
 
   if (groupedSelections.length === 0) {
     return (
-      <div className="bg-gray-50 p-4 rounded-lg text-gray-500 text-center mt-8">
+      <div className="bg-muted p-4 rounded-lg text-muted-foreground text-center mt-8">
         No items selected
       </div>
     );
@@ -43,7 +43,7 @@ const SelectedSandwichesList = ({
   };
 
   return (
-    <div className="bg-gray-50 px-4 py-2 mt-8 rounded-lg">
+    <div className="bg-muted px-4 py-2 mt-8 rounded-lg">
       <div className="divide-y divide-gray-300">
         {/* Render Sandwiches */}
         {sandwichSelections.length > 0 && (
@@ -54,7 +54,7 @@ const SelectedSandwichesList = ({
                 {selections.map((selection, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between text-sm text-gray-600 pl-4"
+                    className="flex items-center justify-between text-sm text-custom-gray pl-4"
                   >
                     <span>
                       {selection.quantity}x -{" "}
@@ -86,7 +86,7 @@ const SelectedSandwichesList = ({
                 {selections.map((selection, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between text-sm text-gray-600 pl-4"
+                    className="flex items-center justify-between text-sm text-custom-gray pl-4"
                   >
                     <span>
                       {selection.quantity}x

@@ -70,7 +70,7 @@ export default function QuoteLookup() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-green-500 hover:bg-green-600 text-white"
+              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
             >
               {isLoading ? (
                 <>

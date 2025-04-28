@@ -61,13 +61,13 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
+      <div className="flex items-center gap-2 text-lg font-medium text-muted-foreground">
         <CalendarIcon className="w-5 h-5" />
         <h2>Delivery details</h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-muted-foreground mb-2">
             Delivery date
           </label>
           <div className="flex flex-col justify-center items-center">
@@ -81,7 +81,7 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-muted-foreground mb-2">
             Delivery time
           </label>
           <Select

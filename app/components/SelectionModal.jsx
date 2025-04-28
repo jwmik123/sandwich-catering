@@ -169,7 +169,7 @@ const SelectionModal = ({
                   onClick={() => setShowAllergyInfo(!showAllergyInfo)}
                   className="h-8 w-8 absolute bottom-7 left-5"
                 >
-                  <Info className="h-5 w-5 text-gray-500" />
+                  <Info className="h-5 w-5 text-muted-foreground" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-xs">
@@ -188,8 +188,8 @@ const SelectionModal = ({
 
         {/* Allergy Information Dialog */}
         {showAllergyInfo && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-primary/80 flex items-center justify-center z-50">
+            <div className="bg-background p-6 rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-bold">Allergy Information</h3>
                 <Button

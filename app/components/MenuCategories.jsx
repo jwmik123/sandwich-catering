@@ -80,15 +80,13 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
                       <div className="w-1/2">
                         <div className="flex flex-col gap-1">
                           <h3 className="font-bold text-lg">{item.name}</h3>
-                          <p className="text-sm text-gray-500">
-                            {item.description}
-                          </p>
-                          <p className="text-sm font-medium text-gray-500 mt-1">
+                          <p className="text-sm">{item.description}</p>
+                          <p className="text-sm font-medium  mt-1">
                             €{item.price.toFixed(2)}
                           </p>
                           {item.dietaryType && (
-                            <div className="text-xs font-medium rounded mt-2 text-gray-800">
-                              <span className="bg-gray-100 px-2 py-1">
+                            <div className="text-xs font-medium rounded mt-2 text-muted-foreground">
+                              <span className="bg-muted px-2 py-1">
                                 {item.dietaryType}
                               </span>
                             </div>

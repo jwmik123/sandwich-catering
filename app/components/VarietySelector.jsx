@@ -101,7 +101,9 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
                     min="0"
                     max={totalSandwiches}
                   />
-                  <span className="ml-2 text-sm text-gray-500">sandwiches</span>
+                  <span className="ml-2 text-sm text-custom-gray">
+                    sandwiches
+                  </span>
                   {selectedTypes.nonVega &&
                     suggestedDistribution.nonVega > 0 && (
                       <span className="ml-2 text-sm text-blue-600">
@@ -135,7 +137,9 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
                     min="0"
                     max={totalSandwiches}
                   />
-                  <span className="ml-2 text-sm text-gray-500">sandwiches</span>
+                  <span className="ml-2 text-sm text-custom-gray">
+                    sandwiches
+                  </span>
                   {selectedTypes.vega && suggestedDistribution.vega > 0 && (
                     <span className="ml-2 text-sm text-blue-600">
                       (Voorgesteld: {suggestedDistribution.vega})
@@ -168,7 +172,9 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
                     min="0"
                     max={totalSandwiches}
                   />
-                  <span className="ml-2 text-sm text-gray-500">sandwiches</span>
+                  <span className="ml-2 text-sm text-custom-gray">
+                    sandwiches
+                  </span>
                   {selectedTypes.vegan && suggestedDistribution.vegan > 0 && (
                     <span className="ml-2 text-sm text-blue-600">
                       (Voorgesteld: {suggestedDistribution.vegan})
@@ -207,16 +213,16 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
 
       {/* Price calculation */}
       <div className="border-t pt-4 mt-4">
-        <div className="bg-gray-50 p-4 rounded-md space-y-2">
-          <div className="flex justify-between text-sm text-gray-600">
+        <div className="bg-custom-gray/10 p-4 rounded-md space-y-2">
+          <div className="flex justify-between text-sm text-custom-gray">
             <span>Price per sandwich</span>
             <span>€6,38</span>
           </div>
-          <div className="flex justify-between text-sm text-gray-600">
+          <div className="flex justify-between text-sm text-custom-gray">
             <span>Number of sandwiches</span>
             <span>{currentTotal}</span>
           </div>
-          <div className="flex justify-between font-medium text-gray-900 pt-2 border-t">
+          <div className="flex justify-between font-medium text-custom-gray pt-2 border-t">
             <span>Total amount</span>
             <span>€{(currentTotal * 6.38).toFixed(2)} excl. VAT</span>
           </div>

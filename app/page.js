@@ -354,8 +354,8 @@ const Home = () => {
 
   const commonButtonClasses =
     "px-4 py-2 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2";
-  const primaryButtonClasses = `${commonButtonClasses} bg-black text-white hover:bg-gray-800 focus:ring-gray-500`;
-  const secondaryButtonClasses = `${commonButtonClasses} bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-500`;
+  const primaryButtonClasses = `${commonButtonClasses} bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary`;
+  const secondaryButtonClasses = `${commonButtonClasses} bg-muted text-muted-foreground hover:bg-muted/90 focus:ring-muted`;
 
   const updateFormData = (field, value) => {
     setFormData((prev) => {
@@ -396,7 +396,7 @@ const Home = () => {
   const renderCombinedSteps = () => (
     <div className="space-y-8">
       {/* Header section */}
-      <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
+      <div className="flex items-center gap-2 text-lg font-medium text-custom-gray">
         <Users className="w-5 h-5" />
         <h2>Amount of sandwiches</h2>
       </div>
@@ -456,11 +456,11 @@ const Home = () => {
         </div>
 
         {/* Order Summary */}
-        <div className="bg-gray-50 p-6 rounded-lg w-full md:w-1/2">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Summary</h3>
+        <div className="bg-custom-gray/10 p-6 rounded-lg w-full md:w-1/2">
+          <h3 className="text-lg font-medium text-custom-gray mb-4">Summary</h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-custom-gray">
                 Total number of sandwiches
               </p>
               <p className="text-lg font-medium">{formData.totalSandwiches}</p>
@@ -480,7 +480,7 @@ const Home = () => {
   const renderStep3 = () => {
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
+        <div className="flex items-center gap-2 text-lg font-medium text-custom-gray">
           <Utensils className="w-5 h-5" />
           <h2>Choose your Selection</h2>
         </div>
@@ -490,26 +490,26 @@ const Home = () => {
             className={`p-4 rounded-lg border-2 cursor-pointer transition-colors ${
               formData.selectionType === "custom"
                 ? "border-black bg-beige-50"
-                : "border-gray-200 hover:border-gray-300"
+                : "border-custom-gray/20 hover:border-custom-gray/30"
             }`}
             onClick={() => updateFormData("selectionType", "custom")}
           >
             <h3 className="text-lg font-medium mb-2">
               Create your own selection
             </h3>
-            <p className="text-sm text-gray-600">Choose your sandwiches</p>
+            <p className="text-sm text-custom-gray">Choose your sandwiches</p>
           </div>
 
           <div
             className={`p-4 rounded-lg border-2 cursor-pointer transition-colors ${
               formData.selectionType === "variety"
                 ? "border-black bg-beige-50"
-                : "border-gray-200 hover:border-gray-300"
+                : "border-custom-gray/20 hover:border-custom-gray/30"
             }`}
             onClick={() => updateFormData("selectionType", "variety")}
           >
             <h3 className="text-lg font-medium mb-2">Variety Offer</h3>
-            <p className="text-sm text-gray-600">Let us surprise you! :)</p>
+            <p className="text-sm text-custom-gray">Let us surprise you! :)</p>
           </div>
         </div>
 
@@ -521,10 +521,10 @@ const Home = () => {
               updateFormData={updateFormData}
             />
 
-            <div className="mt-6 bg-gray-50 p-4 rounded-lg">
+            <div className="mt-6 bg-custom-gray/10 p-4 rounded-lg">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-sm text-gray-500">Selected items</p>
+                  <p className="text-sm text-custom-gray">Selected items</p>
                   <p className="text-lg font-medium">
                     {Object.values(formData.customSelection)
                       .flat()
@@ -536,7 +536,7 @@ const Home = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Total amount</p>
+                  <p className="text-sm text-custom-gray">Total amount</p>
                   <p className="text-lg font-medium">
                     €
                     {Object.values(formData.customSelection)
@@ -580,7 +580,7 @@ const Home = () => {
       </div>
 
       <div className="space-y-4">
-        <div className="bg-gray-50 p-6 rounded-lg space-y-4">
+        <div className="bg-custom-gray/10 p-6 rounded-lg space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-gray-500">
@@ -716,20 +716,23 @@ const Home = () => {
             onChange={(e) => updateFormData("allergies", e.target.value)}
           />
         </div>
-        <div className="border-t pt-4 mt-4">
-          <QuoteButton
-            formData={formData}
-            sandwichOptions={sandwichOptions}
-            buttonClasses={secondaryButtonClasses}
-          />
+        <div className="flex gap-2">
+          <div className=" pt-4 mt-4 w-full">
+            <QuoteButton
+              formData={formData}
+              sandwichOptions={sandwichOptions}
+              buttonClasses={secondaryButtonClasses}
+            />
+          </div>
+          <div className=" pt-4 mt-4 w-full">
+            <button
+              onClick={() => setCurrentStep(2)}
+              className="w-full px-2 py-2 rounded-md font-medium bg-custom-gray/10 text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            >
+              Update order
+            </button>
+          </div>
         </div>
-
-        <button
-          onClick={() => setCurrentStep(2)}
-          className="w-full px-4 py-2 rounded-md font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-        >
-          Change order
-        </button>
       </div>
     </div>
   );
@@ -914,7 +917,7 @@ const Home = () => {
         <h2>Payment</h2>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-custom-gray/10 rounded-lg border border-gray-200 p-6">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Subtotal:</span>
@@ -949,8 +952,8 @@ const Home = () => {
           </div>
         </div>
         {deliveryError && (
-          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
-            <p className="text-green-600 text-sm">{deliveryError}</p>
+          <div className="mt-4 p-3 bg-accent border border-accent rounded-md">
+            <p className="text-accent-foreground text-sm">{deliveryError}</p>
           </div>
         )}
       </div>
@@ -1052,131 +1055,137 @@ const Home = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="mx-auto">
-        {/* Top Navigation Bar */}
-        <div className="sticky top-0 bg-white border-b z-10">
-          <div className="text-sm text-center bg-green-500 text-white p-2 flex space-x-2 justify-center items-center">
-            <span className="font-bold">Free delivery from €75,- </span>
-            <span className="italic text-xs">
-              some areas excluded (1026-1028, 1035, 1101-1109).
-            </span>
-          </div>
-          <div className="container mx-auto p-4">
-            <div className="flex items-center justify-between">
-              <Image
-                src={"/tsb-logo.png"}
-                alt="The Sandwichbar Amsterdam Logo"
-                className="w-10 h-10 md:w-16 md:h-16"
-                width={100}
-                height={100}
-              />
-              {/* Back Button */}
-              {currentStep > 1 && (
-                <button
-                  onClick={() => setCurrentStep((prev) => prev - 1)}
-                  className={`${secondaryButtonClasses} flex items-center gap-2`}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  Go back
-                </button>
-              )}
-
-              {/* Progress Text */}
-              <div className="text-sm font-medium text-gray-500">
-                Step {currentStep} of {steps.length}
-              </div>
-
-              {/* Next Button */}
-              {currentStep < steps.length && (
-                <div className="flex items-end">
-                  <button
-                    onClick={() => {
-                      const validationMessage =
-                        getValidationMessage(currentStep);
-                      if (!isStepValid(currentStep) && validationMessage) {
-                        toast.error(validationMessage);
-                      } else if (isStepValid(currentStep)) {
-                        setCurrentStep((prev) => prev + 1);
-                      }
-                    }}
-                    className={`${primaryButtonClasses} flex items-center gap-2 ${
-                      !isStepValid(currentStep) ? "opacity-50" : ""
-                    }`}
-                  >
-                    {currentStep === steps.length - 1 ? "Payment" : "Next"}
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+    <div className="min-h-screen bg-background">
+      <div className="sticky top-0 bg-background border-b z-10">
+        <div className="text-sm text-center bg-accent text-accent-foreground p-2 flex space-x-2 justify-center items-center">
+          <span className="font-bold">Free delivery from €75,- </span>
+          <span className="italic text-xs">
+            some areas excluded (1026-1028, 1035, 1101-1109).
+          </span>
         </div>
+        <div className="container mx-auto p-4">
+          <div className="flex items-center justify-between">
+            <Image
+              src={"/tsb-logo.png"}
+              alt="The Sandwichbar Amsterdam Logo"
+              className="w-10 md:w-32"
+              width={250}
+              height={250}
+            />
+            {/* Back Button */}
+            {currentStep > 1 && (
+              <button
+                onClick={() => setCurrentStep((prev) => prev - 1)}
+                className={`${secondaryButtonClasses} flex items-center gap-2`}
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Go back
+              </button>
+            )}
 
-        {/* Progress Steps */}
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            {steps.map((step, index) => {
-              const StepIcon = step.icon;
-              return (
-                <div
-                  key={index}
-                  className={`flex flex-col items-center ${
-                    index + 1 === currentStep
-                      ? "text-black"
-                      : index + 1 < currentStep
-                        ? "text-green-600"
-                        : "text-gray-400"
+            {/* Progress Text */}
+            <div className="text-sm font-medium text-gray-500">
+              Step {currentStep} of {steps.length}
+            </div>
+
+            {/* Next Button */}
+            {currentStep < steps.length && (
+              <div className="flex items-end">
+                <button
+                  onClick={() => {
+                    const validationMessage = getValidationMessage(currentStep);
+                    if (!isStepValid(currentStep) && validationMessage) {
+                      toast.error(validationMessage);
+                    } else if (isStepValid(currentStep)) {
+                      setCurrentStep((prev) => prev + 1);
+                    }
+                  }}
+                  className={`${primaryButtonClasses} flex items-center gap-2 ${
+                    !isStepValid(currentStep) ? "opacity-50" : ""
                   }`}
                 >
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white border-2 border-current">
-                    <StepIcon className="w-4 h-4" />
-                  </div>
-                  <span className="text-xs mt-1 hidden md:block">
-                    {step.title}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-          <div className="h-2 bg-gray-200 rounded-full">
-            <div
-              className="h-full bg-black rounded-full transition-all duration-300"
-              style={{
-                width: `${((currentStep - 1) / (steps.length - 1)) * 100}%`,
-              }}
-            />
+                  {currentStep === steps.length - 1 ? "Payment" : "Next"}
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
+      </div>
 
-        {/* Main Content */}
-        <div className="container mx-auto px-4 pb-8">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            {currentStep === 1 && renderCombinedSteps()}
-            {currentStep === 2 && renderStep3()}
-            {currentStep === 3 && renderStep4()}
-            {currentStep === 4 && renderStep5()}
-            {currentStep === 5 && renderStep6()}
-            {currentStep === 6 && renderStep7()}
-          </div>
-
-          {/* Quote Lookup Link */}
-          <div className="mt-6 flex justify-between items-center">
-            <Link
-              href="/quote/lookup"
-              className="text-gray-400 px-4 py-2 underline rounded-md flex items-center gap-2"
-            >
-              <FileSearch className="w-4 h-4" />
-              Load quote
-            </Link>
-            <span className="text-sm text-gray-500">
-              <Link href="https://mikdevelopment.nl" target="_blank">
-                <span className="text-sm text-gray-400">
-                  Powered by Mik Development
+      {/* Progress Steps */}
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between mb-4">
+          {steps.map((step, index) => {
+            const StepIcon = step.icon;
+            return (
+              <div
+                key={index}
+                className={`flex flex-col items-center ${
+                  index + 1 === currentStep
+                    ? "text-black"
+                    : index + 1 < currentStep
+                      ? "text-green-600"
+                      : "text-gray-400"
+                }`}
+              >
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-background border-2 border-current">
+                  <StepIcon className="w-4 h-4" />
+                </div>
+                <span className="text-xs mt-1 hidden md:block">
+                  {step.title}
                 </span>
-              </Link>
-            </span>
-          </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="h-2 bg-muted rounded-full">
+          <div
+            className="h-full bg-primary rounded-full transition-all duration-300"
+            style={{
+              width: `${((currentStep - 1) / (steps.length - 1)) * 100}%`,
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-4 pb-8">
+        <div className="bg-background rounded-lg shadow-md p-6">
+          {currentStep === 1 && renderCombinedSteps()}
+          {currentStep === 2 && renderStep3()}
+          {currentStep === 3 && renderStep4()}
+          {currentStep === 4 && renderStep5()}
+          {currentStep === 5 && renderStep6()}
+          {currentStep === 6 && renderStep7()}
+        </div>
+
+        {/* Quote Lookup Link */}
+        <div className="mt-6 flex justify-between items-center">
+          <Link
+            href="/quote/lookup"
+            className="text-gray-400 px-4 py-2 underline rounded-md flex items-center gap-2"
+          >
+            <FileSearch className="w-4 h-4" />
+            Load quote
+          </Link>
+          <span className="text-sm text-gray-500">
+            <Link href="https://mikdevelopment.nl" target="_blank">
+              <span className="text-sm text-gray-400">
+                Powered by Mik Development
+              </span>
+            </Link>
+          </span>
+        </div>
+        {/* Full width image container */}
+        <div className="w-full mt-8 flex justify-center">
+          <Image
+            src="/tsb-logo-full.png"
+            alt="Company Logo"
+            className="max-w-full h-auto"
+            width={250}
+            height={250}
+          />
         </div>
       </div>
     </div>

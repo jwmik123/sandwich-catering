@@ -13,7 +13,7 @@ function SuccessContent() {
   const formData = searchParams.get("formData");
   const commonButtonClasses =
     "px-4 py-2 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2";
-  const secondaryButtonClasses = `${commonButtonClasses} bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-500`;
+  const secondaryButtonClasses = `${commonButtonClasses} bg-muted text-muted-foreground hover:bg-muted/90 focus:ring-muted`;
 
   useEffect(() => {
     setLoading(false);
@@ -30,27 +30,27 @@ function SuccessContent() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="space-y-6">
-        <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
+        <div className="flex items-center gap-2 text-lg font-medium text-muted-foreground">
           <CheckCircle className="w-5 h-5" />
           <h2>Confirmation</h2>
         </div>
 
         <div className="space-y-6">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-green-800 mb-2">
+          <div className="bg-accent border border-accent rounded-lg p-6">
+            <h3 className="text-lg font-medium text-accent-foreground mb-2">
               Thank you for your order!
             </h3>
-            <p className="text-green-700">
+            <p className="text-accent-foreground">
               We have received your order and will process it.
             </p>
-            <p className="text-green-700 mt-6">
+            <p className="text-accent-foreground mt-6">
               You will receive a confirmation by email.
             </p>
           </div>
 
-          <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+          <div className="bg-muted rounded-lg p-6 space-y-4">
             <div className="flex space-x-4 items-center">
-              <p className="text-sm text-gray-500">Quote ID:</p>
+              <p className="text-sm text-muted-foreground">Quote ID:</p>
               <p className="font-medium">{quoteId}</p>
             </div>
           </div>

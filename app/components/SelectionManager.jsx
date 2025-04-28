@@ -30,8 +30,8 @@ const SelectionManager = ({
       <button
         onClick={() => setIsModalOpen(true)}
         disabled={!isDrink(sandwich) && remainingQuantity === 0}
-        className="px-3 py-1 rounded-md font-medium bg-gray-100 text-gray-700
-          hover:bg-gray-200 focus:outline-none focus:ring-2
+        className="px-3 py-1 rounded-md font-medium bg-muted text-muted-foreground
+          hover:bg-muted/90 focus:outline-none focus:ring-2
           focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50"
       >
         +
