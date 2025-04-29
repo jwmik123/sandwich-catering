@@ -49,7 +49,7 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
   return (
     <div className="w-full">
       <Tabs defaultValue={uniqueCategories[0]?.value} className="w-full">
-        <TabsList className="w-full grid grid-cols-5 gap-4">
+        <TabsList className="grid w-full grid-cols-4 gap-4">
           {uniqueCategories.map((category) => (
             <TabsTrigger
               key={category.id}
@@ -66,7 +66,7 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
             value={category.value}
             className="mt-6"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {sandwichOptions
                 .filter((item) => item.category === category.value)
                 .map((item) => (
@@ -75,18 +75,18 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
 
                     <div
                       key={item._id}
-                      className="shadow-md p-4 relative flex justify-between gap-4 min-h-44"
+                      className="relative flex justify-between gap-4 p-4 shadow-md min-h-44"
                     >
                       <div className="w-1/2">
                         <div className="flex flex-col gap-1">
-                          <h3 className="font-bold text-lg">{item.name}</h3>
+                          <h3 className="text-lg font-bold">{item.name}</h3>
                           <p className="text-sm">{item.description}</p>
-                          <p className="text-sm font-medium  mt-1">
+                          <p className="mt-1 text-sm font-medium">
                             €{item.price.toFixed(2)}
                           </p>
                           {item.dietaryType && (
-                            <div className="text-xs font-medium rounded mt-2 text-muted-foreground">
-                              <span className="bg-muted px-2 py-1">
+                            <div className="mt-2 text-xs font-medium rounded text-muted-foreground">
+                              <span className="px-2 py-1 bg-muted">
                                 {item.dietaryType}
                               </span>
                             </div>
@@ -94,9 +94,9 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
                         </div>
                       </div>
 
-                      <div className="w-1/2 relative -m-4 overflow-hidden">
+                      <div className="relative w-1/2 -m-4 overflow-hidden">
                         <div
-                          className="absolute inset-0 bg-cover bg-center md:scale-125"
+                          className="absolute inset-0 bg-center bg-cover md:scale-125"
                           style={{
                             backgroundImage: `url(${urlFor(item.image).url()})`,
                           }}

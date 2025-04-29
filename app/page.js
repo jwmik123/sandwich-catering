@@ -398,7 +398,7 @@ const Home = () => {
       {/* Header section */}
       <div className="flex items-center gap-2 text-lg font-medium text-custom-gray">
         <Users className="w-5 h-5" />
-        <h2>Amount of sandwiches</h2>
+        <h2 className="text-gray-700">Amount of sandwiches</h2>
       </div>
       <div className="flex flex-col gap-4 md:flex-row">
         <div className="flex flex-row w-full md:w-1/2">
@@ -482,7 +482,7 @@ const Home = () => {
       <div className="space-y-6">
         <div className="flex items-center gap-2 text-lg font-medium text-custom-gray">
           <Utensils className="w-5 h-5" />
-          <h2>Choose your Selection</h2>
+          <h2 className="text-gray-700">Choose your Selection</h2>
         </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -576,7 +576,7 @@ const Home = () => {
     <div className="space-y-6">
       <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
         <FileText className="w-5 h-5" />
-        <h2>Order summary</h2>
+        <h2 className="text-gray-700">Order summary</h2>
       </div>
 
       <div className="space-y-4">
@@ -824,7 +824,7 @@ const Home = () => {
     <div className="space-y-6">
       <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
         <Building2 className="w-5 h-5" />
-        <h2>Contact and Company details</h2>
+        <h2 className="text-gray-700">Contact and Company details</h2>
       </div>
 
       <div className="space-y-4">
@@ -914,7 +914,7 @@ const Home = () => {
     <div className="space-y-6">
       <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
         <CreditCard className="w-5 h-5" />
-        <h2>Payment</h2>
+        <h2 className="text-gray-700">Payment</h2>
       </div>
 
       <div className="p-6 border border-gray-200 rounded-lg bg-custom-gray/10">
@@ -1057,18 +1057,18 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="sticky top-0 z-10 border-b bg-background">
-        <div className="flex items-center justify-center p-2 space-x-2 text-sm text-center bg-accent text-accent-foreground">
+        <div className="flex items-center justify-center p-2 space-x-2 text-sm text-center bg-green-500 text-accent-foreground">
           <span className="font-bold">Free delivery from €75,- </span>
           <span className="text-xs italic">
             some areas excluded (1026-1028, 1035, 1101-1109).
           </span>
         </div>
-        <div className="container p-4 mx-auto">
+        <div className="container px-4 py-1 mx-auto">
           <div className="flex items-center justify-between">
             <Image
               src={"/tsb-logo-full.png"}
               alt="The Sandwichbar Amsterdam Logo"
-              className="w-16 md:w-24"
+              className="w-16 md:w-20"
               width={250}
               height={250}
             />
@@ -1076,7 +1076,7 @@ const Home = () => {
             {currentStep > 1 && (
               <button
                 onClick={() => setCurrentStep((prev) => prev - 1)}
-                className={`${secondaryButtonClasses} flex items-center gap-2`}
+                className={`${secondaryButtonClasses} flex items-center gap-1`}
               >
                 <ChevronLeft className="w-4 h-4" />
                 Go back
@@ -1084,7 +1084,7 @@ const Home = () => {
             )}
 
             {/* Progress Text */}
-            <div className="text-sm font-medium text-gray-500">
+            <div className="hidden text-sm font-medium text-gray-500 md:block">
               Step {currentStep} of {steps.length}
             </div>
 
@@ -1100,7 +1100,7 @@ const Home = () => {
                       setCurrentStep((prev) => prev + 1);
                     }
                   }}
-                  className={`${primaryButtonClasses} flex items-center gap-2 ${
+                  className={`${primaryButtonClasses} flex items-center gap-1 ${
                     !isStepValid(currentStep) ? "opacity-50" : ""
                   }`}
                 >
@@ -1150,7 +1150,7 @@ const Home = () => {
       </div>
 
       {/* Main Content */}
-      <div className="container px-4 pb-8 mx-auto">
+      <div className="pb-8 mx-auto md:px-4 md:container">
         <div className="p-6 rounded-lg shadow-md bg-background">
           {currentStep === 1 && renderCombinedSteps()}
           {currentStep === 2 && renderStep3()}
@@ -1171,7 +1171,7 @@ const Home = () => {
           </Link>
           <span className="text-sm text-gray-500">
             <Link href="https://mikdevelopment.nl" target="_blank">
-              <span className="text-sm text-gray-400">
+              <span className="text-xs text-gray-400">
                 Powered by Mik Development
               </span>
             </Link>
