@@ -50,7 +50,7 @@ const Footer = () => {
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
-                  href="/terms-and-conditions"
+                  href="/terms"
                   className="text-muted-foreground hover:text-white"
                 >
                   Terms and Conditions
@@ -58,35 +58,10 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/privacy-policy"
+                  href="/privacy"
                   className="text-muted-foreground hover:text-white"
                 >
                   Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/cookie-policy"
-                  className="text-muted-foreground hover:text-white"
-                >
-                  Cookie Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/payment-information"
-                  className="text-muted-foreground hover:text-white"
-                >
-                  Payment Information
-                </Link>
-              </li>
-
-              <li>
-                <Link
-                  href="/delivery-terms"
-                  className="text-muted-foreground hover:text-white"
-                >
-                  Delivery Terms
                 </Link>
               </li>
             </ul>

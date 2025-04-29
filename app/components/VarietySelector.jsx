@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { HelpCircle } from "lucide-react";
 
 const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
   const [selectedTypes, setSelectedTypes] = useState({
@@ -75,10 +76,23 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
 
   return (
     <div className="space-y-6">
+      <div className="relative group">
+        <div className="absolute top-0 right-0 p-2 transition-colors rounded-full hover:bg-blue-50">
+          <HelpCircle className="w-5 h-5 text-blue-600" />
+        </div>
+        <div className="absolute right-0 z-10 invisible w-64 p-4 mt-2 transition-all duration-200 bg-white rounded-lg shadow-lg opacity-0 top-full group-hover:opacity-100 group-hover:visible">
+          <p className="text-sm text-gray-700">
+            Our variety offer lets you choose the distribution of sandwich
+            types. We'll select the best sandwiches from each category to create
+            a balanced and delicious selection for you.
+          </p>
+        </div>
+      </div>
+
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-6">
           <div className="flex flex-col">
-            <Label htmlFor="nonVega" className="font-bold text-base">
+            <Label htmlFor="nonVega" className="text-base font-bold">
               Chicken, Meat, Fish
             </Label>
             <div className="flex items-center space-x-2">
@@ -116,7 +130,7 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
           </div>
 
           <div className="flex flex-col">
-            <Label htmlFor="vega" className="font-bold text-base">
+            <Label htmlFor="vega" className="text-base font-bold">
               Vegetarian
             </Label>
             <div className="flex items-center space-x-2">
@@ -151,7 +165,7 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
           </div>
 
           <div className="flex flex-col">
-            <Label htmlFor="vegan" className="font-bold text-base">
+            <Label htmlFor="vegan" className="text-base font-bold">
               Vegan
             </Label>
             <div className="flex items-center space-x-2">
@@ -198,22 +212,24 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
       >
         {currentTotal === totalSandwiches ? (
           <p className="text-green-700">
-            All {totalSandwiches} sandwiches are distributed
+            Perfect! All {totalSandwiches} sandwiches are distributed
           </p>
         ) : currentTotal > totalSandwiches ? (
           <p className="text-red-700">
-            You have {currentTotal - totalSandwiches} sandwiches too many
+            You have {currentTotal - totalSandwiches} sandwiches too many.
+            Please adjust the numbers.
           </p>
         ) : (
           <p className="text-blue-700">
-            You have {totalSandwiches - currentTotal} sandwiches to distribute
+            You still have {totalSandwiches - currentTotal} sandwiches to
+            distribute
           </p>
         )}
       </div>
 
       {/* Price calculation */}
-      <div className="border-t pt-4 mt-4">
-        <div className="bg-custom-gray/10 p-4 rounded-md space-y-2">
+      <div className="pt-4 mt-4 border-t">
+        <div className="p-4 space-y-2 rounded-md bg-custom-gray/10">
           <div className="flex justify-between text-sm text-custom-gray">
             <span>Price per sandwich</span>
             <span>€6,38</span>
@@ -222,7 +238,7 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
             <span>Number of sandwiches</span>
             <span>{currentTotal}</span>
           </div>
-          <div className="flex justify-between font-medium text-custom-gray pt-2 border-t">
+          <div className="flex justify-between pt-2 font-medium border-t text-custom-gray">
             <span>Total amount</span>
             <span>€{(currentTotal * 6.38).toFixed(2)} excl. VAT</span>
           </div>
