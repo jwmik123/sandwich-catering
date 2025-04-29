@@ -118,6 +118,11 @@ const Home = () => {
     return 1;
   });
 
+  // Add useEffect to handle scrolling to top on step change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentStep]);
+
   const [formData, setFormData] = useState({
     // Stap 1
     totalSandwiches: 15,

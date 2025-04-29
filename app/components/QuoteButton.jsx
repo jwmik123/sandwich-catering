@@ -21,15 +21,25 @@ export default function QuoteButton({
         const pdfResponse = await fetch(result.pdfUrl);
         const pdfBlob = await pdfResponse.blob();
         const url = window.URL.createObjectURL(pdfBlob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", `offerte-${result.quoteId}.pdf`);
-        document.body.appendChild(link);
-        link.click();
+
+        // Create an invisible iframe for mobile Safari
+        const iframe = document.createElement("iframe");
+        iframe.style.display = "none";
+        document.body.appendChild(iframe);
+
+        // Write a download link to the iframe and click it
+        iframe.contentWindow.document.write(`
+          <a id="downloadLink" 
+             download="offerte-${result.quoteId}.pdf" 
+             href="${url}">Download</a>
+        `);
+        iframe.contentWindow.document.getElementById("downloadLink").click();
 
         // Cleanup
         window.URL.revokeObjectURL(url);
-        link.remove();
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+        }, 1000);
       } else {
         console.error("Failed to generate quote:", result.error);
         // You might want to show an error message to the user
