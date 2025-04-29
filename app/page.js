@@ -1055,7 +1055,7 @@ const Home = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-[70vh] bg-background">
       <div className="sticky top-0 z-10 border-b bg-background">
         <div className="flex items-center justify-center p-2 space-x-2 text-sm text-center bg-green-500 text-accent-foreground">
           <span className="font-bold">Free delivery from €75,- </span>
@@ -1169,23 +1169,6 @@ const Home = () => {
             <FileSearch className="w-4 h-4" />
             Load quote
           </Link>
-          <span className="text-sm text-gray-500">
-            <Link href="https://mikdevelopment.nl" target="_blank">
-              <span className="text-xs text-gray-400">
-                Powered by Mik Development
-              </span>
-            </Link>
-          </span>
-        </div>
-        {/* Full width image container */}
-        <div className="flex justify-center w-full mt-8">
-          <Image
-            src="/tsb-logo-full.png"
-            alt="Company Logo"
-            className="h-auto max-w-full"
-            width={250}
-            height={250}
-          />
         </div>
       </div>
     </div>

@@ -23,7 +23,8 @@ import {
 } from "@/components/ui/tooltip";
 import { breadTypes, sauces } from "@/app/assets/constants";
 import { isDrink } from "@/lib/product-helpers";
-import { Info } from "lucide-react";
+import { Info, X } from "lucide-react";
+import { urlFor } from "@/sanity/lib/image";
 
 const SelectionModal = ({
   isOpen,
@@ -80,7 +81,7 @@ const SelectionModal = ({
     return (
       <div className="space-y-2">
         <p className="font-medium">This product contains or may contain:</p>
-        <ul className="list-disc pl-5 text-sm">
+        <ul className="pl-5 text-sm list-disc">
           {sandwich.allergyInfo.map((allergen) => (
             <li key={allergen} className="capitalize">
               {allergen}
@@ -88,7 +89,7 @@ const SelectionModal = ({
           ))}
         </ul>
         {sandwich.allergyNotes && (
-          <p className="text-sm mt-2 italic">{sandwich.allergyNotes}</p>
+          <p className="mt-2 text-sm italic">{sandwich.allergyNotes}</p>
         )}
       </div>
     );
@@ -96,114 +97,136 @@ const SelectionModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Select options - {sandwich?.name}</DialogTitle>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[425px] p-0">
+        <div className="relative w-full h-40 overflow-hidden rounded-t-lg">
+          <div
+            className="absolute inset-0 scale-150 bg-center bg-cover"
+            style={{
+              backgroundImage: `url(${urlFor(sandwich?.image).url()})`,
+            }}
+          />
+          <Button
+            variant="link"
+            size="icon"
+            onClick={onClose}
+            className="absolute w-8 h-8 text-black rounded-full top-2 right-2"
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
 
-        <div className="grid gap-4 py-4">
-          <div className="space-y-2">
-            <Label>Amount</Label>
-            <Select value={quantity} onValueChange={setQuantity}>
-              <SelectTrigger className="w-20">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {quantityOptions.map((value) => (
-                  <SelectItem key={value} value={value}>
-                    {value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="p-6">
+          <DialogHeader className="mb-4">
+            <DialogTitle>Select options - {sandwich?.name}</DialogTitle>
+          </DialogHeader>
 
-          {/* Only show bread type selection for non-drinks */}
-          {!isDrink(sandwich) && (
+          <div className="grid gap-4">
             <div className="space-y-2">
-              <Label>Bread type</Label>
-              <Select value={breadType} onValueChange={setBreadType}>
-                <SelectTrigger>
+              <Label>Amount</Label>
+              <Select value={quantity} onValueChange={setQuantity}>
+                <SelectTrigger className="w-20">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {breadTypes.map((bread) => (
-                    <SelectItem key={bread.id} value={bread.id}>
-                      {bread.name}
-                      {bread.surcharge > 0 &&
-                        ` (+€${bread.surcharge.toFixed(2)})`}
+                  {quantityOptions.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {value}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-          )}
 
-          {sandwich.hasSauceOptions && (
-            <div className="space-y-2">
-              <Label>Sauce</Label>
-              <Select value={sauce} onValueChange={setSauce}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="geen">No Sauce</SelectItem>
-                  {sandwich?.sauceOptions?.map((sauceOption) => (
-                    <SelectItem key={sauceOption.name} value={sauceOption.name}>
-                      {sauceOption.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            {/* Only show bread type selection for non-drinks */}
+            {!isDrink(sandwich) && (
+              <div className="space-y-2">
+                <Label>Bread type</Label>
+                <Select value={breadType} onValueChange={setBreadType}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {breadTypes.map((bread) => (
+                      <SelectItem key={bread.id} value={bread.id}>
+                        {bread.name}
+                        {bread.surcharge > 0 &&
+                          ` (+€${bread.surcharge.toFixed(2)})`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {sandwich.hasSauceOptions && (
+              <div className="space-y-2">
+                <Label>Sauce</Label>
+                <Select value={sauce} onValueChange={setSauce}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="geen">No Sauce</SelectItem>
+                    {sandwich?.sauceOptions?.map((sauceOption) => (
+                      <SelectItem
+                        key={sauceOption.name}
+                        value={sauceOption.name}
+                      >
+                        {sauceOption.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="flex items-center justify-between w-full">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowAllergyInfo(!showAllergyInfo)}
+                    className="absolute w-8 h-8 bottom-7 left-5"
+                  >
+                    <Info className="w-5 h-5 text-muted-foreground" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs">
+                  <p className="text-xs">Click for allergy information</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <div className="mt-4">
+              <Button variant="outline" onClick={onClose} className="mr-2">
+                Cancel
+              </Button>
+              <Button onClick={handleSubmit}>Add to order</Button>
+            </div>
+          </DialogFooter>
+
+          {/* Allergy Information Dialog */}
+          {showAllergyInfo && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/80">
+              <div className="bg-background p-6 rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold">Allergy Information</h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowAllergyInfo(false)}
+                  >
+                    ✕
+                  </Button>
+                </div>
+                {renderAllergyInfo()}
+              </div>
             </div>
           )}
         </div>
-
-        <DialogFooter className="flex items-center justify-between w-full">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowAllergyInfo(!showAllergyInfo)}
-                  className="h-8 w-8 absolute bottom-7 left-5"
-                >
-                  <Info className="h-5 w-5 text-muted-foreground" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-xs">
-                <p className="text-xs">Click for allergy information</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <div>
-            <Button variant="outline" onClick={onClose} className="mr-2">
-              Cancel
-            </Button>
-            <Button onClick={handleSubmit}>Add to order</Button>
-          </div>
-        </DialogFooter>
-
-        {/* Allergy Information Dialog */}
-        {showAllergyInfo && (
-          <div className="fixed inset-0 bg-primary/80 flex items-center justify-center z-50">
-            <div className="bg-background p-6 rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold">Allergy Information</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowAllergyInfo(false)}
-                >
-                  ✕
-                </Button>
-              </div>
-              {renderAllergyInfo()}
-            </div>
-          </div>
-        )}
       </DialogContent>
     </Dialog>
   );

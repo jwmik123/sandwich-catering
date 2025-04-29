@@ -75,7 +75,7 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
 
                     <div
                       key={item._id}
-                      className="relative flex justify-between gap-4 p-4 shadow-md min-h-44"
+                      className="relative flex justify-between gap-4 p-4 rounded-lg shadow-md min-h-44"
                     >
                       <div className="w-1/2">
                         <div className="flex flex-col gap-1">
@@ -86,7 +86,7 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
                           </p>
                           {item.dietaryType && (
                             <div className="mt-2 text-xs font-medium rounded text-muted-foreground">
-                              <span className="px-2 py-1 bg-muted">
+                              <span className="px-2 py-1 rounded-sm bg-muted">
                                 {item.dietaryType}
                               </span>
                             </div>
