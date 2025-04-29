@@ -1066,7 +1066,7 @@ const Home = () => {
         <div className="container p-4 mx-auto">
           <div className="flex items-center justify-between">
             <Image
-              src={"/tsb-logo.png"}
+              src={"/tsb-logo-full.png"}
               alt="The Sandwichbar Amsterdam Logo"
               className="w-16 md:w-24"
               width={250}
