@@ -30,7 +30,7 @@ export default function QuoteButton({
         // Write a download link to the iframe and click it
         iframe.contentWindow.document.write(`
           <a id="downloadLink" 
-             download="offerte-${result.quoteId}.pdf" 
+             download="quote-${result.quoteId}.pdf" 
              href="${url}">Download</a>
         `);
         iframe.contentWindow.document.getElementById("downloadLink").click();

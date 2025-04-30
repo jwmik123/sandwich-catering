@@ -60,7 +60,7 @@ export async function GET(request, { params }) {
     if (!quote) {
       return NextResponse.json({
         success: false,
-        message: "Offerte niet gevonden",
+        message: "Quote not found",
       });
     }
 
@@ -69,7 +69,7 @@ export async function GET(request, { params }) {
     console.error("Error fetching quote:", error);
     return NextResponse.json({
       success: false,
-      message: "Er is iets misgegaan bij het ophalen van de offerte",
+      message: "Something went wrong when fetching the quote",
     });
   }
 }

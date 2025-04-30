@@ -10,38 +10,43 @@ import {
 const styles = StyleSheet.create({
   page: {
     padding: 30,
+    fontFamily: "Helvetica",
+    fontSize: 12,
+    backgroundColor: "#FFFCF8",
   },
   header: {
     marginBottom: 20,
     borderBottom: 1,
-    borderBottomColor: "#e5e7eb",
+    borderBottomColor: "#4D343F",
     paddingBottom: 10,
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
   },
   logo: {
-    width: "50px",
-    height: "50px",
+    width: "80px",
+    height: "80px",
   },
   title: {
-    fontSize: 24,
+    fontSize: 18,
     marginBottom: 10,
-    fontWeight: "bold",
-    textTransform: "uppercase",
+    fontWeight: 600,
+    color: "#382628",
   },
   quoteId: {
     fontSize: 12,
-    color: "#6b7280",
+    color: "#4D343F",
+    marginBottom: 5,
   },
   section: {
     marginTop: 15,
     marginBottom: 15,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 14,
     marginBottom: 10,
-    fontWeight: "bold",
+    fontWeight: 600,
+    color: "#382628",
   },
   row: {
     flexDirection: "row",
@@ -50,11 +55,53 @@ const styles = StyleSheet.create({
   label: {
     width: "30%",
     fontSize: 12,
-    color: "#6b7280",
+    color: "#4D343F",
   },
   value: {
     width: "70%",
     fontSize: 12,
+    color: "#382628",
+  },
+  table: {
+    width: "100%",
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  tableHeader: {
+    flexDirection: "row",
+    backgroundColor: "#4D343F",
+    color: "#FFFCF8",
+    padding: 5,
+    borderBottom: 1,
+    borderBottomColor: "#382628",
+  },
+  tableRow: {
+    flexDirection: "row",
+    padding: 5,
+    borderBottom: 1,
+    borderBottomColor: "#4D343F",
+  },
+  tableCell: {
+    flex: 1,
+    fontSize: 12,
+    color: "#382628",
+  },
+  tableCellBold: {
+    flex: 1,
+    fontSize: 12,
+    fontWeight: 600,
+    color: "#FFFCF8",
+  },
+  tableCellName: {
+    flex: 2,
+    fontSize: 12,
+    color: "#382628",
+  },
+  tableCellBoldName: {
+    flex: 2,
+    fontSize: 12,
+    fontWeight: 600,
+    color: "#FFFCF8",
   },
   sandwichItem: {
     display: "flex",
@@ -63,8 +110,9 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
   sandwichName: {
-    fontSize: 13,
-    fontWeight: "bold",
+    fontSize: 12,
+    fontWeight: 600,
+    color: "#382628",
     marginBottom: 2,
   },
   sandwichDetails: {
@@ -72,18 +120,40 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
     fontSize: 12,
-    color: "#4b5563",
+    color: "#382628",
     marginLeft: 10,
   },
   totalSection: {
     marginTop: 20,
-    borderTop: 1,
-    borderTopColor: "#e5e7eb",
     paddingTop: 10,
   },
-  bold: {
-    fontWeight: "bold",
+  totalRow: {
+    flexDirection: "row",
+    marginBottom: 5,
+  },
+  totalLabel: {
+    width: "30%",
     fontSize: 12,
+    fontWeight: 600,
+    color: "#382628",
+  },
+  totalValue: {
+    width: "70%",
+    fontSize: 12,
+    color: "#382628",
+  },
+  companyDetails: {
+    marginTop: 30,
+    paddingTop: 20,
+    borderTop: 1,
+    borderTopColor: "#4D343F",
+    fontSize: 10,
+    color: "#4D343F",
+  },
+  bold: {
+    fontWeight: 600,
+    fontSize: 12,
+    color: "#382628",
   },
   deliveryDetails: {
     display: "flex",
@@ -93,7 +163,7 @@ const styles = StyleSheet.create({
 });
 
 const imageUrl = {
-  uri: `${process.env.NEXT_PUBLIC_URL || "https://catering.thesandwichbar.nl"}/tsb.png`,
+  uri: `${process.env.NEXT_PUBLIC_URL || "https://catering.thesandwichbar.nl"}/tsb-logo-full.png`,
   method: "GET",
 };
 
@@ -171,58 +241,86 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
         {/* Sandwich Selection */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Selected Sandwiches</Text>
-          {orderData.selectionType === "custom" ? (
-            // Custom selection details with sandwich names
-            Object.entries(orderData.customSelection || {}).map(
-              ([sandwichId, selections]) => {
-                const sandwich = sandwichOptions?.find(
-                  (s) => s._id === sandwichId
-                );
-                const sandwichName = sandwich?.name || "Unknown sandwich";
-
-                return selections.map((selection, index) => (
-                  <View
-                    key={`${sandwichId}-${index}`}
-                    style={styles.sandwichItem}
-                  >
-                    <Text style={styles.sandwichName}>{sandwichName}</Text>
-                    <View style={styles.sandwichDetails}>
-                      <Text>
-                        {`${selection.quantity}x - ${selection.breadType ? selection.breadType : ""}`}
-                        {selection.sauce !== "geen" &&
-                          ` with ${selection.sauce}`}
-                      </Text>
-                      <Text style={styles.bold}>
-                        €{selection.subTotal.toFixed(2)}
-                      </Text>
-                    </View>
-                  </View>
-                ));
-              }
-            )
-          ) : (
-            // Variety selection details
+          <View style={styles.table}>
             <View>
-              <View style={styles.row}>
-                <Text style={styles.label}>Chicken, Meat, Fish:</Text>
-                <Text style={styles.value}>
-                  {orderData.varietySelection.nonVega} sandwiches
-                </Text>
+              <View style={styles.tableHeader}>
+                <Text style={styles.tableCellBoldName}>Sandwich</Text>
+                <Text style={styles.tableCellBold}>Quantity</Text>
+                <Text style={styles.tableCellBold}>Bread</Text>
+                <Text style={styles.tableCellBold}>Sauce</Text>
+                <Text style={styles.tableCellBold}>Price</Text>
               </View>
-              <View style={styles.row}>
-                <Text style={styles.label}>Vegetarian:</Text>
-                <Text style={styles.value}>
-                  {orderData.varietySelection.vega} sandwiches
-                </Text>
-              </View>
-              <View style={styles.row}>
-                <Text style={styles.label}>Vegan:</Text>
-                <Text style={styles.value}>
-                  {orderData.varietySelection.vegan} sandwiches
-                </Text>
-              </View>
+              {orderData.selectionType === "custom" ? (
+                Object.entries(orderData.customSelection || {}).map(
+                  ([sandwichId, selections]) => {
+                    const sandwich = sandwichOptions?.find(
+                      (s) => s._id === sandwichId
+                    );
+                    const sandwichName = sandwich?.name || "Unknown sandwich";
+
+                    return selections.map((selection, index) => (
+                      <View
+                        key={`${sandwichId}-${index}`}
+                        style={styles.tableRow}
+                      >
+                        <Text style={styles.tableCellName}>{sandwichName}</Text>
+                        <Text style={styles.tableCell}>
+                          {selection.quantity}x
+                        </Text>
+                        <Text style={styles.tableCell}>
+                          {selection.breadType || "-"}
+                        </Text>
+                        <Text style={styles.tableCell}>
+                          {selection.sauce !== "geen" ? selection.sauce : "-"}
+                        </Text>
+                        <Text style={styles.tableCell}>
+                          €{selection.subTotal.toFixed(2)}
+                        </Text>
+                      </View>
+                    ));
+                  }
+                )
+              ) : (
+                <>
+                  <View style={styles.tableRow}>
+                    <Text style={styles.tableCellName}>
+                      Chicken, Meat, Fish
+                    </Text>
+                    <Text style={styles.tableCell}>
+                      {orderData.varietySelection.nonVega}x
+                    </Text>
+                    <Text style={styles.tableCell}>-</Text>
+                    <Text style={styles.tableCell}>-</Text>
+                    <Text style={styles.tableCell}>
+                      €{(orderData.varietySelection.nonVega * 6.38).toFixed(2)}
+                    </Text>
+                  </View>
+                  <View style={styles.tableRow}>
+                    <Text style={styles.tableCellName}>Vegetarian</Text>
+                    <Text style={styles.tableCell}>
+                      {orderData.varietySelection.vega}x
+                    </Text>
+                    <Text style={styles.tableCell}>-</Text>
+                    <Text style={styles.tableCell}>-</Text>
+                    <Text style={styles.tableCell}>
+                      €{(orderData.varietySelection.vega * 6.38).toFixed(2)}
+                    </Text>
+                  </View>
+                  <View style={styles.tableRow}>
+                    <Text style={styles.tableCellName}>Vegan</Text>
+                    <Text style={styles.tableCell}>
+                      {orderData.varietySelection.vegan}x
+                    </Text>
+                    <Text style={styles.tableCell}>-</Text>
+                    <Text style={styles.tableCell}>-</Text>
+                    <Text style={styles.tableCell}>
+                      €{(orderData.varietySelection.vegan * 6.38).toFixed(2)}
+                    </Text>
+                  </View>
+                </>
+              )}
             </View>
-          )}
+          </View>
         </View>
 
         {/* Allergies */}
@@ -233,24 +331,31 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
 
         {/* Totals */}
         <View style={styles.totalSection}>
-          <View style={styles.row}>
-            <Text style={styles.label}>Subtotal:</Text>
-            <Text style={styles.value}>
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Subtotal:</Text>
+            <Text style={styles.totalValue}>
               €{calculateSubtotal(orderData).toFixed(2)}
             </Text>
           </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>VAT (9%):</Text>
-            <Text style={styles.value}>
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>VAT (9%):</Text>
+            <Text style={styles.totalValue}>
               €{(calculateSubtotal(orderData) * 0.09).toFixed(2)}
             </Text>
           </View>
-          <View style={styles.row}>
-            <Text style={[styles.label, styles.bold]}>Total:</Text>
-            <Text style={[styles.value, styles.bold]}>
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Total:</Text>
+            <Text style={[styles.totalValue, { fontWeight: 600 }]}>
               €{(calculateSubtotal(orderData) * 1.09).toFixed(2)}
             </Text>
           </View>
+        </View>
+
+        <View style={styles.companyDetails}>
+          <Text>The Sandwich Bar B.V.</Text>
+          <Text>Nassaukade 378 H</Text>
+          <Text>1054 AD Amsterdam</Text>
+          <Text>info@thesandwichbar.nl</Text>
         </View>
       </Page>
     </Document>

@@ -5,6 +5,7 @@ const nextConfig = {
       {
         hostname: "cdn.sanity.io",
       },
+      { hostname: "fonts.gstatic.com" },
     ],
   },
 };

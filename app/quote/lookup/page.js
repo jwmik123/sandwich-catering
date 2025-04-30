@@ -34,14 +34,14 @@ export default function QuoteLookup() {
       // Redirect to home page with query param
       router.push("/?restore=true");
     } catch (error) {
-      setError("Er is iets misgegaan bij het ophalen van de offerte");
+      setError("Something went wrong when fetching the quote");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
+    <div className="max-w-2xl p-6 mx-auto">
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl">Load quote</CardTitle>
@@ -62,7 +62,7 @@ export default function QuoteLookup() {
             </div>
 
             {error && (
-              <Alert variant="destructive" className="text-sm py-2 px-3">
+              <Alert variant="destructive" className="px-3 py-2 text-sm">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
@@ -74,7 +74,7 @@ export default function QuoteLookup() {
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Loading...
                 </>
               ) : (

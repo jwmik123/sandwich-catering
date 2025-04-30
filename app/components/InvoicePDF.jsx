@@ -11,44 +11,43 @@ import {
 const styles = StyleSheet.create({
   page: {
     padding: 30,
+    fontFamily: "Helvetica",
+    fontSize: 12,
+    backgroundColor: "#FFFCF8",
   },
   header: {
     marginBottom: 20,
     borderBottom: 1,
-    borderBottomColor: "#e5e7eb",
+    borderBottomColor: "#4D343F",
     paddingBottom: 10,
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  headerLeft: {
-    // Added from OrderPDF
-  },
-  headerRight: {
-    // Added from OrderPDF
-  },
   logo: {
-    width: "50px",
-    height: "50px",
+    width: "80px",
+    height: "80px",
   },
   title: {
-    fontSize: 24,
+    fontSize: 18,
     marginBottom: 10,
-    fontWeight: "bold",
-    textTransform: "uppercase",
+    fontWeight: 600,
+    color: "#382628",
   },
   invoiceId: {
     fontSize: 12,
-    color: "#6b7280",
+    color: "#4D343F",
+    marginBottom: 5,
   },
   section: {
     marginTop: 15,
     marginBottom: 15,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 14,
     marginBottom: 10,
-    fontWeight: "bold",
+    fontWeight: 600,
+    color: "#382628",
   },
   row: {
     flexDirection: "row",
@@ -57,64 +56,79 @@ const styles = StyleSheet.create({
   label: {
     width: "30%",
     fontSize: 12,
-    color: "#6b7280",
+    color: "#4D343F",
   },
   value: {
     width: "70%",
     fontSize: 12,
+    color: "#382628",
   },
-  companyInfo: {
-    marginBottom: 20,
-  },
-  companyDetails: {
-    display: "flex",
-    flexDirection: "row",
-    gap: 10,
-  },
-  orderItem: {
-    display: "flex",
-    flexDirection: "column",
+  table: {
+    width: "100%",
+    marginTop: 10,
     marginBottom: 10,
-    paddingLeft: 10,
   },
-  sandwichName: {
-    fontSize: 13,
-    fontWeight: "bold",
-    marginBottom: 2,
-  },
-  orderDetails: {
-    display: "flex",
+  tableHeader: {
     flexDirection: "row",
-    gap: 10,
+    backgroundColor: "#4D343F",
+    padding: 5,
+    borderBottom: 1,
+    borderBottomColor: "#382628",
+  },
+  tableRow: {
+    flexDirection: "row",
+    padding: 5,
+    borderBottom: 1,
+    borderBottomColor: "#4D343F",
+  },
+  tableCell: {
+    flex: 1,
     fontSize: 12,
-    color: "#4b5563",
-    marginLeft: 10,
+    color: "#382628",
+  },
+  tableCellBold: {
+    flex: 1,
+    fontSize: 12,
+    fontWeight: 600,
+    color: "#FFFCF8",
+  },
+  tableCellName: {
+    flex: 2,
+    fontSize: 12,
+    color: "#382628",
+  },
+  tableCellBoldName: {
+    flex: 2,
+    fontSize: 12,
+    fontWeight: 600,
+    color: "#FFFCF8",
   },
   totalSection: {
     marginTop: 20,
-    borderTop: 1,
-    borderTopColor: "#e5e7eb",
     paddingTop: 10,
   },
-  bold: {
-    fontWeight: "bold",
-    fontSize: 12,
-  },
-  deliveryDetails: {
-    display: "flex",
+  totalRow: {
     flexDirection: "row",
-    gap: 10,
+    marginBottom: 5,
   },
-  footer: {
-    position: "absolute",
-    bottom: 30,
-    left: 30,
-    right: 30,
-    fontSize: 10,
-    color: "#6b7280",
+  totalLabel: {
+    width: "30%",
+    fontSize: 12,
+    fontWeight: 600,
+    color: "#382628",
+  },
+  totalValue: {
+    width: "70%",
+    fontSize: 12,
+    color: "#382628",
+  },
+  companyDetails: {
+    marginTop: 30,
+    paddingTop: 20,
     borderTop: 1,
-    borderTopColor: "#e5e7eb",
-    paddingTop: 10,
+    borderTopColor: "#4D343F",
+    fontSize: 10,
+    color: "#4D343F",
   },
 });
 
@@ -201,7 +215,10 @@ const InvoicePDF = ({
   // Safely get the image URL
   const baseUrl =
     process.env.NEXT_PUBLIC_URL || "https://catering.thesandwichbar.nl";
-  const imageUrl = { uri: `${baseUrl}/tsb.png` };
+  const imageUrl = {
+    uri: `${baseUrl}/tsb-logo-full.png`,
+    method: "GET",
+  };
 
   // Create a safe rendering of custom selections
   const renderCustomSelections = () => {
@@ -255,12 +272,9 @@ const InvoicePDF = ({
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>Invoice</Text>
-            <Text style={styles.invoiceId}>Invoice Number: {quoteId}</Text>
+            <Text style={styles.invoiceId}>Invoice ID: {quoteId}</Text>
             <Text style={styles.invoiceId}>
               Date: {today.toLocaleDateString("nl-NL")}
-            </Text>
-            <Text style={styles.invoiceId}>
-              Due Date: {formattedDueDate.toLocaleDateString("nl-NL")}
             </Text>
           </View>
           <View style={styles.headerRight}>
@@ -268,79 +282,104 @@ const InvoicePDF = ({
           </View>
         </View>
 
-        {/* Company Details */}
-        <View style={styles.companyDetails}>
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>From</Text>
-            <View style={styles.row}>
-              <Text style={styles.label}>Company:</Text>
-              <Text style={styles.value}>The Sandwichbar</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Address:</Text>
-              <Text style={styles.value}>
-                Nassaukade 378 H,{"\n"} 1054AD Amsterdam
-              </Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>VAT:</Text>
-              <Text style={styles.value}>NL123456789B01</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>KVK:</Text>
-              <Text style={styles.value}>81038739</Text>
+        {/* Delivery Details */}
+        {deliveryDetails.deliveryDate && (
+          <View style={styles.deliveryDetails}>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Delivery</Text>
+              <View style={styles.row}>
+                <Text style={styles.label}>Date:</Text>
+                <Text style={styles.value}>
+                  {deliveryDate.toLocaleDateString("nl-NL")}
+                </Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Time:</Text>
+                <Text style={styles.value}>{deliveryTime}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Address:</Text>
+                <Text style={styles.value}>
+                  {deliveryStreet} {deliveryHouseNumber}
+                  {deliveryHouseNumberAddition}
+                  {"\n"}
+                  {deliveryPostalCode} {deliveryCity}
+                </Text>
+              </View>
             </View>
           </View>
+        )}
 
+        {/* Company Details if applicable */}
+        {companyDetails.isCompany && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>To</Text>
+            <Text style={styles.sectionTitle}>Company Details</Text>
             <View style={styles.row}>
-              <Text style={styles.label}>Company:</Text>
+              <Text style={styles.label}>Company Name:</Text>
               <Text style={styles.value}>{companyName}</Text>
             </View>
             <View style={styles.row}>
-              <Text style={styles.label}>VAT:</Text>
+              <Text style={styles.label}>VAT Number:</Text>
               <Text style={styles.value}>{vatNumber}</Text>
             </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Address:</Text>
-              <Text style={styles.value}>
-                {street} {houseNumber}
-                {houseNumberAddition}
-                {"\n"}
-                {postalCode} {city}
-              </Text>
-            </View>
           </View>
-        </View>
+        )}
 
         {/* Order Details */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Order</Text>
-          {selectionType === "custom" ? (
-            renderCustomSelections()
-          ) : (
-            <>
-              <View style={styles.row}>
-                <Text style={styles.label}>Chicken, Meat, Fish:</Text>
-                <Text style={styles.value}>
-                  {varietySelection.nonVega || 0} sandwiches
-                </Text>
+          <View style={styles.table}>
+            <View>
+              <View style={styles.tableHeader}>
+                <Text style={styles.tableCellBoldName}>Sandwich</Text>
+                <Text style={styles.tableCellBold}>Quantity</Text>
+                <Text style={styles.tableCellBold}>Bread</Text>
+                <Text style={styles.tableCellBold}>Sauce</Text>
+                <Text style={styles.tableCellBold}>Price</Text>
               </View>
-              <View style={styles.row}>
-                <Text style={styles.label}>Vegetarian:</Text>
-                <Text style={styles.value}>
-                  {varietySelection.vega || 0} sandwiches
-                </Text>
-              </View>
-              <View style={styles.row}>
-                <Text style={styles.label}>Vegan:</Text>
-                <Text style={styles.value}>
-                  {varietySelection.vegan || 0} sandwiches
-                </Text>
-              </View>
-            </>
-          )}
+              {selectionType === "custom" ? (
+                renderCustomSelections()
+              ) : (
+                <>
+                  <View style={styles.tableRow}>
+                    <Text style={styles.tableCellName}>
+                      Chicken, Meat, Fish
+                    </Text>
+                    <Text style={styles.tableCell}>
+                      {varietySelection.nonVega}x
+                    </Text>
+                    <Text style={styles.tableCell}>-</Text>
+                    <Text style={styles.tableCell}>-</Text>
+                    <Text style={styles.tableCell}>
+                      €{(varietySelection.nonVega * 6.38).toFixed(2)}
+                    </Text>
+                  </View>
+                  <View style={styles.tableRow}>
+                    <Text style={styles.tableCellName}>Vegetarian</Text>
+                    <Text style={styles.tableCell}>
+                      {varietySelection.vega}x
+                    </Text>
+                    <Text style={styles.tableCell}>-</Text>
+                    <Text style={styles.tableCell}>-</Text>
+                    <Text style={styles.tableCell}>
+                      €{(varietySelection.vega * 6.38).toFixed(2)}
+                    </Text>
+                  </View>
+                  <View style={styles.tableRow}>
+                    <Text style={styles.tableCellName}>Vegan</Text>
+                    <Text style={styles.tableCell}>
+                      {varietySelection.vegan}x
+                    </Text>
+                    <Text style={styles.tableCell}>-</Text>
+                    <Text style={styles.tableCell}>-</Text>
+                    <Text style={styles.tableCell}>
+                      €{(varietySelection.vegan * 6.38).toFixed(2)}
+                    </Text>
+                  </View>
+                </>
+              )}
+            </View>
+          </View>
         </View>
 
         {/* Allergies */}
@@ -349,80 +388,31 @@ const InvoicePDF = ({
           <Text style={styles.value}>{allergies}</Text>
         </View>
 
-        {/* Delivery Details */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Delivery</Text>
-          <View style={styles.row}>
-            <Text style={styles.label}>Date:</Text>
-            <Text style={styles.value}>
-              {deliveryDate.toLocaleDateString("nl-NL")}
-            </Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Time:</Text>
-            <Text style={styles.value}>{deliveryTime}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Address:</Text>
-            <Text style={styles.value}>
-              {deliveryStreet} {deliveryHouseNumber}
-              {deliveryHouseNumberAddition}
-              {"\n"}
-              {deliveryPostalCode} {deliveryCity}
-            </Text>
-          </View>
-        </View>
-
         {/* Totals */}
         <View style={styles.totalSection}>
-          <View style={styles.row}>
-            <Text style={styles.label}>Subtotal:</Text>
-            <Text style={styles.value}>€{amountData.subtotal.toFixed(2)}</Text>
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Subtotal:</Text>
+            <Text style={styles.totalValue}>
+              €{amountData.subtotal.toFixed(2)}
+            </Text>
           </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>VAT (9%):</Text>
-            <Text style={styles.value}>€{amountData.vat.toFixed(2)}</Text>
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>VAT (9%):</Text>
+            <Text style={styles.totalValue}>€{amountData.vat.toFixed(2)}</Text>
           </View>
-          <View style={styles.row}>
-            <Text style={[styles.label, styles.bold]}>Total:</Text>
-            <Text style={[styles.value, styles.bold]}>
-              €{amountData.total.toFixed(2)}
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Total:</Text>
+            <Text style={[styles.totalValue, { fontWeight: 600 }]}>
+              €{(amountData.total * 1.09).toFixed(2)}
             </Text>
           </View>
         </View>
 
-        {/* Payment Details */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Payment Details</Text>
-          <View style={styles.row}>
-            <Text style={styles.label}>IBAN:</Text>
-            <Text style={styles.value}>NL05 INGB 0006 8499 73</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Name:</Text>
-            <Text style={styles.value}>The Sandwich Bar Nassaukade B.V.</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>O.v.v.:</Text>
-            <Text style={styles.value}>Invoice Number {quoteId}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Due Date:</Text>
-            <Text style={styles.value}>
-              {formattedDueDate.toLocaleDateString("nl-NL")}
-            </Text>
-          </View>
-        </View>
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text>
-            The Sandwich Bar Nassaukade B.V. | Nassaukade 378 H, 1054AD
-            Amsterdam | +31 6 40889605
-          </Text>
-          <Text>
-            KVK: 81038739 | BTW: NL861900558B01 | IBAN: NL05 INGB 0006 8499 73
-          </Text>
+        <View style={styles.companyDetails}>
+          <Text>The Sandwich Bar B.V.</Text>
+          <Text>Nassaukade 378 H</Text>
+          <Text>1054 AD Amsterdam</Text>
+          <Text>info@thesandwichbar.nl</Text>
         </View>
       </Page>
     </Document>

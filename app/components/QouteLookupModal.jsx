@@ -50,7 +50,7 @@ export default function QuoteLookupModal({ trigger, onQuoteLoaded }) {
         router.push("/?restore=true");
       }
     } catch (error) {
-      setError("Er is iets misgegaan bij het ophalen van de offerte");
+      setError("Something went wrong when fetching the quote");
     } finally {
       setIsLoading(false);
     }
@@ -62,7 +62,7 @@ export default function QuoteLookupModal({ trigger, onQuoteLoaded }) {
         {trigger || (
           <Button
             variant="outline"
-            className="border-green-500 text-green-500 hover:bg-green-50"
+            className="text-green-500 border-green-500 hover:bg-green-50"
           >
             Load existing quote
           </Button>
@@ -72,7 +72,7 @@ export default function QuoteLookupModal({ trigger, onQuoteLoaded }) {
         <DialogHeader>
           <DialogTitle className="text-2xl">Load quote</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div className="space-y-2">
             <Label htmlFor="quoteId">Quote ID</Label>
             <Input
@@ -87,12 +87,12 @@ export default function QuoteLookupModal({ trigger, onQuoteLoaded }) {
           </div>
 
           {error && (
-            <Alert variant="destructive" className="text-sm py-2 px-3">
+            <Alert variant="destructive" className="px-3 py-2 text-sm">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 
-          <div className="flex space-x-2 justify-end mt-6">
+          <div className="flex justify-end mt-6 space-x-2">
             <DialogClose asChild>
               <Button variant="outline" type="button">
                 Cancel
@@ -101,11 +101,11 @@ export default function QuoteLookupModal({ trigger, onQuoteLoaded }) {
             <Button
               type="submit"
               disabled={isLoading}
-              className="bg-green-500 hover:bg-green-600 text-white"
+              className="text-white bg-green-500 hover:bg-green-600"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Loading...
                 </>
               ) : (
