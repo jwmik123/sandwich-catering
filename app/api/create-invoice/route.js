@@ -141,11 +141,22 @@ export async function POST(request) {
           console.log("Invoice email sent successfully");
         } else {
           console.error("Failed to send invoice email - returned false");
+          // Add this to the response to inform the client
+          return NextResponse.json({
+            success: false,
+            error: "Failed to send invoice email",
+            invoice: updatedQuote,
+          });
         }
       } catch (emailError) {
         console.error("Failed to send invoice email - exception:", emailError);
         console.error("Error stack:", emailError.stack);
-        // Continue with the response even if email fails
+        // Return error response to client
+        return NextResponse.json({
+          success: false,
+          error: "Failed to send invoice email",
+          invoice: updatedQuote,
+        });
       }
     } else {
       console.warn("No email address provided, skipping invoice email");
