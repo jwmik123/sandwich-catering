@@ -181,18 +181,16 @@ const SelectionModal = ({
             )}
           </div>
 
-          <DialogFooter className="flex items-center justify-between w-full">
+          <DialogFooter className="flex items-center justify-between w-full mt-6">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
+                  <div
                     onClick={() => setShowAllergyInfo(!showAllergyInfo)}
-                    className="absolute w-8 h-8 bottom-7 left-5"
+                    className="flex items-center justify-center w-8 h-8 rounded-md cursor-pointer"
                   >
-                    <Info className="w-5 h-5 text-muted-foreground" />
-                  </Button>
+                    <Info className="w-5 h-5 text-foreground" />
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-xs">
                   <p className="text-xs">Click for allergy information</p>
@@ -200,8 +198,8 @@ const SelectionModal = ({
               </Tooltip>
             </TooltipProvider>
 
-            <div className="mt-4">
-              <Button variant="outline" onClick={onClose} className="mr-2">
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={onClose}>
                 Cancel
               </Button>
               <Button onClick={handleSubmit}>Add to order</Button>
@@ -210,12 +208,13 @@ const SelectionModal = ({
 
           {/* Allergy Information Dialog */}
           {showAllergyInfo && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/80">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
               <div className="bg-background p-6 rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold">Allergy Information</h3>
                   <Button
                     variant="ghost"
+                    className="!hover:bg-transparent"
                     size="sm"
                     onClick={() => setShowAllergyInfo(false)}
                   >
