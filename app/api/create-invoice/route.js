@@ -1,7 +1,7 @@
 // app/api/create-invoice/route.js
 import { client } from "@/sanity/lib/client";
 import { NextResponse } from "next/server";
-import { sendInvoiceEmail } from "@/lib/email";
+import { sendOrderConfirmation } from "@/lib/email";
 import { PRODUCT_QUERY } from "@/sanity/lib/queries"; // Make sure this import is correct
 
 export async function POST(request) {
@@ -96,9 +96,12 @@ export async function POST(request) {
       console.log("Will continue with empty sandwich options");
     }
 
-    // Send invoice email with PDF
+    // Send order confirmation email with PDF
     if (orderDetails.email) {
-      console.log("Preparing to send invoice email to:", orderDetails.email);
+      console.log(
+        "Preparing to send order confirmation email to:",
+        orderDetails.email
+      );
 
       try {
         // Prepare email data with explicitly structured objects
@@ -135,31 +138,38 @@ export async function POST(request) {
         console.log(
           "Sending email with structured data and sandwich options..."
         );
-        const emailSent = await sendInvoiceEmail(emailData);
+        const emailSent = await sendOrderConfirmation(emailData);
 
         if (emailSent) {
-          console.log("Invoice email sent successfully");
+          console.log("Order confirmation email sent successfully");
         } else {
-          console.error("Failed to send invoice email - returned false");
+          console.error(
+            "Failed to send order confirmation email - returned false"
+          );
           // Add this to the response to inform the client
           return NextResponse.json({
             success: false,
-            error: "Failed to send invoice email",
+            error: "Failed to send order confirmation email",
             invoice: updatedQuote,
           });
         }
       } catch (emailError) {
-        console.error("Failed to send invoice email - exception:", emailError);
+        console.error(
+          "Failed to send order confirmation email - exception:",
+          emailError
+        );
         console.error("Error stack:", emailError.stack);
         // Return error response to client
         return NextResponse.json({
           success: false,
-          error: "Failed to send invoice email",
+          error: "Failed to send order confirmation email",
           invoice: updatedQuote,
         });
       }
     } else {
-      console.warn("No email address provided, skipping invoice email");
+      console.warn(
+        "No email address provided, skipping order confirmation email"
+      );
     }
 
     console.log("===== CREATE INVOICE API COMPLETED SUCCESSFULLY =====");
