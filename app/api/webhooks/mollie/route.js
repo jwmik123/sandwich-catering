@@ -7,7 +7,7 @@ import { sendOrderSmsNotification } from "@/lib/sms";
 import { PRODUCT_QUERY } from "@/sanity/lib/queries";
 
 const mollieClient = createMollieClient({
-  apiKey: process.env.MOLLIE_TEST_API_KEY,
+  apiKey: process.env.MOLLIE_LIVE_API_KEY,
 });
 
 export async function POST(request) {
