@@ -128,6 +128,7 @@ export async function POST(request) {
             houseNumberAddition: orderDetails.houseNumberAddition || "",
             postalCode: orderDetails.postalCode || "",
             city: orderDetails.city || "",
+            phoneNumber: orderDetails.phoneNumber || "",
           },
           companyDetails,
           amount: amountData,
