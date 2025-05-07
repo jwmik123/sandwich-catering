@@ -1011,7 +1011,7 @@ const Home = () => {
               <div className="pt-4">
                 <button
                   onClick={handleDownloadInvoice}
-                  className="w-full px-4 py-2 text-sm font-medium text-white transition-colors bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary rounded-md"
+                  className="w-full px-4 py-2 text-sm font-medium text-white transition-colors rounded-md bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                 >
                   Download Invoice Preview
                 </button>
@@ -1213,7 +1213,7 @@ const Home = () => {
                       setCurrentStep((prev) => prev + 1);
                     }
                   }}
-                  className={`${primaryButtonClasses} flex items-center gap-1 ${
+                  className={`${primaryButtonClasses} !bg-green-500 flex items-center gap-1 ${
                     !isStepValid(currentStep) ? "opacity-50" : ""
                   }`}
                 >

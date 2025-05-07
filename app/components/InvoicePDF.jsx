@@ -460,7 +460,7 @@ const InvoicePDF = ({
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Total:</Text>
             <Text style={[styles.totalValue, { fontWeight: 600 }]}>
-              €{(amountData.total * 1.09).toFixed(2)}
+              €{amountData.total.toFixed(2)}
             </Text>
           </View>
         </View>
