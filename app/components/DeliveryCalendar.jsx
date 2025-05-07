@@ -12,9 +12,12 @@ import {
 const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
   const handleSelect = (selectedDate) => {
     setDate(selectedDate);
-    // Format the date as ISO string and take only the date part
+    // Format the date as ISO string with timezone offset
     const formattedDate = selectedDate.toISOString().split("T")[0];
-    updateFormData("deliveryDate", formattedDate);
+    // Add one day to compensate for timezone conversion
+    const nextDay = new Date(formattedDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+    updateFormData("deliveryDate", nextDay.toISOString().split("T")[0]);
     // Reset time when date changes
     updateFormData("deliveryTime", "");
   };

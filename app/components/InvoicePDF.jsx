@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   },
   value: {
     width: "70%",
-    fontSize: 12,
+    fontSize: 10,
     color: "#382628",
   },
   table: {
@@ -203,7 +203,7 @@ const InvoicePDF = ({
 
   // Safe delivery details
   const deliveryDate = deliveryDetails?.deliveryDate
-    ? new Date(deliveryDetails.deliveryDate)
+    ? new Date(deliveryDetails.deliveryDate + "T00:00:00+02:00")
     : new Date();
   const deliveryTime = deliveryDetails?.deliveryTime || "12:00";
   const deliveryStreet = deliveryDetails?.street || street;
@@ -315,7 +315,9 @@ const InvoicePDF = ({
                   <View style={styles.row}>
                     <Text style={styles.label}>Delivery Date:</Text>
                     <Text style={styles.value}>
-                      {deliveryDate.toLocaleDateString("nl-NL")}
+                      {deliveryDate.toLocaleDateString("nl-NL", {
+                        timeZone: "Europe/Amsterdam",
+                      })}
                     </Text>
                   </View>
                   <View style={styles.row}>

@@ -10,7 +10,10 @@ export async function POST(request) {
       <InvoicePDF
         quoteId={data.quoteId}
         orderDetails={data.orderDetails}
-        deliveryDetails={data.deliveryDetails}
+        deliveryDetails={{
+          ...data.deliveryDetails,
+          deliveryDate: data.deliveryDetails.deliveryDate,
+        }}
         companyDetails={data.companyDetails}
         amount={data.amount}
         dueDate={new Date(data.dueDate)}
