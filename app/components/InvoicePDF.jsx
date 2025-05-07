@@ -130,6 +130,14 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: "#4D343F",
   },
+  detailsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  detailsColumn: {
+    width: "48%",
+  },
 });
 
 // Fallback image URL in case the environment variable is missing
@@ -181,8 +189,11 @@ const InvoicePDF = ({
   const today = new Date();
 
   // Safely get nested values
-  const companyName = companyDetails?.name || "Unknown Company";
-  const vatNumber = companyDetails?.vatNumber || "N/A";
+  const companyName =
+    companyDetails?.name || companyDetails?.companyName || "Unknown Company";
+  const vatNumber =
+    companyDetails?.vatNumber || companyDetails?.companyVAT || "N/A";
+  const phoneNumber = companyDetails?.phoneNumber || "";
   const address = companyDetails?.address || {};
   const street = address?.street || "";
   const houseNumber = address?.houseNumber || "";
@@ -224,10 +235,12 @@ const InvoicePDF = ({
   const renderCustomSelections = () => {
     if (!customSelection || Object.keys(customSelection).length === 0) {
       return (
-        <View style={styles.orderItem}>
-          <View style={styles.orderDetails}>
-            <Text>No items selected</Text>
-          </View>
+        <View style={styles.tableRow}>
+          <Text style={styles.tableCellName}>No items selected</Text>
+          <Text style={styles.tableCell}>-</Text>
+          <Text style={styles.tableCell}>-</Text>
+          <Text style={styles.tableCell}>-</Text>
+          <Text style={styles.tableCell}>-</Text>
         </View>
       );
     }
@@ -249,15 +262,14 @@ const InvoicePDF = ({
           const sandwichName = getSandwichName(sandwichId);
 
           return (
-            <View key={`${sandwichId}-${index}`} style={styles.orderItem}>
-              <Text style={styles.sandwichName}>{sandwichName}</Text>
-              <View style={styles.orderDetails}>
-                <Text>
-                  {qty}x - {breadType}
-                  {sauce !== "geen" && ` with ${sauce}`}
-                </Text>
-                <Text style={styles.bold}>€{subTotal.toFixed(2)}</Text>
-              </View>
+            <View key={`${sandwichId}-${index}`} style={styles.tableRow}>
+              <Text style={styles.tableCellName}>{sandwichName}</Text>
+              <Text style={styles.tableCell}>{qty}x</Text>
+              <Text style={styles.tableCell}>{breadType}</Text>
+              <Text style={styles.tableCell}>
+                {sauce !== "geen" ? sauce : "-"}
+              </Text>
+              <Text style={styles.tableCell}>€{subTotal.toFixed(2)}</Text>
             </View>
           );
         });
@@ -282,33 +294,76 @@ const InvoicePDF = ({
           </View>
         </View>
 
-        {/* Delivery Details */}
-        {deliveryDetails.deliveryDate && (
-          <View style={styles.deliveryDetails}>
+        {/* Delivery and Payment Details */}
+        <View style={styles.detailsContainer}>
+          {/* Delivery Details */}
+          <View style={styles.detailsColumn}>
+            {deliveryDetails.deliveryDate && (
+              <View style={styles.deliveryDetails}>
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>Delivery</Text>
+                  <View style={styles.row}>
+                    <Text style={styles.label}>Company:</Text>
+                    <Text style={styles.value}>{companyName}</Text>
+                  </View>
+                  <View style={styles.row}>
+                    <Text style={styles.label}>Phone:</Text>
+                    <Text style={styles.value}>
+                      {deliveryDetails.phoneNumber || "-"}
+                    </Text>
+                  </View>
+                  <View style={styles.row}>
+                    <Text style={styles.label}>Delivery Date:</Text>
+                    <Text style={styles.value}>
+                      {deliveryDate.toLocaleDateString("nl-NL")}
+                    </Text>
+                  </View>
+                  <View style={styles.row}>
+                    <Text style={styles.label}>Time:</Text>
+                    <Text style={styles.value}>{deliveryTime}</Text>
+                  </View>
+                  <View style={styles.row}>
+                    <Text style={styles.label}>Address:</Text>
+                    <Text style={styles.value}>
+                      {deliveryStreet} {deliveryHouseNumber}
+                      {deliveryHouseNumberAddition}
+                      {"\n"}
+                      {deliveryPostalCode} {deliveryCity}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            )}
+          </View>
+
+          {/* Payment Information */}
+          <View style={styles.detailsColumn}>
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Delivery</Text>
+              <Text style={styles.sectionTitle}>Payment Information</Text>
               <View style={styles.row}>
-                <Text style={styles.label}>Date:</Text>
+                <Text style={styles.label}>IBAN:</Text>
+                <Text style={styles.value}>NL05 INGB 0006 8499 73</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>BIC:</Text>
+                <Text style={styles.value}>INGBNL2A</Text>
+              </View>
+              <View style={styles.row}>
                 <Text style={styles.value}>
-                  {deliveryDate.toLocaleDateString("nl-NL")}
+                  The Sandwich Bar Nassaukade B.V.
                 </Text>
               </View>
               <View style={styles.row}>
-                <Text style={styles.label}>Time:</Text>
-                <Text style={styles.value}>{deliveryTime}</Text>
+                <Text style={styles.label}>KvK Number:</Text>
+                <Text style={styles.value}>81038739</Text>
               </View>
               <View style={styles.row}>
-                <Text style={styles.label}>Address:</Text>
-                <Text style={styles.value}>
-                  {deliveryStreet} {deliveryHouseNumber}
-                  {deliveryHouseNumberAddition}
-                  {"\n"}
-                  {deliveryPostalCode} {deliveryCity}
-                </Text>
+                <Text style={styles.label}>VAT Number:</Text>
+                <Text style={styles.value}>NL861900558B01</Text>
               </View>
             </View>
           </View>
-        )}
+        </View>
 
         {/* Company Details if applicable */}
         {companyDetails.isCompany && (

@@ -34,6 +34,9 @@ import DeliveryCalendar from "@/app/components/DeliveryCalendar";
 import QuoteButton from "@/app/components/QuoteButton";
 import Image from "next/image";
 import { postalCodeDeliveryCosts } from "@/app/assets/postals";
+import { renderToBuffer } from "@react-pdf/renderer";
+import InvoicePDF from "@/app/components/InvoicePDF";
+
 const Home = () => {
   const [sandwichOptions, setSandwichOptions] = useState([]);
   const [date, setDate] = useState(null);
@@ -357,6 +360,86 @@ const Home = () => {
     }
   };
 
+  const handleDownloadInvoice = async () => {
+    try {
+      // Calculate total amount
+      const totalAmount =
+        formData.selectionType === "custom"
+          ? Object.values(formData.customSelection)
+              .flat()
+              .reduce((total, selection) => total + selection.subTotal, 0)
+          : formData.totalSandwiches * 6.38;
+
+      // Call the API to generate PDF
+      const response = await fetch("/api/generate-pdf", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          quoteId: `PREVIEW-${Date.now()}`,
+          orderDetails: {
+            totalSandwiches: formData.totalSandwiches,
+            selectionType: formData.selectionType,
+            customSelection: formData.customSelection,
+            varietySelection: formData.varietySelection,
+            allergies: formData.allergies,
+          },
+          deliveryDetails: {
+            deliveryDate: formData.deliveryDate,
+            deliveryTime: formData.deliveryTime,
+            street: formData.street,
+            houseNumber: formData.houseNumber,
+            houseNumberAddition: formData.houseNumberAddition,
+            postalCode: formData.postalCode,
+            city: formData.city,
+            phoneNumber: formData.phoneNumber,
+          },
+          companyDetails: {
+            isCompany: formData.isCompany,
+            name: formData.companyName,
+            vatNumber: formData.companyVAT,
+            address: {
+              street: formData.street,
+              houseNumber: formData.houseNumber,
+              houseNumberAddition: formData.houseNumberAddition,
+              postalCode: formData.postalCode,
+              city: formData.city,
+            },
+          },
+          amount: totalAmount,
+          dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+          sandwichOptions: sandwichOptions,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || "Failed to generate PDF");
+      }
+
+      // Convert base64 to blob and create download link
+      const binaryString = window.atob(data.pdf);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `invoice-preview-${Date.now()}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast.error("Failed to generate PDF. Please try again.");
+    }
+  };
+
   const commonButtonClasses =
     "px-4 py-2 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2";
   const primaryButtonClasses = `${commonButtonClasses} bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary`;
@@ -365,6 +448,21 @@ const Home = () => {
   const updateFormData = (field, value) => {
     setFormData((prev) => {
       const newData = { ...prev, [field]: value };
+
+      // Log company details when they change
+      if (
+        field === "isCompany" ||
+        field === "companyName" ||
+        field === "companyVAT"
+      ) {
+        console.log("========= COMPANY DETAILS UPDATED =========");
+        console.log("Company Details:", {
+          isCompany: newData.isCompany,
+          companyName: newData.companyName,
+          companyVAT: newData.companyVAT,
+        });
+      }
+
       if (field === "postalCode") {
         const result = calculateDeliveryCost(value, totalAmount);
         if (result?.error) {
@@ -907,6 +1005,16 @@ const Home = () => {
                   placeholder="NL123456789B01"
                   required
                 />
+              </div>
+
+              {/* Download Invoice Button */}
+              <div className="pt-4">
+                <button
+                  onClick={handleDownloadInvoice}
+                  className="w-full px-4 py-2 text-sm font-medium text-white transition-colors bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary rounded-md"
+                >
+                  Download Invoice Preview
+                </button>
               </div>
             </div>
           )}

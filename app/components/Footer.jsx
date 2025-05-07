@@ -25,9 +25,9 @@ const Footer = () => {
               <br />
               1054 AD Amsterdam
               <br />
-              KVK Number: 81264782
+              KVK Number: 81038739
               <br />
-              VAT Number: NL81264782B01
+              VAT Number: NL861900558B01
             </p>
           </div>
 

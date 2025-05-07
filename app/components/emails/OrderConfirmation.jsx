@@ -42,6 +42,8 @@ export default function OrderConfirmation({
               <br />
               Time: {deliveryDetails.deliveryTime}
               <br />
+              Phone: {deliveryDetails.phoneNumber || "Not provided"}
+              <br />
               Address: {deliveryDetails.street} {deliveryDetails.houseNumber}
               {deliveryDetails.houseNumberAddition}
               <br />

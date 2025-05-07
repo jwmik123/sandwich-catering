@@ -193,6 +193,7 @@ async function handlePaidStatus(quoteId) {
           order.deliveryDetails?.address?.houseNumberAddition || "",
         postalCode: order.deliveryDetails?.address?.postalCode || "",
         city: order.deliveryDetails?.address?.city || "",
+        phoneNumber: order.phoneNumber || "",
       },
 
       // Format companyDetails
