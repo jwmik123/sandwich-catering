@@ -221,10 +221,6 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
               <Text style={styles.label}>Company Name:</Text>
               <Text style={styles.value}>{orderData.companyName}</Text>
             </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>VAT Number:</Text>
-              <Text style={styles.value}>{orderData.companyVAT}</Text>
-            </View>
           </View>
         )}
 

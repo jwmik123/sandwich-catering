@@ -161,11 +161,6 @@ export const quote = defineType({
           title: "Company Name",
           type: "string",
         }),
-        defineField({
-          name: "companyVAT",
-          title: "VAT Number",
-          type: "string",
-        }),
       ],
     }),
     defineField({

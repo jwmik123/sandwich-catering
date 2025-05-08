@@ -191,8 +191,6 @@ const InvoicePDF = ({
   // Safely get nested values
   const companyName =
     companyDetails?.name || companyDetails?.companyName || "Unknown Company";
-  const vatNumber =
-    companyDetails?.vatNumber || companyDetails?.companyVAT || "N/A";
   const phoneNumber = companyDetails?.phoneNumber || "";
   const address = companyDetails?.address || {};
   const street = address?.street || "";
@@ -374,10 +372,6 @@ const InvoicePDF = ({
             <View style={styles.row}>
               <Text style={styles.label}>Company Name:</Text>
               <Text style={styles.value}>{companyName}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>VAT Number:</Text>
-              <Text style={styles.value}>{vatNumber}</Text>
             </View>
           </View>
         )}

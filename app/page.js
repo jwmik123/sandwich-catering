@@ -203,10 +203,7 @@ const Home = () => {
 
         // Additional company validation if isCompany is checked
         if (formData.isCompany) {
-          isValid =
-            isValid &&
-            formData.companyName.trim() !== "" &&
-            formData.companyVAT.trim() !== "";
+          isValid = isValid && formData.companyName.trim() !== "";
         }
 
         return isValid;
@@ -991,18 +988,6 @@ const Home = () => {
                   onChange={(e) =>
                     updateFormData("companyName", e.target.value)
                   }
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="companyVAT">VAT number</Label>
-                <Input
-                  id="companyVAT"
-                  type="text"
-                  value={formData.companyVAT}
-                  onChange={(e) => updateFormData("companyVAT", e.target.value)}
-                  placeholder="NL123456789B01"
                   required
                 />
               </div>

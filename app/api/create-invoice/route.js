@@ -59,7 +59,6 @@ export async function POST(request) {
     // Ensure we have valid company details
     const companyDetails = {
       name: orderDetails.companyName || "Unknown Company",
-      vatNumber: orderDetails.companyVAT || "N/A",
       address: {
         street: orderDetails.street || "",
         houseNumber: orderDetails.houseNumber || "",

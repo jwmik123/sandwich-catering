@@ -51,7 +51,6 @@ export const invoice = defineType({
       type: "object",
       fields: [
         defineField({ name: "name", type: "string" }),
-        defineField({ name: "vatNumber", type: "string" }),
         defineField({
           name: "address",
           type: "object",
