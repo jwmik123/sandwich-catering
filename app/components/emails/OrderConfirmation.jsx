@@ -14,6 +14,7 @@ export default function OrderConfirmation({
   deliveryDetails,
   companyDetails,
   totalAmount,
+  fullName,
 }) {
   return (
     <Html>
@@ -23,7 +24,11 @@ export default function OrderConfirmation({
         <Container style={container}>
           <Text style={title}>Order Confirmation</Text>
           <Text style={paragraph}>
-            Dear {companyDetails ? companyDetails.companyName : "customer"},
+            Dear{" "}
+            {companyDetails
+              ? companyDetails.companyName
+              : fullName || "customer"}
+            ,
           </Text>
           <Text style={paragraph}>
             Thank you for your order. Below are the details of your order:
@@ -98,7 +103,7 @@ export default function OrderConfirmation({
           <Text style={paragraph}>
             With kind regards,
             <br />
-            Team The Sandwich Bar
+            The Sandwich Bar Nassaukade B.V.
           </Text>
         </Container>
       </Body>

@@ -76,7 +76,7 @@ export default function TermsPage() {
         <h2 className="mb-4 text-2xl font-semibold">7. Complaints</h2>
         <p className="mb-4">
           Complaints must be reported within 24 hours after delivery via
-          info@sandwichbar.nl. We aim to respond within 2 business days.
+          orders@thesandwichbar.nl. We aim to respond within 2 business days.
         </p>
       </section>
 

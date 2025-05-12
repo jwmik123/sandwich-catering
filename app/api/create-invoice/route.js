@@ -102,7 +102,7 @@ export async function POST(request) {
       console.log("Will continue with empty sandwich options");
     }
 
-    // Send order confirmation email with PDF
+    // Send order confirmation email without invoice
     if (orderDetails.email) {
       console.log(
         "Preparing to send order confirmation email to:",
@@ -114,6 +114,7 @@ export async function POST(request) {
         const emailData = {
           quoteId,
           email: orderDetails.email,
+          fullName: orderDetails.name,
           orderDetails: {
             ...orderDetails,
             // Ensure these exist with defaults
@@ -125,6 +126,7 @@ export async function POST(request) {
               nonVega: 0,
               vegan: 0,
             },
+            paymentMethod: "invoice", // Add payment method
           },
           deliveryDetails: {
             deliveryDate: orderDetails.deliveryDate || new Date().toISOString(),
@@ -139,12 +141,10 @@ export async function POST(request) {
           companyDetails,
           amount: amountData,
           dueDate,
-          sandwichOptions, // Include sandwich options for the email
+          sandwichOptions,
         };
 
-        console.log(
-          "Sending email with structured data and sandwich options..."
-        );
+        console.log("Sending order confirmation email...");
         const emailSent = await sendOrderConfirmation(emailData);
 
         if (emailSent) {

@@ -37,10 +37,17 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
     const slots = [];
     // Generate slots between 10:00 and 17:00 (5 PM)
     for (let hour = 10; hour < 17; hour++) {
-      const timeValue = `${hour.toString().padStart(2, "0")}:00`;
+      // Add full hour slot
+      const fullHourValue = `${hour.toString().padStart(2, "0")}:00`;
       slots.push({
-        value: timeValue,
-        label: `${timeValue}`,
+        value: fullHourValue,
+        label: `${fullHourValue}`,
+      });
+      // Add half hour slot
+      const halfHourValue = `${hour.toString().padStart(2, "0")}:30`;
+      slots.push({
+        value: halfHourValue,
+        label: `${halfHourValue}`,
       });
     }
     return slots;

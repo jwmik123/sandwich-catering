@@ -36,10 +36,10 @@ const Footer = () => {
             <h3 className="mb-4 text-lg font-semibold">Contact</h3>
             <p className="text-sm text-muted-foreground">
               <a
-                href="mailto:info@sandwichbar.nl"
+                href="mailto:orders@thesandwichbar.nl"
                 className="text-muted-foreground hover:text-white"
               >
-                info@sandwichbar.nl
+                orders@thesandwichbar.nl
               </a>
             </p>
           </div>

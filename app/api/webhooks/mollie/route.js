@@ -171,6 +171,7 @@ async function handlePaidStatus(quoteId) {
       quoteId: order.quoteId,
       email: order.email,
       phoneNumber: order.phoneNumber,
+      fullName: order.name,
 
       // Format orderDetails
       orderDetails: {

@@ -152,6 +152,43 @@ export const quote = defineType({
       ],
     }),
     defineField({
+      name: "invoiceDetails",
+      title: "Invoice Details",
+      type: "object",
+      fields: [
+        defineField({
+          name: "sameAsDelivery",
+          title: "Same as Delivery Address",
+          type: "boolean",
+          initialValue: true,
+        }),
+        defineField({
+          name: "address",
+          title: "Invoice Address",
+          type: "object",
+          fields: [
+            defineField({ name: "street", title: "Street", type: "string" }),
+            defineField({
+              name: "houseNumber",
+              title: "House Number",
+              type: "string",
+            }),
+            defineField({
+              name: "houseNumberAddition",
+              title: "Addition",
+              type: "string",
+            }),
+            defineField({
+              name: "postalCode",
+              title: "Postal Code",
+              type: "string",
+            }),
+            defineField({ name: "city", title: "City", type: "string" }),
+          ],
+        }),
+      ],
+    }),
+    defineField({
       name: "companyDetails",
       title: "Company Details",
       type: "object",

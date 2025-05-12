@@ -147,6 +147,7 @@ const InvoicePDF = ({
   quoteId = "UNKNOWN",
   orderDetails = {},
   deliveryDetails = {},
+  invoiceDetails = {},
   companyDetails = {},
   amount = 0,
   dueDate = new Date(),
@@ -155,6 +156,7 @@ const InvoicePDF = ({
   // Defensive coding: ensure all objects exist to prevent null references
   orderDetails = orderDetails || {};
   deliveryDetails = deliveryDetails || {};
+  invoiceDetails = invoiceDetails || {};
   companyDetails = companyDetails || {};
 
   // Function to get sandwich name from ID
@@ -211,12 +213,23 @@ const InvoicePDF = ({
 
   // Safe delivery details
   const deliveryTime = deliveryDetails?.deliveryTime || "12:00";
-  const deliveryStreet = deliveryDetails?.street || street;
-  const deliveryHouseNumber = deliveryDetails?.houseNumber || houseNumber;
+  const deliveryStreet = deliveryDetails?.address?.street || street;
+  const deliveryHouseNumber =
+    deliveryDetails?.address?.houseNumber || houseNumber;
   const deliveryHouseNumberAddition =
-    deliveryDetails?.houseNumberAddition || houseNumberAddition;
-  const deliveryPostalCode = deliveryDetails?.postalCode || postalCode;
-  const deliveryCity = deliveryDetails?.city || city;
+    deliveryDetails?.address?.houseNumberAddition || houseNumberAddition;
+  const deliveryPostalCode = deliveryDetails?.address?.postalCode || postalCode;
+  const deliveryCity = deliveryDetails?.address?.city || city;
+
+  // Safe invoice details
+  const invoiceStreet = invoiceDetails?.address?.street || deliveryStreet;
+  const invoiceHouseNumber =
+    invoiceDetails?.address?.houseNumber || deliveryHouseNumber;
+  const invoiceHouseNumberAddition =
+    invoiceDetails?.address?.houseNumberAddition || deliveryHouseNumberAddition;
+  const invoicePostalCode =
+    invoiceDetails?.address?.postalCode || deliveryPostalCode;
+  const invoiceCity = invoiceDetails?.address?.city || deliveryCity;
 
   // Ensure selection properties exist
   const selectionType = orderDetails?.selectionType || "custom";
@@ -304,47 +317,63 @@ const InvoicePDF = ({
           {/* Delivery Details */}
           <View style={styles.detailsColumn}>
             {deliveryDetails.deliveryDate && (
-              <View style={styles.deliveryDetails}>
-                <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Delivery</Text>
-                  <View style={styles.row}>
-                    <Text style={styles.label}>Company:</Text>
-                    <Text style={styles.value}>{companyName}</Text>
-                  </View>
-                  <View style={styles.row}>
-                    <Text style={styles.label}>Phone:</Text>
-                    <Text style={styles.value}>
-                      {deliveryDetails.phoneNumber || "-"}
-                    </Text>
-                  </View>
-                  <View style={styles.row}>
-                    <Text style={styles.label}>Delivery Date:</Text>
-                    <Text style={styles.value}>
-                      {deliveryDate.toLocaleDateString("nl-NL", {
-                        timeZone: "Europe/Amsterdam",
-                      })}
-                    </Text>
-                  </View>
-                  <View style={styles.row}>
-                    <Text style={styles.label}>Time:</Text>
-                    <Text style={styles.value}>{deliveryTime}</Text>
-                  </View>
-                  <View style={styles.row}>
-                    <Text style={styles.label}>Address:</Text>
-                    <Text style={styles.value}>
-                      {deliveryStreet} {deliveryHouseNumber}
-                      {deliveryHouseNumberAddition}
-                      {"\n"}
-                      {deliveryPostalCode} {deliveryCity}
-                    </Text>
-                  </View>
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Delivery</Text>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Company:</Text>
+                  <Text style={styles.value}>{companyName}</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Phone:</Text>
+                  <Text style={styles.value}>
+                    {deliveryDetails.phoneNumber || "-"}
+                  </Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Delivery Date:</Text>
+                  <Text style={styles.value}>
+                    {deliveryDate.toLocaleDateString("nl-NL", {
+                      timeZone: "Europe/Amsterdam",
+                    })}
+                  </Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Time:</Text>
+                  <Text style={styles.value}>{deliveryTime}</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Address:</Text>
+                  <Text style={styles.value}>
+                    {deliveryStreet} {deliveryHouseNumber}
+                    {deliveryHouseNumberAddition}
+                    {"\n"}
+                    {deliveryPostalCode} {deliveryCity}
+                  </Text>
                 </View>
               </View>
             )}
           </View>
 
-          {/* Payment Information */}
+          {/* Invoice Details */}
           <View style={styles.detailsColumn}>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Invoice Address</Text>
+              <View style={styles.row}>
+                <Text style={styles.label}>Company:</Text>
+                <Text style={styles.value}>{companyName}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Address:</Text>
+                <Text style={styles.value}>
+                  {invoiceStreet} {invoiceHouseNumber}
+                  {invoiceHouseNumberAddition}
+                  {"\n"}
+                  {invoicePostalCode} {invoiceCity}
+                </Text>
+              </View>
+            </View>
+
+            {/* Payment Information */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Payment Information</Text>
               <View style={styles.row}>
@@ -475,10 +504,10 @@ const InvoicePDF = ({
         </View>
 
         <View style={styles.companyDetails}>
-          <Text>The Sandwich Bar B.V.</Text>
+          <Text>The Sandwich Bar Nassaukade B.V.</Text>
           <Text>Nassaukade 378 H</Text>
           <Text>1054 AD Amsterdam</Text>
-          <Text>info@thesandwichbar.nl</Text>
+          <Text>orders@thesandwichbar.nl</Text>
         </View>
       </Page>
     </Document>
