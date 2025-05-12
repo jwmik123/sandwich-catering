@@ -290,7 +290,7 @@ const Home = () => {
     // For regular postal codes (not special zones)
     if (typeof deliveryZone === "number") {
       return {
-        cost: orderAmount >= 75 ? 0 : deliveryZone,
+        cost: orderAmount >= 100 ? 0 : deliveryZone,
       };
     }
 
@@ -1282,9 +1282,8 @@ const Home = () => {
     <div className="min-h-[70vh] bg-background">
       <div className="sticky top-0 z-10 border-b bg-background">
         <div className="flex items-center justify-center p-2 space-x-2 text-sm text-center bg-green-500 text-accent-foreground">
-          <span className="font-bold">Free delivery from €75,- </span>
-          <span className="text-xs italic">
-            some areas excluded (1026-1028, 1035, 1101-1109).
+          <span className="font-bold">
+            Free delivery for orders above €100,-{" "}
           </span>
         </div>
         <div className="container px-4 py-1 mx-auto">
