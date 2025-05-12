@@ -1,6 +1,6 @@
 import React from "react";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, Clock } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -26,8 +26,8 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
   const disabledDays = (date) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    // Disable past dates
-    if (date < today) return true;
+    // Disable today and past dates
+    if (date <= today) return true;
     // Disable weekends (0 is Sunday, 6 is Saturday)
     const day = date.getDay();
     return day === 0 || day === 6;
@@ -35,22 +35,8 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
 
   const generateTimeSlots = () => {
     const slots = [];
-    const currentDate = new Date();
-    const selectedDate = date ? new Date(date) : null;
-    const isToday = selectedDate?.toDateString() === currentDate.toDateString();
-    // Start time: if today, start 2 hours from now (rounded up to next hour)
-    let startHour = 10; // Default start hour
-    if (isToday) {
-      startHour = currentDate.getHours() + 2;
-      if (currentDate.getMinutes() > 0) {
-        startHour += 1; // Round up to next hour if we have minutes
-      }
-      startHour = Math.max(startHour, 10); // Don't start earlier than 9
-    }
-    // Generate slots between start hour and 17:00 (5 PM)
-    for (let hour = startHour; hour < 17; hour++) {
-      // Skip if it's today and the time slot is in the past
-      if (isToday && hour <= currentDate.getHours()) continue;
+    // Generate slots between 10:00 and 17:00 (5 PM)
+    for (let hour = 10; hour < 17; hour++) {
       const timeValue = `${hour.toString().padStart(2, "0")}:00`;
       slots.push({
         value: timeValue,
@@ -68,12 +54,12 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
         <CalendarIcon className="w-5 h-5" />
         <h2 className="text-gray-700">Delivery details</h2>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block mb-2 text-sm font-medium text-gray-700">
             Delivery date
           </label>
-          <div className="flex flex-col justify-center items-center">
+          <div className="flex flex-col items-center justify-center">
             <Calendar
               mode="single"
               selected={date}
@@ -84,7 +70,7 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block mb-2 text-sm font-medium text-gray-700">
             Delivery time
           </label>
           <Select

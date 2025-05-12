@@ -186,6 +186,16 @@ const InvoicePDF = ({
     ? new Date(dueDate)
     : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
 
+  // Calculate due date as 14 days after delivery date
+  const deliveryDate = deliveryDetails?.deliveryDate
+    ? new Date(deliveryDetails.deliveryDate + "T00:00:00+02:00")
+    : new Date();
+
+  // If we have a delivery date, calculate due date as 14 days after delivery date
+  const calculatedDueDate = new Date(deliveryDate);
+  calculatedDueDate.setDate(calculatedDueDate.getDate() + 14);
+  const finalDueDate = dueDate ? formattedDueDate : calculatedDueDate;
+
   const today = new Date();
 
   // Safely get nested values
@@ -200,9 +210,6 @@ const InvoicePDF = ({
   const city = address?.city || "";
 
   // Safe delivery details
-  const deliveryDate = deliveryDetails?.deliveryDate
-    ? new Date(deliveryDetails.deliveryDate + "T00:00:00+02:00")
-    : new Date();
   const deliveryTime = deliveryDetails?.deliveryTime || "12:00";
   const deliveryStreet = deliveryDetails?.street || street;
   const deliveryHouseNumber = deliveryDetails?.houseNumber || houseNumber;
@@ -360,6 +367,14 @@ const InvoicePDF = ({
               <View style={styles.row}>
                 <Text style={styles.label}>VAT Number:</Text>
                 <Text style={styles.value}>NL861900558B01</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Due Date:</Text>
+                <Text style={styles.value}>
+                  {finalDueDate.toLocaleDateString("nl-NL", {
+                    timeZone: "Europe/Amsterdam",
+                  })}
+                </Text>
               </View>
             </View>
           </View>

@@ -41,9 +41,16 @@ export async function POST(request) {
       );
     }
 
-    // Calculate due date (14 days from now)
-    const dueDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
-    console.log("Due date calculated:", dueDate.toISOString());
+    // Calculate due date (14 days from delivery date)
+    const deliveryDate = new Date(orderDetails.deliveryDate || Date.now());
+    const dueDate = new Date(deliveryDate);
+    dueDate.setDate(deliveryDate.getDate() + 14);
+    console.log(
+      "Due date calculated:",
+      dueDate.toISOString(),
+      "based on delivery date:",
+      deliveryDate.toISOString()
+    );
 
     // Format amount for Sanity
     const amountData = {

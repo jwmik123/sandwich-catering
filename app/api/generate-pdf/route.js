@@ -6,6 +6,19 @@ export async function POST(request) {
   try {
     const data = await request.json();
 
+    // Calculate due date if not provided (14 days after delivery date)
+    let dueDate = data.dueDate ? new Date(data.dueDate) : null;
+
+    // If due date isn't provided, calculate it from delivery date
+    if (!dueDate && data.deliveryDetails?.deliveryDate) {
+      const deliveryDate = new Date(data.deliveryDetails.deliveryDate);
+      dueDate = new Date(deliveryDate);
+      dueDate.setDate(deliveryDate.getDate() + 14);
+    } else if (!dueDate) {
+      // Fallback to current date + 14 days if no delivery date
+      dueDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+    }
+
     const pdfBuffer = await renderToBuffer(
       <InvoicePDF
         quoteId={data.quoteId}
@@ -16,7 +29,7 @@ export async function POST(request) {
         }}
         companyDetails={data.companyDetails}
         amount={data.amount}
-        dueDate={new Date(data.dueDate)}
+        dueDate={dueDate}
         sandwichOptions={data.sandwichOptions}
       />
     );

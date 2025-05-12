@@ -146,6 +146,7 @@ const Home = () => {
     postalCode: "",
     city: "",
     // Stap 6
+    name: "",
     email: "",
     phoneNumber: "",
     isCompany: false,
@@ -199,10 +200,11 @@ const Home = () => {
         const isPhoneValid = phoneRegex.test(formData.phoneNumber);
 
         // Base validation
-        let isValid = isEmailValid && isPhoneValid;
+        let isValid =
+          isEmailValid && isPhoneValid && formData.name.trim() !== "";
 
         // Additional company validation if isCompany is checked
-        if (formData.isCompany) {
+        if (!formData.isCompany) {
           isValid = isValid && formData.companyName.trim() !== "";
         }
 
@@ -631,8 +633,7 @@ const Home = () => {
                       .reduce(
                         (total, selection) => total + selection.quantity,
                         0
-                      )}{" "}
-                    / {formData.totalSandwiches}
+                      )}
                   </p>
                 </div>
                 <div>
@@ -752,15 +753,7 @@ const Home = () => {
                 </div>
                 <div className="flex justify-between mt-1 text-sm text-gray-500">
                   <span>Total number of sandwiches</span>
-                  <span>
-                    {Object.values(formData.customSelection)
-                      .flat()
-                      .reduce(
-                        (total, selection) => total + selection.quantity,
-                        0
-                      )}{" "}
-                    / {formData.totalSandwiches} sandwiches
-                  </span>
+                  <span>{formData.totalSandwiches} sandwiches</span>
                 </div>
               </div>
             </div>
@@ -796,10 +789,7 @@ const Home = () => {
                 </div>
                 <div className="flex justify-between mt-1 text-sm text-gray-500">
                   <span>Total number of sandwiches</span>
-                  <span>
-                    {formData.totalSandwiches}/ {formData.totalSandwiches}{" "}
-                    sandwiches
-                  </span>
+                  <span>{formData.totalSandwiches} sandwiches</span>
                 </div>
               </div>
             </div>
@@ -933,6 +923,18 @@ const Home = () => {
           <h3 className="font-medium text-gray-700 text-md">Contact details</h3>
 
           <div className="space-y-2">
+            <Label htmlFor="name">Full name*</Label>
+            <Input
+              id="name"
+              type="text"
+              value={formData.name}
+              onChange={(e) => updateFormData("name", e.target.value)}
+              placeholder="Your full name"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="email">E-mail address*</Label>
             <Input
               id="email"
@@ -973,14 +975,14 @@ const Home = () => {
               htmlFor="isCompany"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              This is a business order
+              This is NOT a business order
             </Label>
           </div>
 
-          {formData.isCompany && (
+          {!formData.isCompany && (
             <div className="mt-4 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="companyName">Company name</Label>
+                <Label htmlFor="companyName">Company name*</Label>
                 <Input
                   id="companyName"
                   type="text"
@@ -1056,8 +1058,8 @@ const Home = () => {
         )}
       </div>
 
-      {/* Payment Method Selection - Only show for companies */}
-      {formData.isCompany && (
+      {/* Payment Method Selection - Only show for business orders */}
+      {!formData.isCompany && (
         <div className="space-y-4">
           <p className="text-sm text-gray-600">Choose your payment method:</p>
 
@@ -1132,9 +1134,9 @@ const Home = () => {
             <>
               <CreditCard className="w-5 h-5" />
               <span>
-                {paymentMethod === "invoice"
-                  ? "Place order"
-                  : "Continue to payment"}
+                {formData.isCompany || paymentMethod === "online"
+                  ? "Continue to payment"
+                  : "Place order"}
               </span>
             </>
           )}
