@@ -34,8 +34,7 @@ import DeliveryCalendar from "@/app/components/DeliveryCalendar";
 import QuoteButton from "@/app/components/QuoteButton";
 import Image from "next/image";
 import { postalCodeDeliveryCosts } from "@/app/assets/postals";
-import { renderToBuffer } from "@react-pdf/renderer";
-import InvoicePDF from "@/app/components/InvoicePDF";
+
 
 const Home = () => {
   const [sandwichOptions, setSandwichOptions] = useState([]);
