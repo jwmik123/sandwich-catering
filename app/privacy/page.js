@@ -65,7 +65,7 @@ export default function PrivacyPage() {
         <h2 className="mb-4 text-2xl font-semibold">6. Your Rights</h2>
         <p className="mb-4">
           You may request access to, correction, or deletion of your data by
-          contacting us at info@sandwichbar.nl.
+          contacting us at orders@thesandwichbar.nl.
         </p>
       </section>
 
@@ -82,7 +82,7 @@ export default function PrivacyPage() {
           <br />
           VAT Number: NL81264782B01
           <br />
-          Email: info@sandwichbar.nl
+          Email: orders@thesandwichbar.nl
         </p>
       </section>
     </div>
