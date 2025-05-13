@@ -256,7 +256,7 @@ async function handlePaidStatus(quoteId) {
       JSON.stringify(formattedOrder.companyDetails, null, 2)
     );
 
-    await sendOrderConfirmation(formattedOrder);
+    await sendOrderConfirmation(formattedOrder, false);
     console.log(`Order confirmation sent for quote ${quoteId}`);
 
     // Send SMS notification directly

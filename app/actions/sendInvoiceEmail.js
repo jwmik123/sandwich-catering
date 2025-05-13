@@ -53,7 +53,7 @@ export async function sendInvoiceEmail(quoteId) {
     };
 
     // Send the invoice email
-    const emailSent = await sendOrderConfirmation(emailData);
+    const emailSent = await sendOrderConfirmation(emailData, true);
 
     if (emailSent) {
       // Update the invoice status to indicate email was sent

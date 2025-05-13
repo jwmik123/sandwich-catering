@@ -145,7 +145,7 @@ export async function POST(request) {
         };
 
         console.log("Sending order confirmation email...");
-        const emailSent = await sendOrderConfirmation(emailData);
+        const emailSent = await sendOrderConfirmation(emailData, false);
 
         if (emailSent) {
           console.log("Order confirmation email sent successfully");
