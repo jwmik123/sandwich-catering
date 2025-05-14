@@ -28,9 +28,7 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
     today.setHours(0, 0, 0, 0);
     // Disable today and past dates
     if (date <= today) return true;
-    // Disable weekends (0 is Sunday, 6 is Saturday)
-    const day = date.getDay();
-    return day === 0 || day === 6;
+    return false;
   };
 
   const generateTimeSlots = () => {

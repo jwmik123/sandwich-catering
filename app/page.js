@@ -35,7 +35,6 @@ import QuoteButton from "@/app/components/QuoteButton";
 import Image from "next/image";
 import { postalCodeDeliveryCosts } from "@/app/assets/postals";
 
-
 const Home = () => {
   const [sandwichOptions, setSandwichOptions] = useState([]);
   const [date, setDate] = useState(null);
@@ -492,7 +491,7 @@ const Home = () => {
             );
           } else if (result?.cost > 0) {
             setDeliveryError(
-              `Free delivery available for orders over €75 in your area`
+              `Free delivery available for orders over €100 in your area`
             );
           }
         }
