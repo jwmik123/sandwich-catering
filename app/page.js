@@ -199,10 +199,8 @@ const Home = () => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const isEmailValid = emailRegex.test(formData.email);
 
-        // Validate phone number (basic Dutch format)
-        const phoneRegex =
-          /^((\+|00(\s|\s?\-\s?)?)31(\s|\s?\-\s?)?(\(0\)[\-\s]?)?|0)[1-9]((\s|\s?\-\s?)?[0-9])((\s|\s?-\s?)?[0-9])((\s|\s?-\s?)?[0-9])\s?[0-9]\s?[0-9]\s?[0-9]\s?[0-9]\s?[0-9]$/;
-        const isPhoneValid = phoneRegex.test(formData.phoneNumber);
+        // Validate phone number (just check if not empty)
+        const isPhoneValid = formData.phoneNumber.trim() !== "";
 
         // Base validation
         let isValid =
