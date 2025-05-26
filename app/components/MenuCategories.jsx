@@ -49,7 +49,7 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
   return (
     <div className="w-full">
       <Tabs defaultValue={uniqueCategories[0]?.value} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 gap-4">
+        <TabsList className="grid w-full grid-cols-5 gap-4">
           {uniqueCategories.map((category) => (
             <TabsTrigger
               key={category.id}
