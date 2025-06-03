@@ -1,4 +1,4 @@
-// app/api/webhooks/mollie/route.js - Enhanced data mapping
+// app/api/webhooks/mollie/route.js - Enhanced with Yuki integration
 import { createMollieClient } from "@mollie/api-client";
 import { client } from "@/sanity/lib/client";
 import { NextResponse } from "next/server";
@@ -67,7 +67,9 @@ export async function POST(request) {
       switch (status) {
         case "paid":
           // Payment completed successfully
-          console.log("Payment paid - sending confirmation");
+          console.log(
+            "Payment paid - sending confirmation and processing Yuki"
+          );
           await handlePaidStatus(quoteId);
           break;
         case "failed":
@@ -153,6 +155,59 @@ async function handlePaidStatus(quoteId) {
       JSON.stringify(order, null, 2)
     );
 
+    // Send to Yuki for paid orders (if enabled)
+    if (process.env.YUKI_ENABLED === "true") {
+      console.log("🔄 Sending paid order to Yuki...");
+
+      try {
+        const yukiResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/yuki/send-invoice`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              quoteId: quoteId,
+            }),
+          }
+        );
+
+        const yukiResult = await yukiResponse.json();
+
+        if (yukiResult.success) {
+          console.log("✅ Paid order successfully sent to Yuki");
+          console.log("- Yuki Contact Code:", yukiResult.yukiContactCode);
+          console.log(
+            "- Yuki Invoice Reference:",
+            yukiResult.yukiInvoiceReference
+          );
+
+          // Mark the order as sent to Yuki
+          await client
+            .patch(order._id)
+            .set({
+              yukiSent: true,
+              yukiSentAt: new Date().toISOString(),
+              yukiContactCode: yukiResult.yukiContactCode,
+              yukiInvoiceReference: yukiResult.yukiInvoiceReference,
+            })
+            .commit();
+        } else {
+          console.error(
+            "❌ Failed to send paid order to Yuki:",
+            yukiResult.error
+          );
+          // Continue with email sending even if Yuki fails
+        }
+      } catch (yukiError) {
+        console.error("❌ Yuki integration error for paid order:", yukiError);
+        // Continue with email sending even if Yuki fails
+      }
+    } else {
+      console.log("⏭️ Yuki integration disabled, skipping for paid order...");
+    }
+
     // Fetch sandwich options to include in the email
     console.log("Fetching sandwich options for order confirmation...");
     let sandwichOptions = [];
@@ -217,6 +272,7 @@ async function handlePaidStatus(quoteId) {
       status: order.status || "pending",
       sandwichOptions: sandwichOptions,
       createdAt: order.createdAt || new Date().toISOString(),
+      paymentMethod: "online", // Since this is a paid webhook
     };
 
     // Set variety selection if available
