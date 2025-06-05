@@ -364,13 +364,18 @@ const Home = () => {
 
   const handleDownloadInvoice = async () => {
     try {
-      // Calculate total amount
-      const totalAmount =
-        formData.selectionType === "custom"
-          ? Object.values(formData.customSelection)
-              .flat()
-              .reduce((total, selection) => total + selection.subTotal, 0)
-          : formData.totalSandwiches * 6.38;
+      // Calculate total amount including delivery costs
+      let totalAmount = 0;
+      if (formData.selectionType === "custom") {
+        totalAmount = Object.values(formData.customSelection)
+          .flat()
+          .reduce((total, selection) => total + selection.subTotal, 0);
+      } else {
+        totalAmount = formData.totalSandwiches * 6.38;
+      }
+
+      // Add delivery cost if present
+      const finalAmount = totalAmount + (deliveryCost || 0);
 
       // Call the API to generate PDF
       const response = await fetch("/api/generate-pdf", {
@@ -386,15 +391,18 @@ const Home = () => {
             customSelection: formData.customSelection,
             varietySelection: formData.varietySelection,
             allergies: formData.allergies,
+            deliveryCost: deliveryCost || 0, // Include delivery cost in order details
           },
           deliveryDetails: {
             deliveryDate: formData.deliveryDate,
             deliveryTime: formData.deliveryTime,
-            street: formData.street,
-            houseNumber: formData.houseNumber,
-            houseNumberAddition: formData.houseNumberAddition,
-            postalCode: formData.postalCode,
-            city: formData.city,
+            address: {
+              street: formData.street,
+              houseNumber: formData.houseNumber,
+              houseNumberAddition: formData.houseNumberAddition,
+              postalCode: formData.postalCode,
+              city: formData.city,
+            },
             phoneNumber: formData.phoneNumber,
           },
           companyDetails: {
@@ -409,7 +417,7 @@ const Home = () => {
               city: formData.city,
             },
           },
-          amount: totalAmount,
+          amount: finalAmount, // Use total including delivery
           dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
           sandwichOptions: sandwichOptions,
         }),
