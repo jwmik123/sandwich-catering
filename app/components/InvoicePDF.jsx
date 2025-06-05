@@ -433,7 +433,21 @@ const InvoicePDF = ({
                 <Text style={styles.tableCellBold}>Price</Text>
               </View>
               {selectionType === "custom" ? (
-                renderCustomSelections()
+                <>
+                  {renderCustomSelections()}
+                  {orderDetails?.deliveryCost &&
+                    orderDetails.deliveryCost > 0 && (
+                      <View style={styles.tableRow}>
+                        <Text style={styles.tableCellName}>Delivery</Text>
+                        <Text style={styles.tableCell}>1x</Text>
+                        <Text style={styles.tableCell}>-</Text>
+                        <Text style={styles.tableCell}>-</Text>
+                        <Text style={styles.tableCell}>
+                          €{(orderDetails.deliveryCost || 0).toFixed(2)}
+                        </Text>
+                      </View>
+                    )}
+                </>
               ) : (
                 <>
                   <View style={styles.tableRow}>
@@ -471,6 +485,18 @@ const InvoicePDF = ({
                       €{(varietySelection.vegan * 6.38).toFixed(2)}
                     </Text>
                   </View>
+                  {orderDetails?.deliveryCost &&
+                    orderDetails.deliveryCost > 0 && (
+                      <View style={styles.tableRow}>
+                        <Text style={styles.tableCellName}>Delivery</Text>
+                        <Text style={styles.tableCell}>1x</Text>
+                        <Text style={styles.tableCell}>-</Text>
+                        <Text style={styles.tableCell}>-</Text>
+                        <Text style={styles.tableCell}>
+                          €{(orderDetails.deliveryCost || 0).toFixed(2)}
+                        </Text>
+                      </View>
+                    )}
                 </>
               )}
             </View>
