@@ -1,13 +1,18 @@
 // app/api/test/yuki-invoice/route.js
 import { NextResponse } from "next/server";
 import { YukiApiClient, validateYukiConfig } from "@/lib/yuki-api";
+import { client } from "@/sanity/lib/client";
+import { PRODUCT_QUERY } from "@/sanity/lib/queries";
 
 export async function POST(request) {
   try {
     const { apiKey, adminId } = validateYukiConfig();
     const yukiClient = new YukiApiClient(apiKey, adminId);
 
-    // FAKE test data
+    // Get sandwich options for proper naming
+    const sandwichOptions = await client.fetch(PRODUCT_QUERY);
+
+    // FAKE test data with real sandwich IDs
     const testOrderData = {
       name: "Test Klant",
       email: "test@example.com",
@@ -26,7 +31,8 @@ export async function POST(request) {
       // Order details
       selectionType: "custom",
       customSelection: {
-        "fake-sandwich-1": [
+        // Use real sandwich IDs if available, fallback to fake ones
+        [sandwichOptions[0]?._id || "fake-sandwich-1"]: [
           {
             quantity: 2,
             breadType: "pistolet",
@@ -34,7 +40,7 @@ export async function POST(request) {
             subTotal: 12.76,
           },
         ],
-        "fake-sandwich-2": [
+        [sandwichOptions[1]?._id || "fake-sandwich-2"]: [
           {
             quantity: 1,
             breadType: "spelt",
@@ -55,7 +61,8 @@ export async function POST(request) {
     const { contactData, invoiceData } = yukiClient.formatInvoiceFromOrderData(
       testOrderData,
       testQuoteId,
-      28.59 // Total amount
+      28.59, // Total amount
+      sandwichOptions // Pass sandwichOptions for proper naming
     );
 
     console.log("=== TEST DATA ===");

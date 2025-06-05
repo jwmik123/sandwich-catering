@@ -106,13 +106,9 @@ export async function POST(request) {
     const { contactData, invoiceData } = yukiClient.formatInvoiceFromOrderData(
       orderData,
       quoteId,
-      orderData.amount || calculateOrderTotal(orderData)
+      orderData.amount || calculateOrderTotal(orderData),
+      sandwichOptions
     );
-
-    // Helper function to find sandwich by ID
-    yukiClient.findSandwichById = (sandwichId) => {
-      return sandwichOptions.find((s) => s._id === sandwichId);
-    };
 
     console.log(
       "Sending invoice to Yuki with inline contact data:",
