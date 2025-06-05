@@ -168,16 +168,24 @@ const InvoicePDF = ({
   // Safely process the amount to ensure it always has the correct structure
   const amountData = (() => {
     if (typeof amount === "number") {
+      // Amount is now VAT-exclusive (subtotal + delivery)
+      const subtotal = amount || 0;
+      const vat = subtotal * 0.09;
+      const total = subtotal + vat;
       return {
-        total: amount || 0,
-        subtotal: (amount || 0) / 1.09,
-        vat: (amount || 0) - (amount || 0) / 1.09,
+        subtotal,
+        vat,
+        total,
       };
     } else if (amount && typeof amount === "object") {
+      // If object, use provided values or calculate from subtotal
+      const subtotal = amount.subtotal || amount.total || 0;
+      const vat = amount.vat || subtotal * 0.09;
+      const total = amount.total || subtotal + vat;
       return {
-        total: amount.total || 0,
-        subtotal: amount.subtotal || (amount.total || 0) / 1.09,
-        vat: amount.vat || (amount.total || 0) - (amount.total || 0) / 1.09,
+        subtotal,
+        vat,
+        total,
       };
     }
     return { total: 0, subtotal: 0, vat: 0 };
