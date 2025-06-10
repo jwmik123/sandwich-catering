@@ -167,28 +167,31 @@ const InvoicePDF = ({
 
   // Safely process the amount to ensure it always has the correct structure
   const amountData = (() => {
-    if (typeof amount === "number") {
-      // Amount is now VAT-exclusive (subtotal + delivery)
-      const subtotal = amount || 0;
-      const vat = subtotal * 0.09;
-      const total = subtotal + vat;
-      return {
-        subtotal,
-        vat,
-        total,
-      };
-    } else if (amount && typeof amount === "object") {
-      // If object, use provided values or calculate from subtotal
-      const subtotal = amount.subtotal || amount.total || 0;
-      const vat = amount.vat || subtotal * 0.09;
-      const total = amount.total || subtotal + vat;
-      return {
-        subtotal,
-        vat,
-        total,
-      };
+    // Calculate the base subtotal from order details
+    let baseSubtotal = 0;
+    if (orderDetails.selectionType === "custom") {
+      baseSubtotal = Object.values(orderDetails.customSelection || {})
+        .flat()
+        .reduce((total, selection) => total + (selection.subTotal || 0), 0);
+    } else {
+      const totalSandwiches =
+        (orderDetails.varietySelection?.vega || 0) +
+        (orderDetails.varietySelection?.nonVega || 0) +
+        (orderDetails.varietySelection?.vegan || 0);
+      baseSubtotal = totalSandwiches * 6.38;
     }
-    return { total: 0, subtotal: 0, vat: 0 };
+
+    // Add delivery cost to get total subtotal
+    const deliveryCost = orderDetails.deliveryCost || 0;
+    const subtotal = baseSubtotal + deliveryCost;
+    const vat = subtotal * 0.09;
+    const total = subtotal + vat;
+
+    return {
+      subtotal,
+      vat,
+      total,
+    };
   })();
 
   // Handle properly formatted dates or create defaults
@@ -522,9 +525,25 @@ const InvoicePDF = ({
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Subtotal:</Text>
             <Text style={styles.totalValue}>
-              €{amountData.subtotal.toFixed(2)}
+              €
+              {(amountData.subtotal - (orderDetails.deliveryCost || 0)).toFixed(
+                2
+              )}
             </Text>
           </View>
+          {orderDetails.deliveryCost > 0 ? (
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>Delivery:</Text>
+              <Text style={styles.totalValue}>
+                €{(orderDetails.deliveryCost || 0).toFixed(2)}
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>Delivery:</Text>
+              <Text style={styles.totalValue}>Free</Text>
+            </View>
+          )}
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>VAT (9%):</Text>
             <Text style={styles.totalValue}>€{amountData.vat.toFixed(2)}</Text>

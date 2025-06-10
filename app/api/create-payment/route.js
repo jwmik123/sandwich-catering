@@ -21,7 +21,6 @@ export async function POST(request) {
       cancelUrl: `${process.env.NEXT_PUBLIC_BASE_URL}`,
       metadata: {
         quoteId,
-        orderDetails,
       },
     });
 

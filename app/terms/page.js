@@ -45,7 +45,7 @@ export default function TermsPage() {
         <h2 className="mb-4 text-2xl font-semibold">4. Delivery</h2>
         <p className="mb-4">
           Deliveries are made within Amsterdam and surrounding areas. Free
-          delivery is available for orders above €75,- (some areas excluded:
+          delivery is available for orders above €100,- (some areas excluded:
           1026-1028, 1035, 1101-1109). Specific delivery times are agreed upon
           when ordering. We reserve the right to cancel or delay orders due to
           unforeseen circumstances.

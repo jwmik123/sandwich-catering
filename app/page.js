@@ -302,6 +302,32 @@ const Home = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("online");
 
+  // Effect to recalculate delivery cost when total amount changes
+  useEffect(() => {
+    if (formData.postalCode && totalAmount > 0) {
+      const result = calculateDeliveryCost(formData.postalCode, totalAmount);
+      if (result && !result.error) {
+        setDeliveryCost(result.cost || null);
+
+        // Update delivery messages based on new cost
+        const formattedPostal = formData.postalCode
+          .replace(/\s/g, "")
+          .substring(0, 4);
+        const deliveryZone = postalCodeDeliveryCosts[formattedPostal];
+
+        if (typeof deliveryZone === "object" && deliveryZone.alwaysCharge) {
+          setDeliveryError(``);
+        } else if (result.cost > 0) {
+          setDeliveryError(
+            `Free delivery available for orders over €100 in your area`
+          );
+        } else if (result.cost === 0 && totalAmount >= 100) {
+          setDeliveryError(null);
+        }
+      }
+    }
+  }, [totalAmount, formData.postalCode]);
+
   const handlePayment = async () => {
     try {
       setIsProcessing(true);
