@@ -21,6 +21,7 @@ export const postalCodeDeliveryCosts = {
   // €12,95 delivery zones
   1011: 12.95,
   1012: 12.95,
+  1013: 12.95,
   1014: 12.95,
   1018: 12.95,
   1061: 12.95,
