@@ -155,58 +155,9 @@ async function handlePaidStatus(quoteId) {
       JSON.stringify(order, null, 2)
     );
 
-    // Send to Yuki for paid orders (if enabled)
-    if (process.env.YUKI_ENABLED === "true") {
-      console.log("🔄 Sending paid order to Yuki...");
-
-      try {
-        const yukiResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/yuki/send-invoice`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              quoteId: quoteId,
-            }),
-          }
-        );
-
-        const yukiResult = await yukiResponse.json();
-
-        if (yukiResult.success) {
-          console.log("✅ Paid order successfully sent to Yuki");
-          console.log("- Yuki Contact Code:", yukiResult.yukiContactCode);
-          console.log(
-            "- Yuki Invoice Reference:",
-            yukiResult.yukiInvoiceReference
-          );
-
-          // Mark the order as sent to Yuki
-          await client
-            .patch(order._id)
-            .set({
-              yukiSent: true,
-              yukiSentAt: new Date().toISOString(),
-              yukiContactCode: yukiResult.yukiContactCode,
-              yukiInvoiceReference: yukiResult.yukiInvoiceReference,
-            })
-            .commit();
-        } else {
-          console.error(
-            "❌ Failed to send paid order to Yuki:",
-            yukiResult.error
-          );
-          // Continue with email sending even if Yuki fails
-        }
-      } catch (yukiError) {
-        console.error("❌ Yuki integration error for paid order:", yukiError);
-        // Continue with email sending even if Yuki fails
-      }
-    } else {
-      console.log("⏭️ Yuki integration disabled, skipping for paid order...");
-    }
+    // Send to Yuki for paid orders (if enabled) - REMOVED: Now handled by cron job on delivery date
+    // Yuki invoices will be created on the delivery date to ensure matching due dates
+    console.log("⏭️ Yuki invoice creation moved to delivery date via cron job");
 
     // Fetch sandwich options to include in the email
     console.log("Fetching sandwich options for order confirmation...");

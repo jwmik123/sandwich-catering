@@ -89,45 +89,9 @@ export async function POST(request) {
 
     console.log("Invoice created in Sanity with ID:", updatedQuote._id);
 
-    // Send invoice to Yuki if enabled
-    if (process.env.YUKI_ENABLED === "true") {
-      console.log("🔄 Sending invoice to Yuki...");
-
-      try {
-        const yukiResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/yuki/send-invoice`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              quoteId,
-              invoiceId: updatedQuote._id,
-            }),
-          }
-        );
-
-        const yukiResult = await yukiResponse.json();
-
-        if (yukiResult.success) {
-          console.log("✅ Invoice successfully sent to Yuki");
-          console.log("- Yuki Contact Code:", yukiResult.yukiContactCode);
-          console.log(
-            "- Yuki Invoice Reference:",
-            yukiResult.yukiInvoiceReference
-          );
-        } else {
-          console.error("❌ Failed to send invoice to Yuki:", yukiResult.error);
-          // Don't fail the entire request - just log the error
-        }
-      } catch (yukiError) {
-        console.error("❌ Yuki integration error:", yukiError);
-        // Don't fail the entire request - just log the error
-      }
-    } else {
-      console.log("⏭️ Yuki integration disabled, skipping...");
-    }
+    // Send invoice to Yuki if enabled - REMOVED: Now handled by cron job on delivery date
+    // Yuki invoices will be created on the delivery date to ensure matching due dates
+    console.log("⏭️ Yuki invoice creation moved to delivery date via cron job");
 
     // Fetch sandwich options to include in the email
     console.log("Fetching sandwich options for email...");

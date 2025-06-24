@@ -6,7 +6,7 @@ import { sendInvoiceEmail } from "@/app/actions/sendInvoiceEmail";
 import { NextResponse } from "next/server";
 
 export async function GET(request) {
-  console.log("🔔 CRON JOB STARTED: send-invoice-emails");
+  console.log("🔔 CRON JOB STARTED: send-invoice-emails-and-yuki");
 
   // Log the current date/time to confirm when this ran
   const executionTime = new Date().toISOString();
