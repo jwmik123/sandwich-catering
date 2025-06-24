@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Image,
 } from "@react-pdf/renderer";
+import { isDrink } from "@/lib/product-helpers";
 
 const styles = StyleSheet.create({
   page: {
@@ -283,18 +284,24 @@ const InvoicePDF = ({
           if (!selection) return null;
 
           const qty = selection.quantity || 0;
-          const breadType = selection.breadType || "Unknown bread";
+          const breadType = selection.breadType || "-";
           const sauce = selection.sauce || "geen";
           const subTotal = selection.subTotal || 0;
 
           // Get the sandwich name for display
           const sandwichName = getSandwichName(sandwichId);
 
+          // Find the sandwich to check if it's a drink/croissant/sweet
+          const sandwich = sandwichOptions.find((s) => s._id === sandwichId);
+          const shouldShowBreadType = sandwich && !isDrink(sandwich);
+
           return (
             <View key={`${sandwichId}-${index}`} style={styles.tableRow}>
               <Text style={styles.tableCellName}>{sandwichName}</Text>
               <Text style={styles.tableCell}>{qty}x</Text>
-              <Text style={styles.tableCell}>{breadType}</Text>
+              <Text style={styles.tableCell}>
+                {shouldShowBreadType ? breadType : "-"}
+              </Text>
               <Text style={styles.tableCell}>
                 {sauce !== "geen" ? sauce : "-"}
               </Text>

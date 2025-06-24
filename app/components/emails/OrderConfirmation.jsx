@@ -7,6 +7,7 @@ import {
   Preview,
   Section,
 } from "@react-email/components";
+import { isDrink } from "@/lib/product-helpers";
 
 export default function OrderConfirmation({
   quoteId,
@@ -15,7 +16,14 @@ export default function OrderConfirmation({
   companyDetails,
   totalAmount,
   fullName,
+  sandwichOptions = [],
 }) {
+  // Helper function to check if bread type should be shown
+  const shouldShowBreadType = (sandwichId, breadType) => {
+    const sandwich = sandwichOptions.find((s) => s._id === sandwichId);
+    return sandwich && !isDrink(sandwich) && breadType;
+  };
+
   return (
     <Html>
       <Head />
@@ -58,10 +66,12 @@ export default function OrderConfirmation({
             <Text style={subtitle}>Order</Text>
             {orderDetails.selectionType === "custom" ? (
               Object.entries(orderDetails.customSelection).map(
-                ([_, selections]) =>
+                ([sandwichId, selections]) =>
                   selections.map((selection, index) => (
                     <Text key={index} style={detailText}>
-                      {selection.quantity}x - {selection?.breadType}
+                      {selection.quantity}x
+                      {shouldShowBreadType(sandwichId, selection?.breadType) &&
+                        ` - ${selection?.breadType}`}
                       {selection?.sauce !== "none" &&
                         ` with ${selection?.sauce}`}
                       {` - €${selection.subTotal.toFixed(2)}`}

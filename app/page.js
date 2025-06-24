@@ -34,6 +34,7 @@ import DeliveryCalendar from "@/app/components/DeliveryCalendar";
 import QuoteButton from "@/app/components/QuoteButton";
 import Image from "next/image";
 import { postalCodeDeliveryCosts } from "@/app/assets/postals";
+import { isDrink } from "@/lib/product-helpers";
 
 const Home = () => {
   const [sandwichOptions, setSandwichOptions] = useState([]);
@@ -760,7 +761,10 @@ const Home = () => {
                               className="flex justify-between pl-4 text-sm"
                             >
                               <span className="text-gray-600">
-                                {selection.quantity}x - {breadType}
+                                {selection.quantity}x
+                                {!isDrink(sandwich) &&
+                                  breadType &&
+                                  ` - ${breadType}`}
                                 {selection.sauce !== "geen" &&
                                   ` with ${selection.sauce}`}
                               </span>

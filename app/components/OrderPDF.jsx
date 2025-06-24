@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Image,
 } from "@react-pdf/renderer";
+import { isDrink } from "@/lib/product-helpers";
 
 const styles = StyleSheet.create({
   page: {
@@ -317,7 +318,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                       if (!selection) return null;
 
                       const qty = selection.quantity || 0;
-                      const breadType = selection.breadType || "Unknown bread";
+                      const breadType = selection.breadType || "-";
                       const sauce = selection.sauce || "geen";
                       const subTotal = selection.subTotal || 0;
 
@@ -329,6 +330,10 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                         ? sandwich.name
                         : "Unknown Sandwich";
 
+                      // Check if we should show bread type for this item
+                      const shouldShowBreadType =
+                        sandwich && !isDrink(sandwich);
+
                       return (
                         <View
                           key={`${sandwichId}-${index}`}
@@ -338,7 +343,9 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                             {sandwichName}
                           </Text>
                           <Text style={styles.tableCell}>{qty}x</Text>
-                          <Text style={styles.tableCell}>{breadType}</Text>
+                          <Text style={styles.tableCell}>
+                            {shouldShowBreadType ? breadType : "-"}
+                          </Text>
                           <Text style={styles.tableCell}>
                             {sauce !== "geen" ? sauce : "-"}
                           </Text>
