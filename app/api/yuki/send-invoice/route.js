@@ -50,6 +50,8 @@ export async function POST(request) {
         ...orderData.orderDetails,
         amount: orderData.amount,
         companyName: orderData.companyDetails?.name,
+        companyVAT: orderData.companyDetails?.companyVAT,
+        referenceNumber: orderData.companyDetails?.referenceNumber,
         paymentMethod: "invoice",
       };
     } else {
@@ -91,6 +93,7 @@ export async function POST(request) {
         city: orderData.deliveryDetails?.address?.city,
         companyName: orderData.companyDetails?.companyName,
         companyVAT: orderData.companyDetails?.companyVAT,
+        referenceNumber: orderData.companyDetails?.referenceNumber,
         isCompany: !!orderData.companyDetails,
         paymentMethod: orderData.paymentStatus ? "online" : "invoice",
       };

@@ -12,6 +12,13 @@ export const invoice = defineType({
       type: "string",
     }),
     defineField({
+      name: "referenceNumber",
+      title: "Reference Number",
+      type: "string",
+      description:
+        "Optional internal reference number provided by the customer",
+    }),
+    defineField({
       name: "invoiceNumber",
       title: "Invoice Number",
       type: "string",

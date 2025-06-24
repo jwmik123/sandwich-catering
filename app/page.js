@@ -97,6 +97,7 @@ const Home = () => {
             isCompany: !!quote.companyDetails,
             companyName: quote.companyDetails?.companyName || "",
             companyVAT: quote.companyDetails?.companyVAT || "",
+            referenceNumber: quote.companyDetails?.referenceNumber || "",
           });
 
           // Clear the stored quote
@@ -158,6 +159,7 @@ const Home = () => {
     isCompany: false,
     companyName: "",
     companyVAT: "",
+    referenceNumber: "",
     // Stap 7
     paymentMethod: "",
     customSelection: {},
@@ -436,6 +438,7 @@ const Home = () => {
             isCompany: formData.isCompany,
             name: formData.companyName,
             vatNumber: formData.companyVAT,
+            referenceNumber: formData.referenceNumber,
             address: {
               street: formData.street,
               houseNumber: formData.houseNumber,
@@ -536,7 +539,7 @@ const Home = () => {
   const renderCombinedSteps = () => (
     <div className="space-y-8">
       {/* Header section */}
-      <div className="flex items-center gap-2 text-lg font-medium text-custom-gray">
+      <div className="flex gap-2 items-center text-lg font-medium text-custom-gray">
         <Users className="w-5 h-5" />
         <h2 className="text-gray-700">Amount of sandwiches</h2>
       </div>
@@ -545,7 +548,7 @@ const Home = () => {
           {/* Number of People section */}
           <div className="w-full">
             <div className="flex flex-col gap-4 md:flex-row">
-              <div className="w-full mb-4">
+              <div className="mb-4 w-full">
                 <Label htmlFor="peopleSelect">
                   How many sandwiches would you like?
                 </Label>
@@ -555,7 +558,7 @@ const Home = () => {
                     updateFormData("totalSandwiches", value)
                   }
                 >
-                  <SelectTrigger className="w-full mt-1">
+                  <SelectTrigger className="mt-1 w-full">
                     <SelectValue placeholder="Select number of sandwiches" />
                   </SelectTrigger>
                   <SelectContent>
@@ -568,7 +571,7 @@ const Home = () => {
                 </Select>
               </div>
 
-              <div className="w-full mb-8">
+              <div className="mb-8 w-full">
                 <Label htmlFor="peopleInput">Or enter a specific number:</Label>
                 <Input
                   id="peopleInput"
@@ -586,7 +589,7 @@ const Home = () => {
 
             <div className="w-full">
               <div className="space-y-6">
-                <div className="p-4 text-sm text-green-500 rounded-md bg-beige-50 bg-green-50">
+                <div className="p-4 text-sm text-green-500 bg-green-50 rounded-md bg-beige-50">
                   <p>* We recommend 2 sandwiches per person</p>
                   <p>* Minimum 15 sandwiches</p>
                 </div>
@@ -596,7 +599,7 @@ const Home = () => {
         </div>
 
         {/* Order Summary */}
-        <div className="w-full p-6 rounded-lg bg-custom-gray/10 md:w-1/2">
+        <div className="p-6 w-full rounded-lg bg-custom-gray/10 md:w-1/2">
           <h3 className="mb-4 text-lg font-medium text-custom-gray">Summary</h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
@@ -620,7 +623,7 @@ const Home = () => {
   const renderStep3 = () => {
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-2 text-lg font-medium text-custom-gray">
+        <div className="flex gap-2 items-center text-lg font-medium text-custom-gray">
           <Utensils className="w-5 h-5" />
           <h2 className="text-gray-700">Choose your Selection</h2>
         </div>
@@ -662,7 +665,7 @@ const Home = () => {
             />
 
             <div className="p-4 mt-6 rounded-lg bg-custom-gray/10">
-              <div className="flex items-center justify-between">
+              <div className="flex justify-between items-center">
                 <div>
                   <p className="text-sm text-custom-gray">Selected items</p>
                   <p className="text-lg font-medium">
@@ -713,7 +716,7 @@ const Home = () => {
 
   const renderStep4 = () => (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
+      <div className="flex gap-2 items-center text-lg font-medium text-gray-700">
         <FileText className="w-5 h-5" />
         <h2 className="text-gray-700">Order summary</h2>
       </div>
@@ -767,6 +770,9 @@ const Home = () => {
                                   ` - ${breadType}`}
                                 {selection.sauce !== "geen" &&
                                   ` with ${selection.sauce}`}
+                                {selection.toppings &&
+                                  selection.toppings.length > 0 &&
+                                  ` with ${selection.toppings.join(", ")}`}
                               </span>
                               <span className="font-medium text-gray-900">
                                 €{selection.subTotal.toFixed(2)}
@@ -848,17 +854,17 @@ const Home = () => {
           />
         </div>
         <div className="flex gap-2">
-          <div className="w-full pt-4 mt-4 ">
+          <div className="pt-4 mt-4 w-full">
             <QuoteButton
               formData={formData}
               sandwichOptions={sandwichOptions}
               buttonClasses={secondaryButtonClasses}
             />
           </div>
-          <div className="w-full pt-4 mt-4 ">
+          <div className="pt-4 mt-4 w-full">
             <button
               onClick={() => setCurrentStep(2)}
-              className="w-full px-2 py-2 font-medium text-gray-700 rounded-md bg-custom-gray/10 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              className="px-2 py-2 w-full font-medium text-gray-700 rounded-md bg-custom-gray/10 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
             >
               Update order
             </button>
@@ -958,7 +964,7 @@ const Home = () => {
         </div>
 
         <div className="pt-6 border-t">
-          <div className="flex items-center gap-2">
+          <div className="flex gap-2 items-center">
             <Checkbox
               id="sameAsDelivery"
               checked={formData.sameAsDelivery}
@@ -1070,7 +1076,7 @@ const Home = () => {
 
   const renderStep6 = () => (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
+      <div className="flex gap-2 items-center text-lg font-medium text-gray-700">
         <Building2 className="w-5 h-5" />
         <h2 className="text-gray-700">Contact and Company details</h2>
       </div>
@@ -1121,7 +1127,7 @@ const Home = () => {
 
         {/* Company Details Section */}
         <div className="pt-6 border-t">
-          <div className="flex items-center gap-2">
+          <div className="flex gap-2 items-center">
             <Checkbox
               id="isCompany"
               checked={formData.isCompany}
@@ -1152,11 +1158,26 @@ const Home = () => {
                 />
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="referenceNumber">
+                  Reference number (optional)
+                </Label>
+                <Input
+                  id="referenceNumber"
+                  type="text"
+                  value={formData.referenceNumber}
+                  onChange={(e) =>
+                    updateFormData("referenceNumber", e.target.value)
+                  }
+                  placeholder="Your internal reference number"
+                />
+              </div>
+
               {/* Download Invoice Button */}
               <div className="pt-4">
                 <button
                   onClick={handleDownloadInvoice}
-                  className="w-full px-4 py-2 text-sm font-medium text-white transition-colors rounded-md bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                  className="px-4 py-2 w-full text-sm font-medium text-white rounded-md transition-colors bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                 >
                   Download Invoice Preview
                 </button>
@@ -1170,38 +1191,38 @@ const Home = () => {
 
   const renderStep7 = () => (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
+      <div className="flex gap-2 items-center text-lg font-medium text-gray-700">
         <CreditCard className="w-5 h-5" />
         <h2 className="text-gray-700">Payment</h2>
       </div>
 
-      <div className="p-6 border border-gray-200 rounded-lg bg-custom-gray/10">
+      <div className="p-6 rounded-lg border border-gray-200 bg-custom-gray/10">
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex justify-between items-center">
             <span className="text-gray-600">Subtotal:</span>
             <span className="font-medium">€{totalAmount.toFixed(2)}</span>
           </div>
           {deliveryCost !== null ? (
-            <div className="flex items-center justify-between">
+            <div className="flex justify-between items-center">
               <span className="text-gray-600">Delivery:</span>
               <span className="font-medium">
                 {deliveryCost === 0 ? "Free" : `€${deliveryCost.toFixed(2)}`}
               </span>
             </div>
           ) : (
-            <div className="flex items-center justify-between">
+            <div className="flex justify-between items-center">
               <span className="text-gray-600">Delivery:</span>
               <span className="font-medium text-green-600">Free</span>
             </div>
           )}
-          <div className="flex items-center justify-between">
+          <div className="flex justify-between items-center">
             <span className="text-gray-600">VAT (9%):</span>
             <span className="font-medium">
               €{((totalAmount + (deliveryCost || 0)) * 0.09).toFixed(2)}
             </span>
           </div>
           <div className="pt-4 border-t">
-            <div className="flex items-center justify-between">
+            <div className="flex justify-between items-center">
               <span className="text-lg font-bold">Total:</span>
               <span className="text-lg font-bold">
                 €{((totalAmount + (deliveryCost || 0)) * 1.09).toFixed(2)}
@@ -1210,7 +1231,7 @@ const Home = () => {
           </div>
         </div>
         {deliveryError && (
-          <div className="p-3 mt-4 border rounded-md bg-accent border-accent">
+          <div className="p-3 mt-4 rounded-md border bg-accent border-accent">
             <p className="text-sm text-accent-foreground">{deliveryError}</p>
           </div>
         )}
@@ -1230,7 +1251,7 @@ const Home = () => {
               }`}
               onClick={() => setPaymentMethod("online")}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex gap-3 items-center">
                 <input
                   type="radio"
                   checked={paymentMethod === "online"}
@@ -1254,7 +1275,7 @@ const Home = () => {
               }`}
               onClick={() => setPaymentMethod("invoice")}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex gap-3 items-center">
                 <input
                   type="radio"
                   checked={paymentMethod === "invoice"}
@@ -1282,10 +1303,10 @@ const Home = () => {
           focus:ring-offset-2 transition-colors 
           ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}`}
       >
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex gap-2 justify-center items-center">
           {isProcessing ? (
             <>
-              <div className="w-5 h-5 border-t-2 border-white rounded-full animate-spin" />
+              <div className="w-5 h-5 rounded-full border-t-2 border-white animate-spin" />
               <span>Processing...</span>
             </>
           ) : (
@@ -1315,13 +1336,13 @@ const Home = () => {
   return (
     <div className="min-h-[70vh] bg-background">
       <div className="sticky top-0 z-10 border-b bg-background">
-        <div className="flex items-center justify-center p-2 space-x-2 text-sm text-center bg-green-500 text-accent-foreground">
+        <div className="flex justify-center items-center p-2 space-x-2 text-sm text-center bg-green-500 text-accent-foreground">
           <span className="font-bold">
             Free delivery for orders above €100,-{" "}
           </span>
         </div>
         <div className="container px-4 py-1 mx-auto">
-          <div className="flex items-center justify-between">
+          <div className="flex justify-between items-center">
             <Image
               src={"/tsb-logo-full.png"}
               alt="The Sandwich Bar Nassaukade B.V. Logo"
@@ -1333,7 +1354,7 @@ const Home = () => {
             {currentStep > 1 && (
               <button
                 onClick={() => setCurrentStep((prev) => prev - 1)}
-                className={`${secondaryButtonClasses} flex items-center gap-1`}
+                className={`flex gap-1 items-center ${secondaryButtonClasses}`}
               >
                 <ChevronLeft className="w-4 h-4" />
                 Go back
@@ -1358,8 +1379,7 @@ const Home = () => {
                     }
                   }}
                   className={`${primaryButtonClasses} !bg-green-500 flex items-center gap-1 ${
-                    !isStepValid(currentStep) ? "opacity-50" : ""
-                  }`}
+                    !isStepValid(currentStep) ? "opacity-50" : ""}`}
                 >
                   {currentStep === steps.length - 1 ? "Payment" : "Next"}
                   <ChevronRight className="w-4 h-4" />
@@ -1372,7 +1392,7 @@ const Home = () => {
 
       {/* Progress Steps */}
       <div className="container px-4 py-4 mx-auto">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex justify-between items-center mb-4">
           {steps.map((step, index) => {
             const StepIcon = step.icon;
             return (
@@ -1386,7 +1406,7 @@ const Home = () => {
                       : "text-gray-400"
                 }`}
               >
-                <div className="flex items-center justify-center w-8 h-8 border-2 border-current rounded-full bg-background">
+                <div className="flex justify-center items-center w-8 h-8 rounded-full border-2 border-current bg-background">
                   <StepIcon className="w-4 h-4" />
                 </div>
                 <span className="hidden mt-1 text-xs md:block">
@@ -1398,7 +1418,7 @@ const Home = () => {
         </div>
         <div className="h-2 rounded-full bg-muted">
           <div
-            className="h-full transition-all duration-300 rounded-full bg-primary"
+            className="h-full rounded-full transition-all duration-300 bg-primary"
             style={{
               width: `${((currentStep - 1) / (steps.length - 1)) * 100}%`,
             }}
@@ -1418,10 +1438,10 @@ const Home = () => {
         </div>
 
         {/* Quote Lookup Link */}
-        <div className="flex items-center justify-between mt-6">
+        <div className="flex justify-between items-center mt-6">
           <Link
             href="/quote/lookup"
-            className="flex items-center gap-2 px-4 py-2 text-gray-400 rounded-md"
+            className="flex gap-2 items-center px-4 py-2 text-gray-400 rounded-md"
           >
             <FileSearch className="w-4 h-4" />
             Load quote

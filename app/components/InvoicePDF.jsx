@@ -153,6 +153,7 @@ const InvoicePDF = ({
   amount = 0,
   dueDate = new Date(),
   sandwichOptions = [], // Add sandwichOptions parameter
+  referenceNumber = null, // Add reference number parameter
 }) => {
   // Defensive coding: ensure all objects exist to prevent null references
   orderDetails = orderDetails || {};
@@ -271,6 +272,8 @@ const InvoicePDF = ({
           <Text style={styles.tableCell}>-</Text>
           <Text style={styles.tableCell}>-</Text>
           <Text style={styles.tableCell}>-</Text>
+          <Text style={styles.tableCell}>-</Text>
+          <Text style={styles.tableCell}>-</Text>
         </View>
       );
     }
@@ -286,6 +289,7 @@ const InvoicePDF = ({
           const qty = selection.quantity || 0;
           const breadType = selection.breadType || "-";
           const sauce = selection.sauce || "geen";
+          const toppings = selection.toppings || [];
           const subTotal = selection.subTotal || 0;
 
           // Get the sandwich name for display
@@ -304,6 +308,9 @@ const InvoicePDF = ({
               </Text>
               <Text style={styles.tableCell}>
                 {sauce !== "geen" ? sauce : "-"}
+              </Text>
+              <Text style={styles.tableCell}>
+                {toppings.length > 0 ? toppings.join(", ") : "-"}
               </Text>
               <Text style={styles.tableCell}>€{subTotal.toFixed(2)}</Text>
             </View>
@@ -324,6 +331,11 @@ const InvoicePDF = ({
             <Text style={styles.invoiceId}>
               Date: {today.toLocaleDateString("nl-NL")}
             </Text>
+            {referenceNumber && (
+              <Text style={styles.invoiceId}>
+                Reference Number: {referenceNumber}
+              </Text>
+            )}
           </View>
           <View style={styles.headerRight}>
             <Image src={imageUrl} style={styles.logo} />
@@ -448,6 +460,7 @@ const InvoicePDF = ({
                 <Text style={styles.tableCellBold}>Quantity</Text>
                 <Text style={styles.tableCellBold}>Bread</Text>
                 <Text style={styles.tableCellBold}>Sauce</Text>
+                <Text style={styles.tableCellBold}>Toppings</Text>
                 <Text style={styles.tableCellBold}>Price</Text>
               </View>
               {selectionType === "custom" ? (
@@ -458,6 +471,7 @@ const InvoicePDF = ({
                       <View style={styles.tableRow}>
                         <Text style={styles.tableCellName}>Delivery</Text>
                         <Text style={styles.tableCell}>1x</Text>
+                        <Text style={styles.tableCell}>-</Text>
                         <Text style={styles.tableCell}>-</Text>
                         <Text style={styles.tableCell}>-</Text>
                         <Text style={styles.tableCell}>
@@ -477,6 +491,7 @@ const InvoicePDF = ({
                     </Text>
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>-</Text>
+                    <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>
                       €{(varietySelection.nonVega * 6.38).toFixed(2)}
                     </Text>
@@ -486,6 +501,7 @@ const InvoicePDF = ({
                     <Text style={styles.tableCell}>
                       {varietySelection.vega}x
                     </Text>
+                    <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>
@@ -499,6 +515,7 @@ const InvoicePDF = ({
                     </Text>
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>-</Text>
+                    <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>
                       €{(varietySelection.vegan * 6.38).toFixed(2)}
                     </Text>
@@ -508,6 +525,7 @@ const InvoicePDF = ({
                       <View style={styles.tableRow}>
                         <Text style={styles.tableCellName}>Delivery</Text>
                         <Text style={styles.tableCell}>1x</Text>
+                        <Text style={styles.tableCell}>-</Text>
                         <Text style={styles.tableCell}>-</Text>
                         <Text style={styles.tableCell}>-</Text>
                         <Text style={styles.tableCell}>

@@ -17,6 +17,7 @@ export default function OrderConfirmation({
   totalAmount,
   fullName,
   sandwichOptions = [],
+  referenceNumber = null,
 }) {
   // Helper function to check if bread type should be shown
   const shouldShowBreadType = (sandwichId, breadType) => {
@@ -45,6 +46,13 @@ export default function OrderConfirmation({
           <Section style={details}>
             <Text style={subtitle}>Quote ID</Text>
             <Text style={detailText}>{quoteId}</Text>
+
+            {referenceNumber && (
+              <>
+                <Text style={subtitle}>Reference Number</Text>
+                <Text style={detailText}>{referenceNumber}</Text>
+              </>
+            )}
 
             <Text style={subtitle}>Delivery details</Text>
             <Text style={detailText}>

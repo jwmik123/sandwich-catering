@@ -307,6 +307,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                 <Text style={styles.tableCellBold}>Quantity</Text>
                 <Text style={styles.tableCellBold}>Bread</Text>
                 <Text style={styles.tableCellBold}>Sauce</Text>
+                <Text style={styles.tableCellBold}>Toppings</Text>
                 <Text style={styles.tableCellBold}>Price</Text>
               </View>
               {orderData.selectionType === "custom" ? (
@@ -320,6 +321,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                       const qty = selection.quantity || 0;
                       const breadType = selection.breadType || "-";
                       const sauce = selection.sauce || "geen";
+                      const toppings = selection.toppings || [];
                       const subTotal = selection.subTotal || 0;
 
                       // Get the sandwich name for display
@@ -350,6 +352,9 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                             {sauce !== "geen" ? sauce : "-"}
                           </Text>
                           <Text style={styles.tableCell}>
+                            {toppings.length > 0 ? toppings.join(", ") : "-"}
+                          </Text>
+                          <Text style={styles.tableCell}>
                             €{subTotal.toFixed(2)}
                           </Text>
                         </View>
@@ -368,6 +373,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                     </Text>
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>-</Text>
+                    <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>
                       €
                       {(
@@ -382,6 +388,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                     </Text>
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>-</Text>
+                    <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>
                       €
                       {((orderData.varietySelection?.vega || 0) * 6.38).toFixed(
@@ -394,6 +401,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                     <Text style={styles.tableCell}>
                       {orderData.varietySelection?.vegan || 0}x
                     </Text>
+                    <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>

@@ -132,5 +132,55 @@ export const product = defineType({
           return true;
         }),
     }),
+    defineField({
+      name: "hasToppings",
+      title: "Has Toppings",
+      type: "boolean",
+      description:
+        "Enable if this product should have toppings selection options",
+    }),
+    defineField({
+      name: "toppingOptions",
+      title: "Topping Options",
+      type: "array",
+      of: [
+        {
+          type: "object",
+          name: "toppingOption",
+          fields: [
+            {
+              name: "name",
+              title: "Topping Name",
+              type: "string",
+            },
+            {
+              name: "price",
+              title: "Additional Price",
+              type: "number",
+              description: "Extra cost for this topping (0 if no extra charge)",
+              initialValue: 0,
+            },
+            {
+              name: "isDefault",
+              title: "Default Selection",
+              type: "boolean",
+              description: "Is this topping selected by default?",
+              initialValue: false,
+            },
+          ],
+        },
+      ],
+      hidden: ({ document }) => !document?.hasToppings,
+      validation: (rule) =>
+        rule.custom((toppings, context) => {
+          if (
+            context.document?.hasToppings &&
+            (!toppings || toppings.length === 0)
+          ) {
+            return "At least one topping option is required when toppings are enabled";
+          }
+          return true;
+        }),
+    }),
   ],
 });

@@ -16,5 +16,11 @@ export const PRODUCT_QUERY = defineQuery(`*[_type == "product"] {
     name,
     price,
     isDefault
+  },
+  hasToppings,
+  toppingOptions[] {
+    name,
+    price,
+    isDefault
   }
 }`);

@@ -31,6 +31,7 @@ export async function POST(request) {
         amount={data.amount}
         dueDate={dueDate}
         sandwichOptions={data.sandwichOptions}
+        referenceNumber={data.companyDetails?.referenceNumber || null}
       />
     );
 

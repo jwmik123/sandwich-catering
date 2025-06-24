@@ -51,6 +51,7 @@ export async function generateQuote(formData, sandwichOptions) {
                   selections: selections.map((selection) => ({
                     breadType: selection.breadType,
                     sauce: selection.sauce,
+                    toppings: selection.toppings,
                     quantity: selection.quantity,
                     subTotal: selection.subTotal,
                   })),
@@ -96,6 +97,7 @@ export async function generateQuote(formData, sandwichOptions) {
         ? {
             companyName: formData.companyName,
             companyVAT: formData.companyVAT,
+            referenceNumber: formData.referenceNumber,
           }
         : null,
       status: "pending",

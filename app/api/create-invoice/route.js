@@ -66,6 +66,7 @@ export async function POST(request) {
     // Ensure we have valid company details
     const companyDetails = {
       name: orderDetails.companyName || "Unknown Company",
+      referenceNumber: orderDetails.referenceNumber || null,
       address: {
         street: orderDetails.street || "",
         houseNumber: orderDetails.houseNumber || "",
@@ -79,6 +80,7 @@ export async function POST(request) {
     const updatedQuote = await client.create({
       _type: "invoice",
       quoteId,
+      referenceNumber: orderDetails.referenceNumber || null,
       amount: amountData,
       status: "pending",
       dueDate: dueDate.toISOString(),

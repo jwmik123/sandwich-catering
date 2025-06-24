@@ -75,6 +75,7 @@ export const quote = defineType({
                       fields: [
                         defineField({ name: "breadType", type: "string" }),
                         defineField({ name: "sauce", type: "string" }),
+                        defineField({ name: "topping", type: "string" }),
                         defineField({ name: "quantity", type: "number" }),
                         defineField({ name: "subTotal", type: "number" }),
                       ],
@@ -197,6 +198,17 @@ export const quote = defineType({
           name: "companyName",
           title: "Company Name",
           type: "string",
+        }),
+        defineField({
+          name: "companyVAT",
+          title: "Company VAT Number",
+          type: "string",
+        }),
+        defineField({
+          name: "referenceNumber",
+          title: "Reference Number",
+          type: "string",
+          description: "Optional internal reference number for the customer",
         }),
       ],
     }),

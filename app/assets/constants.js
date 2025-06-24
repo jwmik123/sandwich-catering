@@ -11,3 +11,14 @@ export const sauces = [
   { id: "truffelmayo", name: "Truffelmayonaise" },
   { id: "pesto", name: "Pesto" },
 ];
+
+export const toppings = [
+  { id: "geen", name: "Geen Toppings" },
+  { id: "kaas", name: "Kaas" },
+  { id: "ham", name: "Ham" },
+  { id: "salami", name: "Salami" },
+  { id: "tomaat", name: "Tomaat" },
+  { id: "sla", name: "Sla" },
+  { id: "ui", name: "Ui" },
+  { id: "komkommer", name: "Komkommer" },
+];
