@@ -52,6 +52,7 @@ export async function POST(request) {
         companyName: orderData.companyDetails?.name,
         companyVAT: orderData.companyDetails?.companyVAT,
         referenceNumber: orderData.companyDetails?.referenceNumber,
+        isCompany: !!orderData.companyDetails?.name,
         paymentMethod: "invoice",
       };
     } else {
@@ -112,6 +113,13 @@ export async function POST(request) {
       orderData.amount || calculateOrderTotal(orderData),
       sandwichOptions
     );
+
+    // TEMPORARY LOGGING: Remove after testing
+    console.log(
+      "--- YUKI INVOICE DATA (FOR DEBUGGING) ---",
+      JSON.stringify(invoiceData, null, 2)
+    );
+    // END TEMPORARY LOGGING
 
     console.log(
       "Sending invoice to Yuki with inline contact data:",

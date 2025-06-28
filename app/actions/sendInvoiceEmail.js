@@ -35,6 +35,7 @@ export async function sendInvoiceEmail(quoteId) {
           nonVega: 0,
           vegan: 0,
         },
+        paymentMethod: "invoice",
       },
       deliveryDetails: {
         deliveryDate: invoice.orderDetails.deliveryDate,
