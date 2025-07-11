@@ -1,89 +1,89 @@
 // app/api/test/yuki-invoice/route.js
 import { NextResponse } from "next/server";
-import { YukiApiClient, validateYukiConfig } from "@/lib/yuki-api";
+import { createYukiInvoice } from "@/lib/yuki-api";
 import { client } from "@/sanity/lib/client";
-import { PRODUCT_QUERY } from "@/sanity/lib/queries";
 
-export async function POST(request) {
+export async function GET(request) {
+  console.log("===== YUKI TEST INVOICE ENDPOINT HIT =====");
+
+  const { searchParams } = new URL(request.url);
+  const quoteId = searchParams.get("quoteId");
+  const secret = searchParams.get("secret");
+
+  // 1. Authenticate the request
+  if (secret !== process.env.YUKI_TEST_SECRET) {
+    console.error("❌ Unauthorized: Invalid or missing secret.");
+    return NextResponse.json(
+      { success: false, error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
+  if (!quoteId) {
+    return NextResponse.json(
+      { success: false, error: "Missing quoteId parameter" },
+      { status: 400 }
+    );
+  }
+
+  console.log(`🧪 Running test for quote: ${quoteId}`);
+
   try {
-    const { apiKey, adminId } = validateYukiConfig();
-    const yukiClient = new YukiApiClient(apiKey, adminId);
-
-    // Get sandwich options for proper naming
-    const sandwichOptions = await client.fetch(PRODUCT_QUERY);
-
-    // FAKE test data with real sandwich IDs
-    const testOrderData = {
-      name: "Test Klant",
-      email: "test@example.com",
-      phoneNumber: "06-12345678",
-      companyName: "Test Company BV",
-      companyVAT: "NL123456789B01",
-      isCompany: false, // false = business
-
-      // Address
-      street: "Teststraat",
-      houseNumber: "123",
-      houseNumberAddition: "A",
-      postalCode: "1234AB",
-      city: "Amsterdam",
-
-      // Order details
-      selectionType: "custom",
-      customSelection: {
-        // Use real sandwich IDs if available, fallback to fake ones
-        [sandwichOptions[0]?._id || "fake-sandwich-1"]: [
-          {
-            quantity: 2,
-            breadType: "pistolet",
-            sauce: "mosterd",
-            subTotal: 12.76,
-          },
-        ],
-        [sandwichOptions[1]?._id || "fake-sandwich-2"]: [
-          {
-            quantity: 1,
-            breadType: "spelt",
-            sauce: "truffelmayo",
-            subTotal: 6.88,
-          },
-        ],
-      },
-
-      deliveryDate: "2025-01-15",
-      deliveryTime: "12:00",
-      deliveryCost: 8.95,
-    };
-
-    const testQuoteId = `TEST-${Date.now()}`;
-
-    // Format for Yuki
-    const { contactData, invoiceData } = yukiClient.formatInvoiceFromOrderData(
-      testOrderData,
-      testQuoteId,
-      28.59, // Total amount
-      sandwichOptions // Pass sandwichOptions for proper naming
+    // 2. Find the corresponding invoice document in Sanity
+    const invoice = await client.fetch(
+      `*[_type == "invoice" && quoteId == $quoteId][0]`,
+      { quoteId }
     );
 
-    console.log("=== TEST DATA ===");
-    console.log("Contact:", JSON.stringify(contactData, null, 2));
-    console.log("Invoice:", JSON.stringify(invoiceData, null, 2));
+    if (!invoice) {
+      // If no invoice, check for a quote to handle cases before invoice creation
+      const quote = await client.fetch(
+        `*[_type == "quote" && quoteId == $quoteId][0]`,
+        { quoteId }
+      );
+      if (!quote) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `No quote or invoice found for quoteId: ${quoteId}`,
+          },
+          { status: 404 }
+        );
+      }
+      return NextResponse.json(
+        {
+          success: false,
+          error: `A quote was found, but no invoice has been created for it yet. Quote status: ${quote.status}`,
+        },
+        { status: 404 }
+      );
+    }
 
-    // Send to Yuki - skip contact creation and only create invoice with inline contact data
-    // await yukiClient.createContact(contactData);
-    await yukiClient.createSalesInvoice(invoiceData);
+    // 3. Call the centralized Yuki creation function
+    const result = await createYukiInvoice(quoteId, invoice._id);
 
-    return NextResponse.json({
-      success: true,
-      message: "Test invoice sent to Yuki!",
-      testQuoteId,
-      contactCode: contactData.contactCode,
-    });
+    // 4. Return the result
+    if (result.success) {
+      return new Response(result.result, {
+        status: 200,
+        headers: { "Content-Type": "application/xml" },
+      });
+    } else {
+      return NextResponse.json(
+        {
+          success: false,
+          error: result.error,
+        },
+        { status: 500 }
+      );
+    }
   } catch (error) {
+    console.error("❌ Yuki test endpoint error:", error);
     return NextResponse.json(
       {
         success: false,
         error: error.message,
+        stack: error.stack,
       },
       { status: 500 }
     );

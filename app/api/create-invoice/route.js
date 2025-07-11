@@ -3,6 +3,7 @@ import { client } from "@/sanity/lib/client";
 import { NextResponse } from "next/server";
 import { sendOrderConfirmation } from "@/lib/email";
 import { PRODUCT_QUERY } from "@/sanity/lib/queries";
+import { createYukiInvoice } from "@/lib/yuki-api";
 
 export async function POST(request) {
   console.log("===== CREATE INVOICE API CALLED =====");
@@ -40,6 +41,33 @@ export async function POST(request) {
         { status: 400 }
       );
     }
+
+    // --- Data Transformation ---
+    // Transform the incoming orderDetails to a structured format for Sanity
+    const structuredOrderDetails = {
+      ...orderDetails,
+      // Convert customSelection from an object to a structured array
+      customSelection:
+        orderDetails.selectionType === "custom"
+          ? Object.entries(orderDetails.customSelection || {}).map(
+              ([sandwichId, selections]) => ({
+                _key: sandwichId, // Use sandwichId as the key for Sanity array
+                sandwichId: { _type: "reference", _ref: sandwichId },
+                selections: selections.map((selection) => ({
+                  ...selection,
+                  _key: `${sandwichId}-${selection.breadType}-${Math.random()}`, // Create a unique key for each selection item
+                })),
+              })
+            )
+          : [],
+      // Ensure varietySelection is always an object
+      varietySelection: orderDetails.varietySelection || {
+        nonVega: 0,
+        vega: 0,
+        vegan: 0,
+      },
+    };
+    // --- End Data Transformation ---
 
     // Calculate due date (14 days from delivery date)
     const deliveryDate = new Date(orderDetails.deliveryDate || Date.now());
@@ -85,15 +113,25 @@ export async function POST(request) {
       status: "pending",
       dueDate: dueDate.toISOString(),
       companyDetails,
-      orderDetails,
+      orderDetails: structuredOrderDetails, // Use the new structured data
       createdAt: new Date().toISOString(),
     });
 
     console.log("Invoice created in Sanity with ID:", updatedQuote._id);
 
-    // Send invoice to Yuki if enabled - REMOVED: Now handled by cron job on delivery date
-    // Yuki invoices will be created on the delivery date to ensure matching due dates
-    console.log("⏭️ Yuki invoice creation moved to delivery date via cron job");
+    // Send invoice to Yuki right away
+    if (process.env.YUKI_ENABLED === "true") {
+      console.log(`Triggering Yuki invoice creation for quote: ${quoteId}`);
+      // Run in the background, but log if it fails. No need to await.
+      createYukiInvoice(quoteId, updatedQuote._id).catch((error) => {
+        console.error(
+          `Background Yuki invoice creation failed for ${quoteId}:`,
+          error
+        );
+      });
+    } else {
+      console.log("Yuki integration is disabled. Skipping invoice creation.");
+    }
 
     // Fetch sandwich options to include in the email
     console.log("Fetching sandwich options for email...");

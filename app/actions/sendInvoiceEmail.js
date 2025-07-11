@@ -57,58 +57,6 @@ export async function sendInvoiceEmail(quoteId) {
     const emailSent = await sendOrderConfirmation(emailData, true);
 
     if (emailSent) {
-      // Send to Yuki on delivery date (if enabled)
-      if (process.env.YUKI_ENABLED === "true") {
-        console.log(
-          `🔄 Sending invoice to Yuki on delivery date for quote: ${quoteId}`
-        );
-
-        try {
-          const yukiResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_URL}/api/yuki/send-invoice`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                quoteId,
-                invoiceId: invoice._id,
-              }),
-            }
-          );
-
-          const yukiResult = await yukiResponse.json();
-
-          if (yukiResult.success) {
-            console.log(
-              "✅ Invoice successfully sent to Yuki on delivery date"
-            );
-            console.log("- Yuki Contact Code:", yukiResult.yukiContactCode);
-            console.log(
-              "- Yuki Invoice Reference:",
-              yukiResult.yukiInvoiceReference
-            );
-          } else {
-            console.error(
-              "❌ Failed to send invoice to Yuki on delivery date:",
-              yukiResult.error
-            );
-            // Don't fail the entire process - just log the error
-          }
-        } catch (yukiError) {
-          console.error(
-            "❌ Yuki integration error on delivery date:",
-            yukiError
-          );
-          // Don't fail the entire process - just log the error
-        }
-      } else {
-        console.log(
-          "⏭️ Yuki integration disabled, skipping for delivery date invoice..."
-        );
-      }
-
       // Update the invoice status to indicate email was sent
       await client
         .patch(invoice._id)

@@ -110,6 +110,107 @@ export const invoice = defineType({
       title: "Notes",
       type: "text",
     }),
+
+    // -- Order Details --
+    defineField({
+      name: "orderDetails",
+      title: "Order Details",
+      type: "object",
+      description:
+        "A snapshot of the order details at the time of invoice creation.",
+      fields: [
+        { name: "name", title: "Customer Name", type: "string" },
+        { name: "email", title: "Email", type: "string" },
+        { name: "phoneNumber", title: "Phone Number", type: "string" },
+        { name: "deliveryDate", title: "Delivery Date", type: "string" },
+        { name: "deliveryTime", title: "Delivery Time", type: "string" },
+        { name: "deliveryCost", title: "Delivery Cost", type: "number" },
+        { name: "totalSandwiches", title: "Total Sandwiches", type: "number" },
+        { name: "selectionType", title: "Selection Type", type: "string" },
+        { name: "allergies", title: "Allergies", type: "text" },
+        {
+          name: "varietySelection",
+          title: "Variety Selection",
+          type: "object",
+          fields: [
+            { name: "nonVega", type: "number" },
+            { name: "vega", type: "number" },
+            { name: "vegan", type: "number" },
+          ],
+        },
+        {
+          name: "customSelection",
+          title: "Custom Selection",
+          type: "array",
+          of: [
+            {
+              type: "object",
+              fields: [
+                {
+                  name: "sandwichId",
+                  type: "reference",
+                  to: [{ type: "product" }],
+                },
+                {
+                  name: "selections",
+                  type: "array",
+                  of: [
+                    {
+                      type: "object",
+                      fields: [
+                        { name: "breadType", type: "string" },
+                        { name: "sauce", type: "string" },
+                        { name: "quantity", type: "number" },
+                        { name: "subTotal", type: "number" },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }),
+
+    // -- Yuki Integration Fields --
+    defineField({
+      name: "yukiSent",
+      title: "Sent to Yuki",
+      type: "boolean",
+      initialValue: false,
+      readOnly: true,
+      fieldset: "yuki",
+    }),
+    defineField({
+      name: "yukiSentAt",
+      title: "Sent to Yuki At",
+      type: "datetime",
+      readOnly: true,
+      fieldset: "yuki",
+    }),
+    defineField({
+      name: "yukiContactCode",
+      title: "Yuki Contact Code",
+      type: "string",
+      readOnly: true,
+      fieldset: "yuki",
+    }),
+    defineField({
+      name: "yukiInvoiceReference",
+      title: "Yuki Invoice Reference",
+      type: "string",
+      readOnly: true,
+      fieldset: "yuki",
+    }),
+  ],
+
+  fieldsets: [
+    {
+      name: "yuki",
+      title: "Yuki Integration Status",
+      options: { collapsible: true, collapsed: true },
+    },
   ],
 });
 

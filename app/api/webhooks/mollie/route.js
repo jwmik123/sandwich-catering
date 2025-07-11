@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { sendOrderConfirmation } from "@/lib/email";
 import { sendOrderSmsNotification } from "@/lib/sms";
 import { PRODUCT_QUERY } from "@/sanity/lib/queries";
+import { createYukiInvoice } from "@/lib/yuki-api";
 
 const mollieClient = createMollieClient({
   apiKey: process.env.MOLLIE_LIVE_API_KEY,
@@ -125,6 +126,7 @@ async function handlePaidStatus(quoteId) {
         deliveryDetails {
           deliveryDate,
           deliveryTime,
+          deliveryCost,
           address {
             street,
             houseNumber,
@@ -155,10 +157,6 @@ async function handlePaidStatus(quoteId) {
       JSON.stringify(order, null, 2)
     );
 
-    // Send to Yuki for paid orders (if enabled) - REMOVED: Now handled by cron job on delivery date
-    // Yuki invoices will be created on the delivery date to ensure matching due dates
-    console.log("⏭️ Yuki invoice creation moved to delivery date via cron job");
-
     // Fetch sandwich options to include in the email
     console.log("Fetching sandwich options for order confirmation...");
     let sandwichOptions = [];
@@ -170,6 +168,64 @@ async function handlePaidStatus(quoteId) {
     } catch (fetchError) {
       console.error("Error fetching sandwich options:", fetchError);
       console.log("Will continue with empty sandwich options array");
+    }
+
+    // Create an invoice document in Sanity for consistency
+    try {
+      const deliveryDate = new Date(
+        order.deliveryDetails.deliveryDate || Date.now()
+      );
+      const dueDate = new Date(deliveryDate);
+      dueDate.setDate(deliveryDate.getDate() + 14);
+
+      const amount = calculateOrderTotal(
+        order.orderDetails,
+        order.deliveryDetails.deliveryCost
+      );
+      const amountData = {
+        total: Number(amount) || 0,
+        subtotal: (Number(amount) || 0) / 1.09,
+        vat: (Number(amount) || 0) - (Number(amount) || 0) / 1.09,
+      };
+
+      const invoicePayload = {
+        _type: "invoice",
+        quoteId: order.quoteId,
+        referenceNumber: order.companyDetails?.referenceNumber || null,
+        amount: amountData,
+        status: "paid", // From Mollie
+        dueDate: dueDate.toISOString(),
+        companyDetails: order.companyDetails,
+        orderDetails: order.orderDetails,
+        createdAt: new Date().toISOString(),
+      };
+
+      const newInvoice = await client.create(invoicePayload);
+      console.log(
+        `Invoice document created in Sanity with ID: ${newInvoice._id}`
+      );
+
+      // Now, send this to Yuki
+      if (process.env.YUKI_ENABLED === "true") {
+        console.log(
+          `Triggering Yuki invoice creation for quote: ${order.quoteId}`
+        );
+        // Run in the background, but log if it fails. No need to await.
+        createYukiInvoice(order.quoteId, newInvoice._id).catch((error) => {
+          console.error(
+            `Background Yuki invoice creation failed for ${order.quoteId}:`,
+            error
+          );
+        });
+      } else {
+        console.log("Yuki integration is disabled. Skipping invoice creation.");
+      }
+    } catch (invoiceError) {
+      console.error(
+        "Failed to create invoice document for paid order:",
+        invoiceError
+      );
+      // Log error but don't block confirmation emails
     }
 
     // Create a properly formatted order object expected by the email/PDF components
@@ -287,6 +343,34 @@ async function handleExpiredPayment(quoteId) {
 }
 
 async function handleCanceledPayment(quoteId) {
-  console.log(`Would handle canceled payment for ${quoteId}`);
-  // Handle canceled payment
+  // Logic for canceled payments
+  console.log(`Handling canceled payment for quote ${quoteId}`);
+}
+
+// Helper function to calculate total from order data
+function calculateOrderTotal(orderDetails, deliveryCost = 0) {
+  if (!orderDetails) return 0;
+  let total = 0;
+
+  if (orderDetails.selectionType === "custom") {
+    if (orderDetails.customSelection) {
+      // Custom selection from a quote is an array of objects
+      total = Object.values(orderDetails.customSelection || {})
+        .flat()
+        .reduce((sum, selection) => sum + (selection.subTotal || 0), 0);
+    }
+  } else {
+    if (orderDetails.varietySelection) {
+      const totalSandwiches =
+        (orderDetails.varietySelection?.vega || 0) +
+        (orderDetails.varietySelection?.nonVega || 0) +
+        (orderDetails.varietySelection?.vegan || 0);
+      total = totalSandwiches * 6.38;
+    }
+  }
+
+  // Add delivery cost to the total
+  total += deliveryCost || 0;
+
+  return total;
 }
