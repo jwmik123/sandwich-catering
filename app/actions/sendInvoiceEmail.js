@@ -49,7 +49,7 @@ export async function sendInvoiceEmail(quoteId) {
         phoneNumber: invoice.orderDetails.phoneNumber || "",
       },
       companyDetails: invoice.companyDetails,
-      amount: invoice.amount,
+      amount: invoice.amount, // Pass the entire amount object
       dueDate: invoice.dueDate,
       sandwichOptions,
     };
