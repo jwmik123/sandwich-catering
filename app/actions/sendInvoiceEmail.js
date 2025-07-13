@@ -58,18 +58,22 @@ export async function sendInvoiceEmail(quoteId) {
     const emailSent = await sendOrderConfirmation(emailData, true);
 
     if (emailSent) {
-      // Create the invoice in Yuki
+      // If email is sent successfully, also create the Yuki invoice
       if (process.env.YUKI_ENABLED === "true") {
-        console.log(`Triggering Yuki invoice creation for quote: ${quoteId}`);
-        // Run in the background, but log if it fails. No need to await.
-        createYukiInvoice(quoteId, updatedQuote._id).catch((error) => {
+        console.log(
+          `Creating Yuki invoice on delivery date for quote: ${quoteId}`
+        );
+        // We don't need to await this, it can run in the background
+        createYukiInvoice(quoteId, invoice._id).catch((error) => {
           console.error(
             `Background Yuki invoice creation failed for ${quoteId}:`,
             error
           );
         });
       } else {
-        console.log("Yuki integration is disabled. Skipping invoice creation.");
+        console.log(
+          "Yuki integration disabled, skipping invoice creation for cron job."
+        );
       }
 
       // Update the invoice status to indicate email was sent
