@@ -186,7 +186,7 @@ const InvoicePDF = ({
     // Add delivery cost to get total subtotal
     const deliveryCost = orderDetails.deliveryCost || 0;
     const subtotal = baseSubtotal + deliveryCost;
-    const vat = subtotal * 0.09;
+    const vat = Math.ceil(subtotal * 0.09 * 100) / 100;
     const total = subtotal + vat;
 
     return {

@@ -25,6 +25,9 @@ export default function OrderConfirmation({
     return sandwich && !isDrink(sandwich) && breadType;
   };
 
+  const vatAmount = Math.ceil(totalAmount * 0.09 * 100) / 100;
+  const totalAmountWithVat = totalAmount + vatAmount;
+
   return (
     <Html>
       <Head />
@@ -103,9 +106,9 @@ export default function OrderConfirmation({
             <Text style={detailText}>
               Subtotal: €{totalAmount.toFixed(2)}
               <br />
-              VAT (9%): €{(totalAmount * 0.09).toFixed(2)}
+              VAT (9%): €{vatAmount.toFixed(2)}
               <br />
-              Total: €{(totalAmount * 1.09).toFixed(2)}
+              Total: €{totalAmountWithVat.toFixed(2)}
             </Text>
           </Section>
 

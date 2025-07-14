@@ -1218,7 +1218,9 @@ const Home = () => {
           <div className="flex justify-between items-center">
             <span className="text-gray-600">VAT (9%):</span>
             <span className="font-medium">
-              €{((totalAmount + (deliveryCost || 0)) * 0.09).toFixed(2)}
+              €
+              {Math.ceil((totalAmount + (deliveryCost || 0)) * 0.09 * 100) /
+                100}
             </span>
           </div>
           <div className="pt-4 border-t">
@@ -1379,7 +1381,8 @@ const Home = () => {
                     }
                   }}
                   className={`${primaryButtonClasses} !bg-green-500 flex items-center gap-1 ${
-                    !isStepValid(currentStep) ? "opacity-50" : ""}`}
+                    !isStepValid(currentStep) ? "opacity-50" : ""
+                  }`}
                 >
                   {currentStep === steps.length - 1 ? "Payment" : "Next"}
                   <ChevronRight className="w-4 h-4" />
