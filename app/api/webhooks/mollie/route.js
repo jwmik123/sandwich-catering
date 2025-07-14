@@ -170,6 +170,19 @@ async function handlePaidStatus(quoteId) {
       console.log("Will continue with empty sandwich options array");
     }
 
+    const amount = calculateOrderTotal(
+      order.orderDetails,
+      order.deliveryDetails.deliveryCost
+    );
+    const amountData = {
+      total: Number(amount) || 0,
+      subtotal: (Number(amount) || 0) / 1.09,
+      vat:
+        Math.ceil(
+          ((Number(amount) || 0) - (Number(amount) || 0) / 1.09) * 100
+        ) / 100,
+    };
+
     // Create an invoice document in Sanity for consistency
     try {
       const deliveryDate = new Date(
@@ -177,16 +190,6 @@ async function handlePaidStatus(quoteId) {
       );
       const dueDate = new Date(deliveryDate);
       dueDate.setDate(deliveryDate.getDate() + 14);
-
-      const amount = calculateOrderTotal(
-        order.orderDetails,
-        order.deliveryDetails.deliveryCost
-      );
-      const amountData = {
-        total: Number(amount) || 0,
-        subtotal: (Number(amount) || 0) / 1.09,
-        vat: (Number(amount) || 0) - (Number(amount) || 0) / 1.09,
-      };
 
       const invoicePayload = {
         _type: "invoice",
@@ -234,6 +237,7 @@ async function handlePaidStatus(quoteId) {
       email: order.email,
       phoneNumber: order.phoneNumber,
       fullName: order.name,
+      amount: amountData, // Pass the calculated amount data
 
       // Format orderDetails
       orderDetails: {
