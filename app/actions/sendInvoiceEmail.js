@@ -18,6 +18,25 @@ export async function sendInvoiceEmail(quoteId) {
       return { success: false, error: "Invoice not found" };
     }
 
+    if (
+      invoice.orderDetails &&
+      invoice.orderDetails.selectionType === "custom" &&
+      Array.isArray(invoice.orderDetails.customSelection)
+    ) {
+      const customSelectionObject = invoice.orderDetails.customSelection.reduce(
+        (acc, item) => {
+          // The `_key` of the array item is the original sandwichId.
+          if (item._key) {
+            acc[item._key] = item.selections;
+          }
+          return acc;
+        },
+        {}
+      );
+      // Replace the array with the reconstructed object.
+      invoice.orderDetails.customSelection = customSelectionObject;
+    }
+
     // Fetch sandwich options for the email
     const sandwichOptions = await client.fetch(PRODUCT_QUERY);
 

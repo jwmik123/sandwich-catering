@@ -1381,8 +1381,7 @@ const Home = () => {
                     }
                   }}
                   className={`${primaryButtonClasses} !bg-green-500 flex items-center gap-1 ${
-                    !isStepValid(currentStep) ? "opacity-50" : ""
-                  }`}
+                    !isStepValid(currentStep) ? "opacity-50" : ""}`}
                 >
                   {currentStep === steps.length - 1 ? "Payment" : "Next"}
                   <ChevronRight className="w-4 h-4" />
