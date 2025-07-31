@@ -25,8 +25,6 @@ import { useOrderValidation } from "@/app/hooks/useOrderValidation";
 const Home = () => {
   const [sandwichOptions, setSandwichOptions] = useState([]);
   const [date, setDate] = useState(null);
-  
-  // Use custom hooks for form management and validation
   const {
     formData,
     updateFormData,

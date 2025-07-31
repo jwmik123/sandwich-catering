@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import { Building2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
@@ -11,7 +12,7 @@ const ContactStep = ({
   updateFormData,
   sandwichOptions,
   deliveryCost,
-  totalAmount,
+  // totalAmount,
 }) => {
   const handleDownloadInvoice = async () => {
     try {

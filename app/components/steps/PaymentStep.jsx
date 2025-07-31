@@ -5,7 +5,7 @@ import { generateQuote } from "@/app/actions/generateQuote";
 
 const PaymentStep = ({
   formData,
-  updateFormData,
+  // updateFormData,
   totalAmount,
   deliveryCost,
   deliveryError,
