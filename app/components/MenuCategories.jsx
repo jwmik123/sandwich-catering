@@ -276,11 +276,14 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
 
     // Throttled resize handler for better performance
     let resizeTimeout;
-    const handleResize = throttle(() => {
+    const handleResize = () => {
       if (activeCategory) {
-        requestAnimationFrame(updateIndicatorPosition);
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          requestAnimationFrame(updateIndicatorPosition);
+        }, 150);
       }
-    }, 150);
+    };
 
     window.addEventListener('resize', handleResize);
     
