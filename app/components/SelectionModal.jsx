@@ -32,7 +32,6 @@ const SelectionModal = ({
   onClose,
   sandwich,
   onAdd,
-  remainingQuantity,
 }) => {
   const [quantity, setQuantity] = React.useState("1");
   const [breadType, setBreadType] = React.useState(breadTypes[0].id);

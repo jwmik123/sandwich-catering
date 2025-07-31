@@ -71,11 +71,7 @@ const Home = () => {
   const commonButtonClasses =
     "px-4 py-2 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2";
   const primaryButtonClasses = `${commonButtonClasses} bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary`;
-  const secondaryButtonClasses = `${commonButtonClasses} bg-muted text-muted-foreground hover:bg-muted/90 focus:ring-muted`;
-
-
-
-
+  const secondaryButtonClasses = `${commonButtonClasses} bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary`;
 
   const steps = [
     { icon: Users, title: "Amount of sandwiches" },
