@@ -177,42 +177,23 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
   };
 
   const scrollToCategory = (categoryValue) => {
-    const element = categoryRefs.current[categoryValue];
+    // Immediately set the active category and disable automatic tracking
+    setActiveCategory(categoryValue);
+    setIsManualScrolling(true);
+    
+    // Use native browser scrolling with ID
+    const element = document.getElementById(`category-${categoryValue}`);
     if (element) {
-      // Immediately set the active category and disable automatic tracking
-      setActiveCategory(categoryValue);
-      setIsManualScrolling(true);
-      
-      // Calculate more accurate scroll position for mobile
-      const elementRect = element.getBoundingClientRect();
-      const currentScrollY = window.scrollY || window.pageYOffset;
-      
-      // Dynamically calculate header offset based on actual sticky header
-      const stickyHeader = document.querySelector('.sticky');
-      const headerHeight = stickyHeader ? stickyHeader.offsetHeight : 0;
-      
-      // Add some padding for better visual spacing (mobile-friendly)
-      const mobileOffset = window.innerWidth < 768 ? 20 : 40;
-      const totalOffset = headerHeight + mobileOffset;
-      
-      // Calculate target scroll position
-      const targetY = currentScrollY + elementRect.top - totalOffset;
-      
-      gsap.to(window, {
-        duration: prefersReducedMotion ? 0 : 0.8,
-        scrollTo: {
-          y: Math.max(0, targetY), // Ensure we don't scroll past the top
-          autoKill: true
-        },
-        ease: "power2.out",
-        onComplete: () => {
-          // Re-enable automatic tracking after scroll completes
-          setTimeout(() => {
-            setIsManualScrolling(false);
-          }, 100); // Short delay to ensure everything is settled
-        }
+      element.scrollIntoView({
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        block: 'start'
       });
     }
+    
+    // Re-enable automatic tracking after scroll completes
+    setTimeout(() => {
+      setIsManualScrolling(false);
+    }, 1000); // Longer delay for smooth scroll to complete
   };
 
   return (
@@ -259,9 +240,10 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
         {uniqueCategories.map((category) => (
           <section
             key={category.id}
+            id={`category-${category.value}`}
             ref={(el) => (categoryRefs.current[category.value] = el)}
             data-category={category.value}
-            className="scroll-mt-48"
+            className="scroll-mt-36 sm:scroll-mt-48"
           >
             {/* Category title */}
             <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-foreground">
