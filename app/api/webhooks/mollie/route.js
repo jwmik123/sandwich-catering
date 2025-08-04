@@ -369,7 +369,7 @@ function calculateOrderTotal(orderDetails, deliveryCost = 0) {
         (orderDetails.varietySelection?.vega || 0) +
         (orderDetails.varietySelection?.nonVega || 0) +
         (orderDetails.varietySelection?.vegan || 0);
-      total = totalSandwiches * 6.38;
+      total = totalSandwiches * 6.83;
     }
   }
 

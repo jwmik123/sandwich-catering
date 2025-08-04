@@ -377,7 +377,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                     <Text style={styles.tableCell}>
                       €
                       {(
-                        (orderData.varietySelection?.nonVega || 0) * 6.38
+                        (orderData.varietySelection?.nonVega || 0) * 6.83
                       ).toFixed(2)}
                     </Text>
                   </View>
@@ -391,7 +391,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>
                       €
-                      {((orderData.varietySelection?.vega || 0) * 6.38).toFixed(
+                      {((orderData.varietySelection?.vega || 0) * 6.83).toFixed(
                         2
                       )}
                     </Text>
@@ -407,7 +407,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                     <Text style={styles.tableCell}>
                       €
                       {(
-                        (orderData.varietySelection?.vegan || 0) * 6.38
+                        (orderData.varietySelection?.vegan || 0) * 6.83
                       ).toFixed(2)}
                     </Text>
                   </View>
@@ -465,7 +465,7 @@ const calculateSubtotal = (orderData) => {
       .flat()
       .reduce((total, selection) => total + selection.subTotal, 0);
   } else {
-    return orderData.totalSandwiches * 6.38; // Assuming €6.38 per sandwich
+    return orderData.totalSandwiches * 6.83; // Assuming €6.83 per sandwich
   }
 };
 

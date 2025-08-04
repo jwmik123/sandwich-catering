@@ -180,7 +180,7 @@ const InvoicePDF = ({
         (orderDetails.varietySelection?.vega || 0) +
         (orderDetails.varietySelection?.nonVega || 0) +
         (orderDetails.varietySelection?.vegan || 0);
-      baseSubtotal = totalSandwiches * 6.38;
+      baseSubtotal = totalSandwiches * 6.83;
     }
 
     // Add delivery cost to get total subtotal
@@ -493,7 +493,7 @@ const InvoicePDF = ({
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>
-                      €{(varietySelection.nonVega * 6.38).toFixed(2)}
+                      €{(varietySelection.nonVega * 6.83).toFixed(2)}
                     </Text>
                   </View>
                   <View style={styles.tableRow}>
@@ -505,7 +505,7 @@ const InvoicePDF = ({
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>
-                      €{(varietySelection.vega * 6.38).toFixed(2)}
+                      €{(varietySelection.vega * 6.83).toFixed(2)}
                     </Text>
                   </View>
                   <View style={styles.tableRow}>
@@ -517,7 +517,7 @@ const InvoicePDF = ({
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>
-                      €{(varietySelection.vegan * 6.38).toFixed(2)}
+                      €{(varietySelection.vegan * 6.83).toFixed(2)}
                     </Text>
                   </View>
                   {orderDetails?.deliveryCost &&

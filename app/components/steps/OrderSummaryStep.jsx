@@ -132,7 +132,7 @@ const OrderSummaryStep = ({
               <div className="pt-4 mt-4 border-t">
                 <div className="flex justify-between text-lg font-medium">
                   <span>Total amount</span>
-                  <span>€{(formData.totalSandwiches * 6.38).toFixed(2)}</span>
+                  <span>€{(formData.totalSandwiches * 6.83).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between mt-1 text-sm text-gray-500">
                   <span>Total number of sandwiches</span>

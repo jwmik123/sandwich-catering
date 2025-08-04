@@ -183,13 +183,25 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
       setActiveCategory(categoryValue);
       setIsManualScrolling(true);
       
-      // Use GSAP for smoother, more controlled scrolling
-      const targetY = element.offsetTop - 200; // Account for sticky header
+      // Calculate more accurate scroll position for mobile
+      const elementRect = element.getBoundingClientRect();
+      const currentScrollY = window.scrollY || window.pageYOffset;
+      
+      // Dynamically calculate header offset based on actual sticky header
+      const stickyHeader = document.querySelector('.sticky');
+      const headerHeight = stickyHeader ? stickyHeader.offsetHeight : 0;
+      
+      // Add some padding for better visual spacing (mobile-friendly)
+      const mobileOffset = window.innerWidth < 768 ? 20 : 40;
+      const totalOffset = headerHeight + mobileOffset;
+      
+      // Calculate target scroll position
+      const targetY = currentScrollY + elementRect.top - totalOffset;
       
       gsap.to(window, {
         duration: prefersReducedMotion ? 0 : 0.8,
         scrollTo: {
-          y: targetY,
+          y: Math.max(0, targetY), // Ensure we don't scroll past the top
           autoKill: true
         },
         ease: "power2.out",

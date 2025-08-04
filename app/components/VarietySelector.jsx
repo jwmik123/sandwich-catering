@@ -232,7 +232,7 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
         <div className="p-4 space-y-2 rounded-md bg-custom-gray/10">
           <div className="flex justify-between text-sm text-custom-gray">
             <span>Price per sandwich</span>
-            <span>€6,38</span>
+            <span>€6,83</span>
           </div>
           <div className="flex justify-between text-sm text-custom-gray">
             <span>Number of sandwiches</span>
@@ -240,7 +240,7 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
           </div>
           <div className="flex justify-between pt-2 font-medium border-t text-custom-gray">
             <span>Total amount</span>
-            <span>€{(currentTotal * 6.38).toFixed(2)} excl. VAT</span>
+            <span>€{(currentTotal * 6.83).toFixed(2)} excl. VAT</span>
           </div>
         </div>
       </div>
