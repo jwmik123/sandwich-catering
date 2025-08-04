@@ -33,7 +33,7 @@ export const product = defineType({
         list: [
           { title: "Specials", value: "specials" },
           { title: "Basics", value: "basics" },
-          { title: "Croissants", value: "croissants" },
+          { title: "Breakfast", value: "croissants" },
           { title: "Zoetigheden", value: "zoetigheden" },
           { title: "Dranken", value: "dranken" },
         ],

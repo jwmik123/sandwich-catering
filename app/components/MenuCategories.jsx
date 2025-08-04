@@ -4,14 +4,21 @@ import SelectionManager from "./SelectionManager";
 import { urlFor } from "@/sanity/lib/image";
 import SelectedSandwichesList from "./SelectedSandwichesList";
 import { breadTypes } from "@/app/assets/constants";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+
+// Register GSAP plugins
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
   const categoryRefs = useRef({});
   const buttonRefs = useRef({});
   const [activeCategory, setActiveCategory] = useState("");
   const [indicatorStyle, setIndicatorStyle] = useState({});
-  const [useScrollFallback, setUseScrollFallback] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [isManualScrolling, setIsManualScrolling] = useState(false);
+  const scrollTriggersRef = useRef([]);
 
   if (!Array.isArray(sandwichOptions) || !formData || !updateFormData) {
     return <div className="p-4 text-red-600">Missing required props</div>;
@@ -22,7 +29,7 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
     const categoryNames = {
       specials: "Specials",
       basics: "Basics",
-      croissants: "Croissants",
+      croissants: "Breakfast",
       zoetigheden: "Sweets",
       dranken: "Drinks",
     };
@@ -42,205 +49,70 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
       }));
   }, [sandwichOptions]);
 
-  // Detect reduced motion preference and device capabilities
+  // Detect reduced motion preference
   useEffect(() => {
-    // Check for reduced motion preference
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     setPrefersReducedMotion(mediaQuery.matches);
 
     const handleChange = (e) => setPrefersReducedMotion(e.matches);
     mediaQuery.addListener(handleChange);
 
-    // Also check for older/low-end devices based on user agent
-    const isOlderDevice = /Android [1-6]\.|iPhone OS [1-9]_|iPad.*OS [1-9]_/.test(navigator.userAgent);
-    if (isOlderDevice) {
-      setPrefersReducedMotion(true);
-    }
-
     return () => mediaQuery.removeListener(handleChange);
   }, []);
 
-  // Enhanced fallback scroll handler that works for both directions
-  const handleScrollFallback = () => {
-    if (!useScrollFallback) return;
-    
-    let bestCategory = "";
-    let bestScore = -1;
-    
-    // Define our target area (where we want to detect active sections)
-    const targetTop = 200; // Top of our detection zone
-    const targetBottom = window.innerHeight * 0.6; // Bottom of our detection zone
-    
-    Object.entries(categoryRefs.current).forEach(([categoryValue, ref]) => {
-      if (ref) {
-        const rect = ref.getBoundingClientRect();
-        const sectionTop = rect.top;
-        const sectionBottom = rect.bottom;
-        
-        // Calculate how much of the section is in our target area
-        let visibilityScore = 0;
-        
-        if (sectionTop <= targetTop && sectionBottom >= targetTop) {
-          // Section starts above target and extends into it
-          visibilityScore = Math.min(sectionBottom - targetTop, targetBottom - targetTop) / (targetBottom - targetTop);
-        } else if (sectionTop >= targetTop && sectionTop <= targetBottom) {
-          // Section starts within target area
-          const visibleHeight = Math.min(sectionBottom, targetBottom) - sectionTop;
-          const targetHeight = targetBottom - targetTop;
-          visibilityScore = visibleHeight / targetHeight;
-        }
-        
-        // Boost score for sections that are well-positioned
-        if (sectionTop <= targetTop + 50 && sectionBottom >= targetTop + 50) {
-          visibilityScore += 0.3; // Bonus for sections crossing our sweet spot
-        }
-        
-        if (visibilityScore > bestScore) {
-          bestScore = visibilityScore;
-          bestCategory = categoryValue;
-        }
-      }
-    });
-    
-    if (bestCategory && bestScore > 0.1) { // Only update if we have a clear winner
-      setActiveCategory(bestCategory);
+  // Set initial active category only once
+  useEffect(() => {
+    if (uniqueCategories.length > 0 && !activeCategory) {
+      setActiveCategory(uniqueCategories[0]?.value || "");
     }
-  };
+  }, [uniqueCategories, activeCategory]);
 
-  // Set up intersection observer to track active category
+  // Set up GSAP ScrollTriggers for category detection
   useEffect(() => {
     if (uniqueCategories.length === 0) return;
-    
-    // Set initial active category
-    setActiveCategory(uniqueCategories[0]?.value || "");
 
-    // Check if IntersectionObserver is supported and working properly
-    if (!window.IntersectionObserver) {
-      setUseScrollFallback(true);
-      return;
-    }
+    // Clean up existing triggers
+    scrollTriggersRef.current.forEach(trigger => trigger.kill());
+    scrollTriggersRef.current = [];
 
-    let observer;
-    let lastActiveCategory = "";
-    let monitorScrolling;
-    let timeoutId;
-    
-    try {
-      // Use a simpler, more reliable IntersectionObserver configuration
-      observer = new IntersectionObserver(
-        (entries) => {
-          requestAnimationFrame(() => {
-            // Find the most visible section instead of just the first intersecting one
-            let mostVisible = null;
-            let maxRatio = 0;
-            
-            entries.forEach((entry) => {
-              const categoryValue = entry.target.getAttribute('data-category');
-              if (entry.isIntersecting && entry.intersectionRatio > maxRatio) {
-                maxRatio = entry.intersectionRatio;
-                mostVisible = categoryValue;
-              }
-            });
-            
-            // If no section is intersecting well, keep the last active one for stability
-            if (mostVisible) {
-              lastActiveCategory = mostVisible;
-              setActiveCategory(mostVisible);
-            } else if (!entries.some(e => e.isIntersecting) && lastActiveCategory) {
-              // If we're between sections, don't change the active category
-              // This helps with upward scrolling stability
+    // Create ScrollTrigger for each category
+    uniqueCategories.forEach((category) => {
+      const element = categoryRefs.current[category.value];
+      if (element) {
+        const trigger = ScrollTrigger.create({
+          trigger: element,
+          start: "top 60%",
+          end: "bottom 40%",
+          onEnter: () => {
+            if (!isManualScrolling) {
+              setActiveCategory(category.value);
             }
-          });
-        },
-        {
-          // Simpler rootMargin that works better with upward scrolling
-          rootMargin: '-150px 0px -50% 0px',
-          threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5] // Multiple thresholds for better detection
-        }
-      );
-
-      // Observe all category sections
-      Object.values(categoryRefs.current).forEach((ref) => {
-        if (ref) observer.observe(ref);
-      });
-      
-      // Smart fallback detection: monitor for upward scroll issues
-      let lastScrollY = window.scrollY;
-      let noUpdateCount = 0;
-      
-      monitorScrolling = () => {
-        const currentScrollY = window.scrollY;
-        const isScrollingUp = currentScrollY < lastScrollY;
+          },
+          onEnterBack: () => {
+            if (!isManualScrolling) {
+              setActiveCategory(category.value);
+            }
+          },
+        });
         
-        // If we're scrolling up significantly but the active category hasn't changed,
-        // IntersectionObserver might be failing
-        if (isScrollingUp && Math.abs(currentScrollY - lastScrollY) > 100) {
-          noUpdateCount++;
-          if (noUpdateCount > 3) { // After 3 instances of no updates while scrolling up
-            console.warn('IntersectionObserver failing on upward scroll, switching to fallback');
-            setUseScrollFallback(true);
-            if (observer) observer.disconnect();
-            window.removeEventListener('scroll', monitorScrolling);
-            return;
-          }
-        } else {
-          noUpdateCount = 0; // Reset counter on successful updates or downward scroll
-        }
-        
-        lastScrollY = currentScrollY;
-      };
-      
-      // Monitor scrolling behavior
-      window.addEventListener('scroll', monitorScrolling, { passive: true });
-      
-      // Also set a timeout as backup
-      timeoutId = setTimeout(() => {
-        window.removeEventListener('scroll', monitorScrolling);
-      }, 10000); // Stop monitoring after 10 seconds
-      
-    } catch (error) {
-      // Fallback if IntersectionObserver fails
-      console.warn('IntersectionObserver failed, using scroll fallback:', error);
-      setUseScrollFallback(true);
-    }
+        scrollTriggersRef.current.push(trigger);
+      }
+    });
 
     return () => {
-      if (observer) observer.disconnect();
-      // Clean up monitoring if it's still active
-      if (monitorScrolling) {
-        window.removeEventListener('scroll', monitorScrolling);
-      }
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
+      // Cleanup ScrollTriggers
+      scrollTriggersRef.current.forEach(trigger => trigger.kill());
+      scrollTriggersRef.current = [];
     };
   }, [uniqueCategories]);
 
-  // Add scroll listener for fallback with direction detection
+  // Cleanup GSAP animations on unmount
   useEffect(() => {
-    if (!useScrollFallback) return;
-
-    let lastScrollY = window.scrollY;
-    
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const isScrollingUp = currentScrollY < lastScrollY;
-      lastScrollY = currentScrollY;
-      
-      // Use more frequent updates when scrolling up (where the issue occurs)
-      const throttleDelay = isScrollingUp ? 50 : 100;
-      
-      clearTimeout(handleScroll.timeoutId);
-      handleScroll.timeoutId = setTimeout(handleScrollFallback, throttleDelay);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
     return () => {
-      window.removeEventListener('scroll', handleScroll);
-      clearTimeout(handleScroll.timeoutId);
+      gsap.killTweensOf(window);
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
-  }, [useScrollFallback]);
+  }, []);
 
 
 
@@ -307,9 +179,26 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
   const scrollToCategory = (categoryValue) => {
     const element = categoryRefs.current[categoryValue];
     if (element) {
-      element.scrollIntoView({ 
-        behavior: "smooth", 
-        block: "start" 
+      // Immediately set the active category and disable automatic tracking
+      setActiveCategory(categoryValue);
+      setIsManualScrolling(true);
+      
+      // Use GSAP for smoother, more controlled scrolling
+      const targetY = element.offsetTop - 200; // Account for sticky header
+      
+      gsap.to(window, {
+        duration: prefersReducedMotion ? 0 : 0.8,
+        scrollTo: {
+          y: targetY,
+          autoKill: true
+        },
+        ease: "power2.out",
+        onComplete: () => {
+          // Re-enable automatic tracking after scroll completes
+          setTimeout(() => {
+            setIsManualScrolling(false);
+          }, 100); // Short delay to ensure everything is settled
+        }
       });
     }
   };

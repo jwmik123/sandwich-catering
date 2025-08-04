@@ -147,7 +147,7 @@ const SelectionModal = ({
   const totalPerItem = (sandwich?.price || 0) + additionalCosts;
   const totalPrice = totalPerItem * parseInt(quantity);
 
-  console.log(sandwich);
+  // console.log(sandwich);
   // Helper function to display allergy information
   const renderAllergyInfo = () => {
     if (!sandwich?.allergyInfo || sandwich.allergyInfo.length === 0) {

@@ -295,7 +295,7 @@ const InvoicePDF = ({
           // Get the sandwich name for display
           const sandwichName = getSandwichName(sandwichId);
 
-          // Find the sandwich to check if it's a drink/croissant/sweet
+          // Find the sandwich to check if it's a drink/breakfast/sweet
           const sandwich = sandwichOptions.find((s) => s._id === sandwichId);
           const shouldShowBreadType = sandwich && !isDrink(sandwich);
 
