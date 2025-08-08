@@ -138,6 +138,17 @@ export const invoice = defineType({
             { name: "vegan", type: "number" },
           ],
         },
+        { name: "addDrinks", title: "Add Drinks", type: "boolean" },
+        {
+          name: "drinks",
+          title: "Drinks Selection",
+          type: "object",
+          fields: [
+            { name: "verseJus", title: "Fresh Juice", type: "number" },
+            { name: "sodas", title: "Sodas", type: "number" },
+            { name: "smoothies", title: "Smoothies", type: "number" },
+          ],
+        },
         {
           name: "customSelection",
           title: "Custom Selection",

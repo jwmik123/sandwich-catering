@@ -121,6 +121,8 @@ async function handlePaidStatus(quoteId) {
           selectionType,
           customSelection,
           varietySelection,
+          addDrinks,
+          drinks,
           allergies
         },
         deliveryDetails {
@@ -170,16 +172,15 @@ async function handlePaidStatus(quoteId) {
       console.log("Will continue with empty sandwich options array");
     }
 
-    const amount = calculateOrderTotal(
-      order.orderDetails,
-      order.deliveryDetails.deliveryCost
-    );
-    const subtotalAmount = Number(amount) || 0;
-    const vatAmount = Math.ceil(subtotalAmount * 0.09 * 100) / 100;
-    const totalAmount = subtotalAmount + vatAmount;
+    // Calculate amounts using PaymentStep.jsx pattern
+    const subtotalAmount = calculateOrderTotal(order.orderDetails, 0); // Items only, VAT-exclusive
+    const deliveryCost = order.deliveryDetails.deliveryCost || 0; // VAT-exclusive
+    const vatAmount = Math.ceil((subtotalAmount + deliveryCost) * 0.09 * 100) / 100;
+    const totalAmount = subtotalAmount + deliveryCost + vatAmount; // Consistent with InvoicePDF calculation
     
     const amountData = {
       subtotal: subtotalAmount,
+      delivery: deliveryCost,
       vat: vatAmount,
       total: totalAmount,
     };
@@ -246,6 +247,9 @@ async function handlePaidStatus(quoteId) {
         selectionType: order.orderDetails?.selectionType || "variety",
         allergies: order.orderDetails?.allergies || "",
         deliveryCost: order.deliveryDetails?.deliveryCost || 0,
+        addDrinks: order.orderDetails?.addDrinks || false,
+        drinks: order.orderDetails?.drinks || null,
+        varietySelection: order.orderDetails?.varietySelection || {},
 
         // Convert customSelection from Sanity array format to object format
         customSelection: {},
@@ -373,6 +377,15 @@ function calculateOrderTotal(orderDetails, deliveryCost = 0) {
         (orderDetails.varietySelection?.vegan || 0);
       total = totalSandwiches * 6.83;
     }
+  }
+
+  // Add drinks pricing if drinks are selected
+  if (orderDetails.addDrinks && orderDetails.drinks) {
+    const drinksTotal = 
+      (orderDetails.drinks.verseJus || 0) * 3.62 +  // Fresh juice €3.62
+      (orderDetails.drinks.sodas || 0) * 3.00 +     // Sodas €3.00
+      (orderDetails.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62
+    total += drinksTotal;
   }
 
   // Add delivery cost to the total

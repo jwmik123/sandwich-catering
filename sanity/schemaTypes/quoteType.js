@@ -23,6 +23,12 @@ export const quote = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: "name",
+      title: "Full Name",
+      type: "string",
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
       name: "orderDetails",
       title: "Order Details",
       type: "object",
@@ -103,6 +109,22 @@ export const quote = defineType({
           ],
           hidden: ({ document }) =>
             document?.orderDetails?.selectionType !== "variety",
+        }),
+        defineField({
+          name: "addDrinks",
+          title: "Add Drinks",
+          type: "boolean",
+        }),
+        defineField({
+          name: "drinks",
+          title: "Drinks Selection",
+          type: "object",
+          fields: [
+            defineField({ name: "verseJus", title: "Fresh Juice", type: "number" }),
+            defineField({ name: "sodas", title: "Sodas", type: "number" }),
+            defineField({ name: "smoothies", title: "Smoothies", type: "number" }),
+          ],
+          hidden: ({ document }) => !document?.orderDetails?.addDrinks,
         }),
       ],
     }),

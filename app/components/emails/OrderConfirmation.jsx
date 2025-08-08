@@ -14,10 +14,11 @@ export default function OrderConfirmation({
   orderDetails,
   deliveryDetails,
   companyDetails,
-  totalAmount,
+  totalAmount, // This should be VAT-exclusive subtotal
   fullName,
   sandwichOptions = [],
   referenceNumber = null,
+  amount = null, // New: prefer amount object if provided
 }) {
   // Helper function to check if bread type should be shown
   const shouldShowBreadType = (sandwichId, breadType) => {
@@ -25,8 +26,32 @@ export default function OrderConfirmation({
     return sandwich && !isDrink(sandwich) && breadType;
   };
 
-  const vatAmount = Math.ceil(totalAmount * 0.09 * 100) / 100;
-  const totalAmountWithVat = totalAmount + vatAmount;
+  // This function calculates the subtotal (VAT-exclusive) for the order.
+  // It expects an orderDetails object as used in this component.
+  const calculateSubtotal = (orderDetails) => {
+    let subtotal = 0;
+
+    if (!orderDetails) return 0;
+
+    if (orderDetails.selectionType === "custom") {
+      subtotal = Object.values(orderDetails.customSelection || {})
+        .flat()
+        .reduce((total, selection) => total + (selection.subTotal || 0), 0);
+    } else {
+      subtotal = (orderDetails.totalSandwiches || 0) * 6.83; // €6.83 per sandwich
+    }
+
+    // Add drinks pricing if drinks are selected
+    if (orderDetails.addDrinks && orderDetails.drinks) {
+      const drinksTotal =
+        (orderDetails.drinks.verseJus || 0) * 3.62 +  // Fresh juice €3.62
+        (orderDetails.drinks.sodas || 0) * 3.00 +     // Sodas €3.00
+        (orderDetails.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62
+      subtotal += drinksTotal;
+    }
+
+    return subtotal;
+  };
 
   return (
     <Html>
@@ -37,9 +62,7 @@ export default function OrderConfirmation({
           <Text style={title}>Order Confirmation</Text>
           <Text style={paragraph}>
             Dear{" "}
-            {companyDetails
-              ? companyDetails.companyName
-              : fullName || "customer"}
+            {companyDetails?.companyName || fullName || "customer"}
             ,
           </Text>
           <Text style={paragraph}>
@@ -102,13 +125,40 @@ export default function OrderConfirmation({
               </>
             )}
 
+            {/* Drinks section */}
+            {orderDetails.addDrinks && (orderDetails.drinks?.verseJus > 0 || orderDetails.drinks?.sodas > 0 || orderDetails.drinks?.smoothies > 0) && (
+              <>
+                <Text style={subtitle}>Drinks</Text>
+                <Text style={detailText}>
+                  {orderDetails.drinks?.verseJus > 0 && (
+                    <>
+                      Fresh Juice: {orderDetails.drinks.verseJus}x - €{(orderDetails.drinks.verseJus * 3.62).toFixed(2)}
+                      <br />
+                    </>
+                  )}
+                  {orderDetails.drinks?.sodas > 0 && (
+                    <>
+                      Sodas: {orderDetails.drinks.sodas}x - €{(orderDetails.drinks.sodas * 3.00).toFixed(2)}
+                      <br />
+                    </>
+                  )}
+                  {orderDetails.drinks?.smoothies > 0 && (
+                    <>
+                      Smoothies: {orderDetails.drinks.smoothies}x - €{(orderDetails.drinks.smoothies * 3.62).toFixed(2)}
+                      <br />
+                    </>
+                  )}
+                </Text>
+              </>
+            )}
+
             <Text style={subtitle}>Total amount</Text>
             <Text style={detailText}>
-              Subtotal: €{totalAmount.toFixed(2)}
+              Subtotal: €{calculateSubtotal(orderDetails).toFixed(2)}
               <br />
-              VAT (9%): €{vatAmount.toFixed(2)}
+              VAT (9%): €{Math.ceil(calculateSubtotal(orderDetails) * 0.09 * 100) / 100}
               <br />
-              Total: €{totalAmountWithVat.toFixed(2)}
+              Total: €{totalAmount.toFixed(2)}
             </Text>
           </Section>
 

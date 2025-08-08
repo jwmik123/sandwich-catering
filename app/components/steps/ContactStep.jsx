@@ -23,7 +23,7 @@ const ContactStep = ({
           .flat()
           .reduce((total, selection) => total + selection.subTotal, 0);
       } else {
-        calculatedAmount = formData.totalSandwiches * 6.38;
+        calculatedAmount = formData.totalSandwiches * 6.83;
       }
 
       // Add delivery cost if present
@@ -42,6 +42,8 @@ const ContactStep = ({
             selectionType: formData.selectionType,
             customSelection: formData.customSelection,
             varietySelection: formData.varietySelection,
+            addDrinks: formData.addDrinks || false,
+            drinks: formData.drinks || null,
             allergies: formData.allergies,
             deliveryCost: deliveryCost || 0, // Include delivery cost in order details
           },

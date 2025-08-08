@@ -66,6 +66,9 @@ export async function POST(request) {
         vega: 0,
         vegan: 0,
       },
+      // Include drinks data
+      addDrinks: orderDetails.addDrinks || false,
+      drinks: orderDetails.drinks || null,
     };
     // --- End Data Transformation ---
 
@@ -80,13 +83,18 @@ export async function POST(request) {
       deliveryDate.toISOString()
     );
 
-    // Format amount for Sanity (amount is VAT-exclusive)
-    const subtotalAmount = Number(amount) || 0;
-    const vatAmount = Math.ceil(subtotalAmount * 0.09 * 100) / 100;
-    const totalAmount = subtotalAmount + vatAmount;
+    // Calculate amounts using PaymentStep.jsx pattern
+    // The amount passed is the total from PaymentStep: (subtotal + delivery) * 1.09
+    const totalAmount = Number(amount) || 0;
+    const deliveryCost = orderDetails.deliveryCost || 0;
+    
+    // Reverse calculate to get the subtotal (items only, VAT-exclusive)  
+    const subtotalAmount = (totalAmount / 1.09) - deliveryCost;
+    const vatAmount = Math.ceil((subtotalAmount + deliveryCost) * 0.09 * 100) / 100;
     
     const amountData = {
       subtotal: subtotalAmount,
+      delivery: deliveryCost,
       vat: vatAmount,
       total: totalAmount,
     };

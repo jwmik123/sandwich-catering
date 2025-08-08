@@ -13,6 +13,7 @@ const OrderSummaryStep = ({
   setCurrentStep,
   sandwichOptions,
   secondaryButtonClasses,
+  totalAmount,
 }) => {
   return (
     <div className="space-y-6">
@@ -87,16 +88,7 @@ const OrderSummaryStep = ({
               <div className="pt-4 mt-4 border-t">
                 <div className="flex justify-between text-lg font-medium">
                   <span>Total amount</span>
-                  <span>
-                    €
-                    {Object.values(formData.customSelection)
-                      .flat()
-                      .reduce(
-                        (total, selection) => total + selection.subTotal,
-                        0
-                      )
-                      .toFixed(2)}
-                  </span>
+                  <span>€{totalAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between mt-1 text-sm text-gray-500">
                   <span>Total number of sandwiches</span>
@@ -129,10 +121,36 @@ const OrderSummaryStep = ({
                   </div>
                 </div>
               </div>
+              {/* Drinks section for variety selection */}
+              {formData.addDrinks && (formData.drinks?.verseJus > 0 || formData.drinks?.sodas > 0 || formData.drinks?.smoothies > 0) && (
+                <div className="pt-4 mt-4 border-t">
+                  <p className="mb-2 text-sm text-gray-500">Drinks</p>
+                  <div className="space-y-2">
+                    {formData.drinks?.verseJus > 0 && (
+                      <div className="flex justify-between">
+                        <span>Fresh Juice</span>
+                        <span>{formData.drinks.verseJus}x €{(formData.drinks.verseJus * 3.62).toFixed(2)}</span>
+                      </div>
+                    )}
+                    {formData.drinks?.sodas > 0 && (
+                      <div className="flex justify-between">
+                        <span>Sodas</span>
+                        <span>{formData.drinks.sodas}x €{(formData.drinks.sodas * 3.00).toFixed(2)}</span>
+                      </div>
+                    )}
+                    {formData.drinks?.smoothies > 0 && (
+                      <div className="flex justify-between">
+                        <span>Smoothies</span>
+                        <span>{formData.drinks.smoothies}x €{(formData.drinks.smoothies * 3.62).toFixed(2)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
               <div className="pt-4 mt-4 border-t">
                 <div className="flex justify-between text-lg font-medium">
                   <span>Total amount</span>
-                  <span>€{(formData.totalSandwiches * 6.83).toFixed(2)}</span>
+                  <span>€{totalAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between mt-1 text-sm text-gray-500">
                   <span>Total number of sandwiches</span>

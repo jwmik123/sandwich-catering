@@ -40,6 +40,7 @@ export async function generateQuote(formData, sandwichOptions) {
       quoteId,
       email: formData.email,
       phoneNumber: formData.phoneNumber,
+      name: formData.name,
       orderDetails: {
         totalSandwiches: formData.totalSandwiches,
         selectionType: formData.selectionType,
@@ -62,6 +63,8 @@ export async function generateQuote(formData, sandwichOptions) {
           formData.selectionType === "variety"
             ? formData.varietySelection
             : null,
+        addDrinks: formData.addDrinks || false,
+        drinks: formData.addDrinks ? formData.drinks : null,
         allergies: formData.allergies,
       },
       deliveryDetails: {

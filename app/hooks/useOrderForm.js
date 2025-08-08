@@ -78,15 +78,27 @@ export const useOrderForm = () => {
   };
 
   const calculateTotal = (formData) => {
+    let subtotal = 0;
+    
     if (formData.selectionType === "custom") {
-      const subtotal = Object.values(formData.customSelection)
+      subtotal = Object.values(formData.customSelection)
         .flat()
         .reduce((total, selection) => total + selection.subTotal, 0);
-      return subtotal; // excluding VAT
     } else {
       // For variety selection
-      return formData.totalSandwiches * 6.38; // Assuming €6.38 per sandwich + 9% VAT
+      subtotal = formData.totalSandwiches * 6.83; // Assuming €6.83 per sandwich
     }
+    
+    // Add drinks pricing if drinks are selected
+    if (formData.addDrinks && formData.drinks) {
+      const drinksTotal = 
+        (formData.drinks.verseJus || 0) * 3.62 +  // Fresh juice €3.62
+        (formData.drinks.sodas || 0) * 3.00 +     // Sodas €3.00
+        (formData.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62
+      subtotal += drinksTotal;
+    }
+    
+    return subtotal; // excluding VAT
   };
 
   const totalAmount = calculateTotal(formData);

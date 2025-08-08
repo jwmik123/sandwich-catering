@@ -105,6 +105,7 @@ const Home = () => {
             setCurrentStep={setCurrentStep}
             sandwichOptions={sandwichOptions}
             secondaryButtonClasses={secondaryButtonClasses}
+            totalAmount={totalAmount}
           />
         );
       case 4:

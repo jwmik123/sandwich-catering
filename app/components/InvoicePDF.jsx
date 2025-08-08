@@ -154,6 +154,7 @@ const InvoicePDF = ({
   dueDate = new Date(),
   sandwichOptions = [], // Add sandwichOptions parameter
   referenceNumber = null, // Add reference number parameter
+  fullName = null, // Add fullName parameter for non-business orders
 }) => {
   // Defensive coding: ensure all objects exist to prevent null references
   orderDetails = orderDetails || {};
@@ -167,12 +168,22 @@ const InvoicePDF = ({
     return sandwich ? sandwich.name : "Unknown Sandwich";
   };
 
-  // Safely process the amount to ensure it always has the correct structure
+  // Calculate amounts using PaymentStep.jsx pattern
   const amountData = (() => {
-    // Calculate the base subtotal from order details
-    let baseSubtotal = 0;
+    // If amount is passed as an object with the correct structure, use it
+    if (amount && typeof amount === 'object' && amount.total !== undefined) {
+      return {
+        subtotal: amount.subtotal || 0,
+        delivery: amount.delivery || 0,
+        vat: amount.vat || 0,
+        total: amount.total || 0,
+      };
+    }
+
+    // Otherwise, calculate from order details using PaymentStep pattern
+    let subtotalAmount = 0; // Items only, VAT-exclusive
     if (orderDetails.selectionType === "custom") {
-      baseSubtotal = Object.values(orderDetails.customSelection || {})
+      subtotalAmount = Object.values(orderDetails.customSelection || {})
         .flat()
         .reduce((total, selection) => total + (selection.subTotal || 0), 0);
     } else {
@@ -180,19 +191,30 @@ const InvoicePDF = ({
         (orderDetails.varietySelection?.vega || 0) +
         (orderDetails.varietySelection?.nonVega || 0) +
         (orderDetails.varietySelection?.vegan || 0);
-      baseSubtotal = totalSandwiches * 6.83;
+      subtotalAmount = totalSandwiches * 6.83; // VAT-exclusive
     }
 
-    // Add delivery cost to get total subtotal
+    // Add drinks pricing if drinks are selected
+    if (orderDetails.addDrinks && orderDetails.drinks) {
+      const drinksTotal = 
+        (orderDetails.drinks.verseJus || 0) * 3.62 +  // Fresh juice €3.62 VAT-exclusive
+        (orderDetails.drinks.sodas || 0) * 3.00 +     // Sodas €3.00 VAT-exclusive
+        (orderDetails.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62 VAT-exclusive
+      subtotalAmount += drinksTotal;
+    }
+
+    // Delivery cost (VAT-exclusive)
     const deliveryCost = orderDetails.deliveryCost || 0;
-    const subtotal = baseSubtotal + deliveryCost;
-    const vat = Math.ceil(subtotal * 0.09 * 100) / 100;
-    const total = subtotal + vat;
+    
+    // Calculate VAT and total using PaymentStep pattern
+    const vatAmount = Math.ceil((subtotalAmount + deliveryCost) * 0.09 * 100) / 100;
+    const totalAmount = subtotalAmount + deliveryCost + vatAmount; // Always calculate total correctly
 
     return {
-      subtotal,
-      vat,
-      total,
+      subtotal: subtotalAmount,
+      delivery: deliveryCost,
+      vat: vatAmount,
+      total: totalAmount,
     };
   })();
 
@@ -215,7 +237,7 @@ const InvoicePDF = ({
 
   // Safely get nested values
   const companyName =
-    companyDetails?.name || companyDetails?.companyName || "Unknown Company";
+    companyDetails?.name || companyDetails?.companyName || fullName || "Unknown Company";
   const phoneNumber = companyDetails?.phoneNumber || "";
   const address = companyDetails?.address || {};
   const street = address?.street || "";
@@ -479,6 +501,43 @@ const InvoicePDF = ({
                         </Text>
                       </View>
                     )}
+                  {/* Drinks for custom selection */}
+                  {orderDetails?.addDrinks && orderDetails.drinks?.verseJus > 0 && (
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableCellName}>Fresh Juice</Text>
+                      <Text style={styles.tableCell}>{orderDetails.drinks.verseJus}x</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>
+                        €{(orderDetails.drinks.verseJus * 3.62).toFixed(2)}
+                      </Text>
+                    </View>
+                  )}
+                  {orderDetails?.addDrinks && orderDetails.drinks?.sodas > 0 && (
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableCellName}>Sodas</Text>
+                      <Text style={styles.tableCell}>{orderDetails.drinks.sodas}x</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>
+                        €{(orderDetails.drinks.sodas * 3.00).toFixed(2)}
+                      </Text>
+                    </View>
+                  )}
+                  {orderDetails?.addDrinks && orderDetails.drinks?.smoothies > 0 && (
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableCellName}>Smoothies</Text>
+                      <Text style={styles.tableCell}>{orderDetails.drinks.smoothies}x</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>
+                        €{(orderDetails.drinks.smoothies * 3.62).toFixed(2)}
+                      </Text>
+                    </View>
+                  )}
                 </>
               ) : (
                 <>
@@ -533,6 +592,43 @@ const InvoicePDF = ({
                         </Text>
                       </View>
                     )}
+                  {/* Drinks for variety selection */}
+                  {orderDetails?.addDrinks && orderDetails.drinks?.verseJus > 0 && (
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableCellName}>Fresh Juice</Text>
+                      <Text style={styles.tableCell}>{orderDetails.drinks.verseJus}x</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>
+                        €{(orderDetails.drinks.verseJus * 3.62).toFixed(2)}
+                      </Text>
+                    </View>
+                  )}
+                  {orderDetails?.addDrinks && orderDetails.drinks?.sodas > 0 && (
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableCellName}>Sodas</Text>
+                      <Text style={styles.tableCell}>{orderDetails.drinks.sodas}x</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>
+                        €{(orderDetails.drinks.sodas * 3.00).toFixed(2)}
+                      </Text>
+                    </View>
+                  )}
+                  {orderDetails?.addDrinks && orderDetails.drinks?.smoothies > 0 && (
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableCellName}>Smoothies</Text>
+                      <Text style={styles.tableCell}>{orderDetails.drinks.smoothies}x</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>
+                        €{(orderDetails.drinks.smoothies * 3.62).toFixed(2)}
+                      </Text>
+                    </View>
+                  )}
                 </>
               )}
             </View>
@@ -550,17 +646,14 @@ const InvoicePDF = ({
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Subtotal:</Text>
             <Text style={styles.totalValue}>
-              €
-              {(amountData.subtotal - (orderDetails.deliveryCost || 0)).toFixed(
-                2
-              )}
+              €{amountData.subtotal.toFixed(2)}
             </Text>
           </View>
-          {orderDetails.deliveryCost > 0 ? (
+          {amountData.delivery > 0 ? (
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Delivery:</Text>
               <Text style={styles.totalValue}>
-                €{(orderDetails.deliveryCost || 0).toFixed(2)}
+                €{amountData.delivery.toFixed(2)}
               </Text>
             </View>
           ) : (
