@@ -174,13 +174,14 @@ async function handlePaidStatus(quoteId) {
       order.orderDetails,
       order.deliveryDetails.deliveryCost
     );
+    const subtotalAmount = Number(amount) || 0;
+    const vatAmount = Math.ceil(subtotalAmount * 0.09 * 100) / 100;
+    const totalAmount = subtotalAmount + vatAmount;
+    
     const amountData = {
-      total: Number(amount) || 0,
-      subtotal: (Number(amount) || 0) / 1.09,
-      vat:
-        Math.ceil(
-          ((Number(amount) || 0) - (Number(amount) || 0) / 1.09) * 100
-        ) / 100,
+      subtotal: subtotalAmount,
+      vat: vatAmount,
+      total: totalAmount,
     };
 
     // Create an invoice document in Sanity for consistency
@@ -244,6 +245,7 @@ async function handlePaidStatus(quoteId) {
         totalSandwiches: order.orderDetails?.totalSandwiches || 0,
         selectionType: order.orderDetails?.selectionType || "variety",
         allergies: order.orderDetails?.allergies || "",
+        deliveryCost: order.deliveryDetails?.deliveryCost || 0,
 
         // Convert customSelection from Sanity array format to object format
         customSelection: {},

@@ -80,11 +80,15 @@ export async function POST(request) {
       deliveryDate.toISOString()
     );
 
-    // Format amount for Sanity
+    // Format amount for Sanity (amount is VAT-exclusive)
+    const subtotalAmount = Number(amount) || 0;
+    const vatAmount = Math.ceil(subtotalAmount * 0.09 * 100) / 100;
+    const totalAmount = subtotalAmount + vatAmount;
+    
     const amountData = {
-      total: Number(amount) || 0,
-      subtotal: (Number(amount) || 0) / 1.09,
-      vat: (Number(amount) || 0) - (Number(amount) || 0) / 1.09,
+      subtotal: subtotalAmount,
+      vat: vatAmount,
+      total: totalAmount,
     };
 
     console.log("Creating invoice in Sanity with data:");
