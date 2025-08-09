@@ -198,7 +198,7 @@ const InvoicePDF = ({
     if (orderDetails.addDrinks && orderDetails.drinks) {
       const drinksTotal = 
         (orderDetails.drinks.verseJus || 0) * 3.62 +  // Fresh juice €3.62 VAT-exclusive
-        (orderDetails.drinks.sodas || 0) * 3.00 +     // Sodas €3.00 VAT-exclusive
+        (orderDetails.drinks.sodas || 0) * 2.71 +     // Sodas €2.71 VAT-exclusive
         (orderDetails.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62 VAT-exclusive
       subtotalAmount += drinksTotal;
     }
@@ -522,7 +522,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.sodas * 3.00).toFixed(2)}
+                        €{(orderDetails.drinks.sodas * 2.71).toFixed(2)}
                       </Text>
                     </View>
                   )}
@@ -613,7 +613,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.sodas * 3.00).toFixed(2)}
+                        €{(orderDetails.drinks.sodas * 2.71).toFixed(2)}
                       </Text>
                     </View>
                   )}

@@ -45,7 +45,7 @@ export default function OrderConfirmation({
     if (orderDetails.addDrinks && orderDetails.drinks) {
       const drinksTotal =
         (orderDetails.drinks.verseJus || 0) * 3.62 +  // Fresh juice €3.62
-        (orderDetails.drinks.sodas || 0) * 3.00 +     // Sodas €3.00
+        (orderDetails.drinks.sodas || 0) * 2.71 +     // Sodas €2.71
         (orderDetails.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62
       subtotal += drinksTotal;
     }
@@ -138,7 +138,7 @@ export default function OrderConfirmation({
                   )}
                   {orderDetails.drinks?.sodas > 0 && (
                     <>
-                      Sodas: {orderDetails.drinks.sodas}x - €{(orderDetails.drinks.sodas * 3.00).toFixed(2)}
+                      Sodas: {orderDetails.drinks.sodas}x - €{(orderDetails.drinks.sodas * 2.71).toFixed(2)}
                       <br />
                     </>
                   )}

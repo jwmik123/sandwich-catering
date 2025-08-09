@@ -135,7 +135,7 @@ const OrderSummaryStep = ({
                     {formData.drinks?.sodas > 0 && (
                       <div className="flex justify-between">
                         <span>Sodas</span>
-                        <span>{formData.drinks.sodas}x €{(formData.drinks.sodas * 3.00).toFixed(2)}</span>
+                        <span>{formData.drinks.sodas}x €{(formData.drinks.sodas * 2.71).toFixed(2)}</span>
                       </div>
                     )}
                     {formData.drinks?.smoothies > 0 && (

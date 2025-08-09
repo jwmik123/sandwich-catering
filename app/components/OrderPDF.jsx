@@ -444,9 +444,9 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                   <View style={styles.tableRow}>
                     <Text style={styles.tableCellName}>Sodas</Text>
                     <Text style={styles.tableCell}>{orderData.drinks.sodas}x</Text>
-                    <Text style={styles.tableCell}>€3.00</Text>
+                    <Text style={styles.tableCell}>€2.71</Text>
                     <Text style={styles.tableCell}>
-                      €{(orderData.drinks.sodas * 3.00).toFixed(2)}
+                      €{(orderData.drinks.sodas * 2.71).toFixed(2)}
                     </Text>
                   </View>
                 )}
@@ -522,7 +522,7 @@ const calculateSubtotal = (orderData) => {
   if (orderData.addDrinks && orderData.drinks) {
     const drinksTotal = 
       (orderData.drinks.verseJus || 0) * 3.62 +  // Fresh juice €3.62
-      (orderData.drinks.sodas || 0) * 3.00 +     // Sodas €3.00
+      (orderData.drinks.sodas || 0) * 2.71 +     // Sodas €2.71
       (orderData.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62
     subtotal += drinksTotal;
   }

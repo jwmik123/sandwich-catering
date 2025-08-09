@@ -93,7 +93,7 @@ export const useOrderForm = () => {
     if (formData.addDrinks && formData.drinks) {
       const drinksTotal = 
         (formData.drinks.verseJus || 0) * 3.62 +  // Fresh juice €3.62
-        (formData.drinks.sodas || 0) * 3.00 +     // Sodas €3.00
+        (formData.drinks.sodas || 0) * 2.71 +     // Sodas €2.71
         (formData.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62
       subtotal += drinksTotal;
     }
