@@ -383,7 +383,7 @@ function calculateOrderTotal(orderDetails, deliveryCost = 0) {
   if (orderDetails.addDrinks && orderDetails.drinks) {
     const drinksTotal = 
       (orderDetails.drinks.verseJus || 0) * 3.62 +  // Fresh juice €3.62
-      (orderDetails.drinks.sodas || 0) * 3.00 +     // Sodas €3.00
+      (orderDetails.drinks.sodas || 0) * 2.71 +     // Sodas €3.00
       (orderDetails.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62
     total += drinksTotal;
   }

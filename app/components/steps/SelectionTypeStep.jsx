@@ -157,7 +157,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
                   <div className="flex items-center justify-between">
                     <div>
                       <label className="text-sm font-medium text-gray-700">Sodas</label>
-                      <div className="text-xs text-gray-500">€3.00 each</div>
+                      <div className="text-xs text-gray-500">€2.71 each</div>
                     </div>
                     <div className="flex items-center space-x-2">
                       <button
@@ -245,7 +245,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
                         <span className="font-medium text-gray-800">
                           €{(
                             (formData.drinks?.verseJus || 0) * 3.62 +
-                            (formData.drinks?.sodas || 0) * 3.00 +
+                            (formData.drinks?.sodas || 0) * 2.71 +
                             (formData.drinks?.smoothies || 0) * 3.62
                           ).toFixed(2)} excl. VAT
                         </span>
@@ -275,7 +275,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
                     <span>
                       €{(
                         (formData.drinks?.verseJus || 0) * 3.62 +
-                        (formData.drinks?.sodas || 0) * 3.00 +
+                        (formData.drinks?.sodas || 0) * 2.71 +
                         (formData.drinks?.smoothies || 0) * 3.62
                       ).toFixed(2)}
                     </span>
@@ -289,7 +289,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
                     formData.totalSandwiches * 6.83 + 
                     (formData.addDrinks && formData.drinks ? 
                       (formData.drinks.verseJus || 0) * 3.62 +
-                      (formData.drinks.sodas || 0) * 3.00 +
+                      (formData.drinks.sodas || 0) * 2.71 +
                       (formData.drinks.smoothies || 0) * 3.62 
                       : 0)
                   ).toFixed(2)} excl. VAT

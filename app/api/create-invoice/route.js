@@ -84,19 +84,19 @@ export async function POST(request) {
     );
 
     // Calculate amounts using PaymentStep.jsx pattern
-    // The amount passed is the total from PaymentStep: (subtotal + delivery) * 1.09
-    const totalAmount = Number(amount) || 0;
+    // The amount passed is the final total with VAT: (subtotal + delivery) * 1.09
+    const finalTotal = Number(amount) || 0;
     const deliveryCost = orderDetails.deliveryCost || 0;
     
     // Reverse calculate to get the subtotal (items only, VAT-exclusive)  
-    const subtotalAmount = (totalAmount / 1.09) - deliveryCost;
+    const subtotalAmount = (finalTotal / 1.09) - deliveryCost;
     const vatAmount = Math.ceil((subtotalAmount + deliveryCost) * 0.09 * 100) / 100;
     
     const amountData = {
       subtotal: subtotalAmount,
       delivery: deliveryCost,
       vat: vatAmount,
-      total: totalAmount,
+      total: finalTotal,
     };
 
     console.log("Creating invoice in Sanity with data:");
