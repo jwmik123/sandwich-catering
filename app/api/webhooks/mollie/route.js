@@ -114,6 +114,7 @@ async function handlePaidStatus(quoteId) {
       `*[_type == "quote" && quoteId == $quoteId][0]{
         _id,
         quoteId,
+        name,
         email,
         phoneNumber,
         orderDetails {
@@ -173,10 +174,16 @@ async function handlePaidStatus(quoteId) {
     }
 
     // Calculate amounts using PaymentStep.jsx pattern
-    const subtotalAmount = calculateOrderTotal(order.orderDetails, 0); // Items only, VAT-exclusive
+    const subtotalAmount = calculateOrderTotal(order.orderDetails); // Items only, VAT-exclusive
     const deliveryCost = order.deliveryDetails.deliveryCost || 0; // VAT-exclusive
     const vatAmount = Math.ceil((subtotalAmount + deliveryCost) * 0.09 * 100) / 100;
     const totalAmount = subtotalAmount + deliveryCost + vatAmount; // Consistent with InvoicePDF calculation
+    
+    console.log(`Amount calculation for quote ${quoteId}:`);
+    console.log(`- Subtotal (items): €${subtotalAmount.toFixed(2)}`);
+    console.log(`- Delivery cost: €${deliveryCost.toFixed(2)}`);
+    console.log(`- VAT (9%): €${vatAmount.toFixed(2)}`);
+    console.log(`- Total: €${totalAmount.toFixed(2)}`);
     
     const amountData = {
       subtotal: subtotalAmount,
@@ -238,7 +245,7 @@ async function handlePaidStatus(quoteId) {
       quoteId: order.quoteId,
       email: order.email,
       phoneNumber: order.phoneNumber,
-      fullName: order.name,
+      fullName: order.name, // This will be used as fallback when no company name
       amount: amountData, // Pass the calculated amount data
 
       // Format orderDetails
@@ -255,18 +262,20 @@ async function handlePaidStatus(quoteId) {
         customSelection: {},
       },
 
-      // Format deliveryDetails
+      // Format deliveryDetails to match expected structure
       deliveryDetails: {
         deliveryDate:
           order.deliveryDetails?.deliveryDate || new Date().toISOString(),
         deliveryTime: order.deliveryDetails?.deliveryTime || "12:00",
-        street: order.deliveryDetails?.address?.street || "",
-        houseNumber: order.deliveryDetails?.address?.houseNumber || "",
-        houseNumberAddition:
-          order.deliveryDetails?.address?.houseNumberAddition || "",
-        postalCode: order.deliveryDetails?.address?.postalCode || "",
-        city: order.deliveryDetails?.address?.city || "",
         phoneNumber: order.phoneNumber || "",
+        address: {
+          street: order.deliveryDetails?.address?.street || "",
+          houseNumber: order.deliveryDetails?.address?.houseNumber || "",
+          houseNumberAddition:
+            order.deliveryDetails?.address?.houseNumberAddition || "",
+          postalCode: order.deliveryDetails?.address?.postalCode || "",
+          city: order.deliveryDetails?.address?.city || "",
+        },
       },
 
       // Format companyDetails
@@ -358,13 +367,18 @@ async function handleCanceledPayment(quoteId) {
 }
 
 // Helper function to calculate total from order data
-function calculateOrderTotal(orderDetails, deliveryCost = 0) {
+function calculateOrderTotal(orderDetails) {
   if (!orderDetails) return 0;
   let total = 0;
 
   if (orderDetails.selectionType === "custom") {
-    if (orderDetails.customSelection) {
-      // Custom selection from a quote is an array of objects
+    if (Array.isArray(orderDetails.customSelection)) {
+      // Custom selection from Sanity is an array of objects
+      total = orderDetails.customSelection
+        .flatMap(item => item.selections || [])
+        .reduce((sum, selection) => sum + (selection.subTotal || 0), 0);
+    } else if (orderDetails.customSelection) {
+      // If it's already an object (converted format)
       total = Object.values(orderDetails.customSelection || {})
         .flat()
         .reduce((sum, selection) => sum + (selection.subTotal || 0), 0);
@@ -387,9 +401,6 @@ function calculateOrderTotal(orderDetails, deliveryCost = 0) {
       (orderDetails.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62
     total += drinksTotal;
   }
-
-  // Add delivery cost to the total
-  total += deliveryCost || 0;
 
   return total;
 }
