@@ -6,6 +6,7 @@ import { sendOrderConfirmation } from "@/lib/email";
 import { sendOrderSmsNotification } from "@/lib/sms";
 import { PRODUCT_QUERY } from "@/sanity/lib/queries";
 import { createYukiInvoice } from "@/lib/yuki-api";
+import { DRINK_PRICES } from "@/app/assets/constants";
 
 const mollieClient = createMollieClient({
   apiKey: process.env.MOLLIE_LIVE_API_KEY,
@@ -398,9 +399,9 @@ function calculateOrderTotal(orderDetails) {
   // Add drinks pricing if drinks are selected
   if (orderDetails.addDrinks && orderDetails.drinks) {
     const drinksTotal = 
-      (orderDetails.drinks.verseJus || 0) * 3.62 +  // Fresh juice €3.62
-      (orderDetails.drinks.sodas || 0) * 2.71 +     // Sodas €2.71
-      (orderDetails.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62
+      ((orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus) || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
+      (orderDetails.drinks.sodas || 0) * DRINK_PRICES.SODAS +
+      (orderDetails.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES;
     total += drinksTotal;
   }
 

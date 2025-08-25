@@ -8,6 +8,7 @@ import {
   Section,
 } from "@react-email/components";
 import { isDrink } from "@/lib/product-helpers";
+import { DRINK_PRICES } from "@/app/assets/constants";
 
 export default function OrderConfirmation({
   quoteId,
@@ -44,9 +45,9 @@ export default function OrderConfirmation({
     // Add drinks pricing if drinks are selected
     if (orderDetails.addDrinks && orderDetails.drinks) {
       const drinksTotal =
-        (orderDetails.drinks.verseJus || 0) * 3.62 +  // Fresh juice €3.62
-        (orderDetails.drinks.sodas || 0) * 2.71 +     // Sodas €2.71
-        (orderDetails.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62
+        ((orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus) || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
+        (orderDetails.drinks.sodas || 0) * DRINK_PRICES.SODAS +
+        (orderDetails.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES;
       subtotal += drinksTotal;
     }
 
@@ -126,25 +127,25 @@ export default function OrderConfirmation({
             )}
 
             {/* Drinks section */}
-            {orderDetails.addDrinks && (orderDetails.drinks?.verseJus > 0 || orderDetails.drinks?.sodas > 0 || orderDetails.drinks?.smoothies > 0) && (
+            {orderDetails.addDrinks && ((orderDetails.drinks?.freshOrangeJuice || orderDetails.drinks?.verseJus) > 0 || orderDetails.drinks?.sodas > 0 || orderDetails.drinks?.smoothies > 0) && (
               <>
                 <Text style={subtitle}>Drinks</Text>
                 <Text style={detailText}>
-                  {orderDetails.drinks?.verseJus > 0 && (
+                  {(orderDetails.drinks?.freshOrangeJuice || orderDetails.drinks?.verseJus) > 0 && (
                     <>
-                      Fresh Juice: {orderDetails.drinks.verseJus}x - €{(orderDetails.drinks.verseJus * 3.62).toFixed(2)}
+                      Fresh Orange Juice: {(orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus)}x - €{((orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus) * DRINK_PRICES.FRESH_ORANGE_JUICE).toFixed(2)}
                       <br />
                     </>
                   )}
                   {orderDetails.drinks?.sodas > 0 && (
                     <>
-                      Sodas: {orderDetails.drinks.sodas}x - €{(orderDetails.drinks.sodas * 2.71).toFixed(2)}
+                      Sodas: {orderDetails.drinks.sodas}x - €{(orderDetails.drinks.sodas * DRINK_PRICES.SODAS).toFixed(2)}
                       <br />
                     </>
                   )}
                   {orderDetails.drinks?.smoothies > 0 && (
                     <>
-                      Smoothies: {orderDetails.drinks.smoothies}x - €{(orderDetails.drinks.smoothies * 3.62).toFixed(2)}
+                      Smoothies: {orderDetails.drinks.smoothies}x - €{(orderDetails.drinks.smoothies * DRINK_PRICES.SMOOTHIES).toFixed(2)}
                       <br />
                     </>
                   )}

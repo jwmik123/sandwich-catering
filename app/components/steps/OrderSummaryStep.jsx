@@ -4,7 +4,7 @@ import { FileText } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import QuoteButton from "@/app/components/QuoteButton";
-import { breadTypes } from "@/app/assets/constants";
+import { breadTypes, DRINK_PRICES } from "@/app/assets/constants";
 import { isDrink } from "@/lib/product-helpers";
 
 const OrderSummaryStep = ({
@@ -122,26 +122,26 @@ const OrderSummaryStep = ({
                 </div>
               </div>
               {/* Drinks section for variety selection */}
-              {formData.addDrinks && (formData.drinks?.verseJus > 0 || formData.drinks?.sodas > 0 || formData.drinks?.smoothies > 0) && (
+              {formData.addDrinks && ((formData.drinks?.freshOrangeJuice || formData.drinks?.verseJus) > 0 || formData.drinks?.sodas > 0 || formData.drinks?.smoothies > 0) && (
                 <div className="pt-4 mt-4 border-t">
                   <p className="mb-2 text-sm text-gray-500">Drinks</p>
                   <div className="space-y-2">
-                    {formData.drinks?.verseJus > 0 && (
+                    {(formData.drinks?.freshOrangeJuice || formData.drinks?.verseJus) > 0 && (
                       <div className="flex justify-between">
-                        <span>Fresh Juice</span>
-                        <span>{formData.drinks.verseJus}x €{(formData.drinks.verseJus * 3.62).toFixed(2)}</span>
+                        <span>Fresh Orange Juice</span>
+                        <span>{(formData.drinks.freshOrangeJuice || formData.drinks.verseJus)}x €{((formData.drinks.freshOrangeJuice || formData.drinks.verseJus) * DRINK_PRICES.FRESH_ORANGE_JUICE).toFixed(2)}</span>
                       </div>
                     )}
                     {formData.drinks?.sodas > 0 && (
                       <div className="flex justify-between">
                         <span>Sodas</span>
-                        <span>{formData.drinks.sodas}x €{(formData.drinks.sodas * 2.71).toFixed(2)}</span>
+                        <span>{formData.drinks.sodas}x €{(formData.drinks.sodas * DRINK_PRICES.SODAS).toFixed(2)}</span>
                       </div>
                     )}
                     {formData.drinks?.smoothies > 0 && (
                       <div className="flex justify-between">
                         <span>Smoothies</span>
-                        <span>{formData.drinks.smoothies}x €{(formData.drinks.smoothies * 3.62).toFixed(2)}</span>
+                        <span>{formData.drinks.smoothies}x €{(formData.drinks.smoothies * DRINK_PRICES.SMOOTHIES).toFixed(2)}</span>
                       </div>
                     )}
                   </div>

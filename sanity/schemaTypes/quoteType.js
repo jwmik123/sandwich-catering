@@ -157,7 +157,7 @@ export const quote = defineType({
           title: "Drinks Selection",
           type: "object",
           fields: [
-            defineField({ name: "verseJus", title: "Fresh Juice", type: "number" }),
+            defineField({ name: "freshOrangeJuice", title: "Fresh Orange Juice", type: "number" }),
             defineField({ name: "sodas", title: "Sodas", type: "number" }),
             defineField({ name: "smoothies", title: "Smoothies", type: "number" }),
           ],

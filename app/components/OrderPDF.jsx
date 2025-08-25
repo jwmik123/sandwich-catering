@@ -7,6 +7,7 @@ import {
   Image,
 } from "@react-pdf/renderer";
 import { isDrink } from "@/lib/product-helpers";
+import { DRINK_PRICES, SANDWICH_PRICE_VARIETY } from "@/app/assets/constants";
 
 const styles = StyleSheet.create({
   page: {
@@ -419,7 +420,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
         </View>
 
         {/* Drinks section */}
-        {orderData.addDrinks && (orderData.drinks?.verseJus > 0 || orderData.drinks?.sodas > 0 || orderData.drinks?.smoothies > 0) && (
+        {orderData.addDrinks && (orderData.drinks?.freshOrangeJuice > 0 || orderData.drinks?.sodas > 0 || orderData.drinks?.smoothies > 0) && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Drinks</Text>
             <View style={styles.table}>
@@ -430,13 +431,13 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                 <Text style={styles.tableHeaderCell}>Total</Text>
               </View>
               <View style={styles.tableBody}>
-                {orderData.drinks?.verseJus > 0 && (
+                {orderData.drinks?.freshOrangeJuice > 0 && (
                   <View style={styles.tableRow}>
-                    <Text style={styles.tableCellName}>Fresh Juice</Text>
-                    <Text style={styles.tableCell}>{orderData.drinks.verseJus}x</Text>
-                    <Text style={styles.tableCell}>€3.62</Text>
+                    <Text style={styles.tableCellName}>Fresh Orange Juice</Text>
+                    <Text style={styles.tableCell}>{orderData.drinks.freshOrangeJuice}x</Text>
+                    <Text style={styles.tableCell}>€{DRINK_PRICES.FRESH_ORANGE_JUICE}</Text>
                     <Text style={styles.tableCell}>
-                      €{(orderData.drinks.verseJus * 3.62).toFixed(2)}
+                      €{(orderData.drinks.freshOrangeJuice * DRINK_PRICES.FRESH_ORANGE_JUICE).toFixed(2)}
                     </Text>
                   </View>
                 )}
@@ -444,9 +445,9 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                   <View style={styles.tableRow}>
                     <Text style={styles.tableCellName}>Sodas</Text>
                     <Text style={styles.tableCell}>{orderData.drinks.sodas}x</Text>
-                    <Text style={styles.tableCell}>€2.71</Text>
+                    <Text style={styles.tableCell}>€{DRINK_PRICES.SODAS}</Text>
                     <Text style={styles.tableCell}>
-                      €{(orderData.drinks.sodas * 2.71).toFixed(2)}
+                      €{(orderData.drinks.sodas * DRINK_PRICES.SODAS).toFixed(2)}
                     </Text>
                   </View>
                 )}
@@ -454,9 +455,9 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                   <View style={styles.tableRow}>
                     <Text style={styles.tableCellName}>Smoothies</Text>
                     <Text style={styles.tableCell}>{orderData.drinks.smoothies}x</Text>
-                    <Text style={styles.tableCell}>€3.62</Text>
+                    <Text style={styles.tableCell}>€{DRINK_PRICES.SMOOTHIES}</Text>
                     <Text style={styles.tableCell}>
-                      €{(orderData.drinks.smoothies * 3.62).toFixed(2)}
+                      €{(orderData.drinks.smoothies * DRINK_PRICES.SMOOTHIES).toFixed(2)}
                     </Text>
                   </View>
                 )}
@@ -515,15 +516,15 @@ const calculateSubtotal = (orderData) => {
       .flat()
       .reduce((total, selection) => total + selection.subTotal, 0);
   } else {
-    subtotal = orderData.totalSandwiches * 6.83; // Assuming €6.83 per sandwich
+    subtotal = orderData.totalSandwiches * SANDWICH_PRICE_VARIETY;
   }
   
   // Add drinks pricing if drinks are selected
   if (orderData.addDrinks && orderData.drinks) {
     const drinksTotal = 
-      (orderData.drinks.verseJus || 0) * 3.62 +  // Fresh juice €3.62
-      (orderData.drinks.sodas || 0) * 2.71 +     // Sodas €2.71
-      (orderData.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62
+      (orderData.drinks.freshOrangeJuice || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
+      (orderData.drinks.sodas || 0) * DRINK_PRICES.SODAS +
+      (orderData.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES;
     subtotal += drinksTotal;
   }
   

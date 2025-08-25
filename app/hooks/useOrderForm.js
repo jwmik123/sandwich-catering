@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { postalCodeDeliveryCosts } from "@/app/assets/postals";
+import { DRINK_PRICES, SANDWICH_PRICE_VARIETY } from "@/app/assets/constants";
 
 export const useOrderForm = () => {
   const [formData, setFormData] = useState({
@@ -86,15 +87,15 @@ export const useOrderForm = () => {
         .reduce((total, selection) => total + selection.subTotal, 0);
     } else {
       // For variety selection
-      subtotal = formData.totalSandwiches * 6.83; // Assuming €6.83 per sandwich
+      subtotal = formData.totalSandwiches * SANDWICH_PRICE_VARIETY;
     }
     
     // Add drinks pricing if drinks are selected
     if (formData.addDrinks && formData.drinks) {
       const drinksTotal = 
-        (formData.drinks.verseJus || 0) * 3.62 +  // Fresh juice €3.62
-        (formData.drinks.sodas || 0) * 2.71 +     // Sodas €2.71
-        (formData.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62
+        ((formData.drinks.freshOrangeJuice || formData.drinks.verseJus) || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
+        (formData.drinks.sodas || 0) * DRINK_PRICES.SODAS +
+        (formData.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES;
       subtotal += drinksTotal;
     }
     

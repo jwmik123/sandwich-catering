@@ -8,6 +8,7 @@ import {
   Image,
 } from "@react-pdf/renderer";
 import { isDrink } from "@/lib/product-helpers";
+import { DRINK_PRICES } from "@/app/assets/constants";
 
 const styles = StyleSheet.create({
   page: {
@@ -197,9 +198,9 @@ const InvoicePDF = ({
     // Add drinks pricing if drinks are selected
     if (orderDetails.addDrinks && orderDetails.drinks) {
       const drinksTotal = 
-        (orderDetails.drinks.verseJus || 0) * 3.62 +  // Fresh juice €3.62 VAT-exclusive
-        (orderDetails.drinks.sodas || 0) * 2.71 +     // Sodas €2.71 VAT-exclusive
-        (orderDetails.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62 VAT-exclusive
+        ((orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus) || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
+        (orderDetails.drinks.sodas || 0) * DRINK_PRICES.SODAS +
+        (orderDetails.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES;
       subtotalAmount += drinksTotal;
     }
 
@@ -502,15 +503,15 @@ const InvoicePDF = ({
                       </View>
                     )}
                   {/* Drinks for custom selection */}
-                  {orderDetails?.addDrinks && orderDetails.drinks?.verseJus > 0 && (
+                  {orderDetails?.addDrinks && ((orderDetails.drinks?.freshOrangeJuice || orderDetails.drinks?.verseJus) > 0) && (
                     <View style={styles.tableRow}>
-                      <Text style={styles.tableCellName}>Fresh Juice</Text>
-                      <Text style={styles.tableCell}>{orderDetails.drinks.verseJus}x</Text>
+                      <Text style={styles.tableCellName}>Fresh Orange Juice</Text>
+                      <Text style={styles.tableCell}>{(orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus)}x</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.verseJus * 3.62).toFixed(2)}
+                        €{((orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus) * DRINK_PRICES.FRESH_ORANGE_JUICE).toFixed(2)}
                       </Text>
                     </View>
                   )}
@@ -522,7 +523,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.sodas * 2.71).toFixed(2)}
+                        €{(orderDetails.drinks.sodas * DRINK_PRICES.SODAS).toFixed(2)}
                       </Text>
                     </View>
                   )}
@@ -534,7 +535,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.smoothies * 3.62).toFixed(2)}
+                        €{(orderDetails.drinks.smoothies * DRINK_PRICES.SMOOTHIES).toFixed(2)}
                       </Text>
                     </View>
                   )}
@@ -593,15 +594,15 @@ const InvoicePDF = ({
                       </View>
                     )}
                   {/* Drinks for variety selection */}
-                  {orderDetails?.addDrinks && orderDetails.drinks?.verseJus > 0 && (
+                  {orderDetails?.addDrinks && ((orderDetails.drinks?.freshOrangeJuice || orderDetails.drinks?.verseJus) > 0) && (
                     <View style={styles.tableRow}>
-                      <Text style={styles.tableCellName}>Fresh Juice</Text>
-                      <Text style={styles.tableCell}>{orderDetails.drinks.verseJus}x</Text>
+                      <Text style={styles.tableCellName}>Fresh Orange Juice</Text>
+                      <Text style={styles.tableCell}>{(orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus)}x</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.verseJus * 3.62).toFixed(2)}
+                        €{((orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus) * DRINK_PRICES.FRESH_ORANGE_JUICE).toFixed(2)}
                       </Text>
                     </View>
                   )}
@@ -613,7 +614,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.sodas * 2.71).toFixed(2)}
+                        €{(orderDetails.drinks.sodas * DRINK_PRICES.SODAS).toFixed(2)}
                       </Text>
                     </View>
                   )}
@@ -625,7 +626,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.smoothies * 3.62).toFixed(2)}
+                        €{(orderDetails.drinks.smoothies * DRINK_PRICES.SMOOTHIES).toFixed(2)}
                       </Text>
                     </View>
                   )}

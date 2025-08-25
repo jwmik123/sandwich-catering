@@ -3,6 +3,7 @@ import React from "react";
 import { Utensils } from "lucide-react";
 import MenuCategories from "@/app/components/MenuCategories";
 import VarietySelector from "@/app/components/VarietySelector";
+import { DRINK_PRICES, SANDWICH_PRICE_VARIETY } from "@/app/assets/constants";
 
 const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
   return (
@@ -115,35 +116,35 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
                   {/* Verse Jus */}
                   <div className="flex items-center justify-between">
                     <div>
-                      <label className="text-sm font-medium text-gray-700">Verse Jus</label>
-                      <div className="text-xs text-gray-500">€3.62 each</div>
+                      <label className="text-sm font-medium text-gray-700">Fresh Orange Juice</label>
+                      <div className="text-xs text-gray-500">€{DRINK_PRICES.FRESH_ORANGE_JUICE} each</div>
                     </div>
                     <div className="flex items-center space-x-2">
                       <button
                         type="button"
                         onClick={() => {
-                          const current = formData.drinks?.verseJus || 0;
+                          const current = formData.drinks?.freshOrangeJuice || 0;
                           const newAmount = Math.max(0, current - 1);
                           updateFormData("drinks", {
                             ...formData.drinks,
-                            verseJus: newAmount
+                            freshOrangeJuice: newAmount
                           });
                         }}
                         className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
-                        disabled={!formData.drinks?.verseJus || formData.drinks?.verseJus <= 0}
+                        disabled={!formData.drinks?.freshOrangeJuice || formData.drinks?.freshOrangeJuice <= 0}
                       >
                         -
                       </button>
                       <span className="w-8 text-center text-sm">
-                        {formData.drinks?.verseJus || 0}
+                        {formData.drinks?.freshOrangeJuice || 0}
                       </span>
                       <button
                         type="button"
                         onClick={() => {
-                          const current = formData.drinks?.verseJus || 0;
+                          const current = formData.drinks?.freshOrangeJuice || 0;
                           updateFormData("drinks", {
                             ...formData.drinks,
-                            verseJus: current + 1
+                            freshOrangeJuice: current + 1
                           });
                         }}
                         className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
@@ -157,7 +158,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
                   <div className="flex items-center justify-between">
                     <div>
                       <label className="text-sm font-medium text-gray-700">Sodas</label>
-                      <div className="text-xs text-gray-500">€2.71 each</div>
+                      <div className="text-xs text-gray-500">€{DRINK_PRICES.SODAS} each</div>
                     </div>
                     <div className="flex items-center space-x-2">
                       <button
@@ -198,7 +199,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
                   <div className="flex items-center justify-between">
                     <div>
                       <label className="text-sm font-medium text-gray-700">Smoothies</label>
-                      <div className="text-xs text-gray-500">€3.62 each</div>
+                      <div className="text-xs text-gray-500">€{DRINK_PRICES.SMOOTHIES} each</div>
                     </div>
                     <div className="flex items-center space-x-2">
                       <button
@@ -236,17 +237,17 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
                   </div>
                   
                   {/* Total drinks summary */}
-                  {(formData.drinks?.verseJus > 0 || formData.drinks?.sodas > 0 || formData.drinks?.smoothies > 0) && (
+                  {((formData.drinks?.freshOrangeJuice || formData.drinks?.verseJus) > 0 || formData.drinks?.sodas > 0 || formData.drinks?.smoothies > 0) && (
                     <div className="mt-4 pt-3 border-t border-gray-200">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">
-                          Total drinks: {(formData.drinks?.verseJus || 0) + (formData.drinks?.sodas || 0) + (formData.drinks?.smoothies || 0)}
+                          Total drinks: {((formData.drinks?.freshOrangeJuice || formData.drinks?.verseJus) || 0) + (formData.drinks?.sodas || 0) + (formData.drinks?.smoothies || 0)}
                         </span>
                         <span className="font-medium text-gray-800">
                           €{(
-                            (formData.drinks?.verseJus || 0) * 3.62 +
-                            (formData.drinks?.sodas || 0) * 2.71 +
-                            (formData.drinks?.smoothies || 0) * 3.62
+                            ((formData.drinks?.freshOrangeJuice || formData.drinks?.verseJus) || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
+                            (formData.drinks?.sodas || 0) * DRINK_PRICES.SODAS +
+                            (formData.drinks?.smoothies || 0) * DRINK_PRICES.SMOOTHIES
                           ).toFixed(2)} excl. VAT
                         </span>
                       </div>
@@ -262,21 +263,21 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
             <div className="p-4 space-y-2 rounded-md bg-custom-gray/10">
               <div className="flex justify-between text-sm text-custom-gray">
                 <span>Price per sandwich</span>
-                <span>€6,83</span>
+                <span>€{SANDWICH_PRICE_VARIETY.toFixed(2).replace('.', ',')}</span>
               </div>
               <div className="flex justify-between text-sm text-custom-gray">
                 <span>Number of sandwiches</span>
                 <span>{formData.totalSandwiches}</span>
               </div>
-              {formData.addDrinks && (formData.drinks?.verseJus > 0 || formData.drinks?.sodas > 0 || formData.drinks?.smoothies > 0) && (
+              {formData.addDrinks && ((formData.drinks?.freshOrangeJuice || formData.drinks?.verseJus) > 0 || formData.drinks?.sodas > 0 || formData.drinks?.smoothies > 0) && (
                 <>
                   <div className="flex justify-between text-sm text-custom-gray">
                     <span>Drinks total</span>
                     <span>
                       €{(
-                        (formData.drinks?.verseJus || 0) * 3.62 +
-                        (formData.drinks?.sodas || 0) * 2.71 +
-                        (formData.drinks?.smoothies || 0) * 3.62
+                        ((formData.drinks?.freshOrangeJuice || formData.drinks?.verseJus) || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
+                        (formData.drinks?.sodas || 0) * DRINK_PRICES.SODAS +
+                        (formData.drinks?.smoothies || 0) * DRINK_PRICES.SMOOTHIES
                       ).toFixed(2)}
                     </span>
                   </div>
@@ -286,11 +287,11 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
                 <span>Total amount</span>
                 <span>
                   €{(
-                    formData.totalSandwiches * 6.83 + 
+                    formData.totalSandwiches * SANDWICH_PRICE_VARIETY + 
                     (formData.addDrinks && formData.drinks ? 
-                      (formData.drinks.verseJus || 0) * 3.62 +
-                      (formData.drinks.sodas || 0) * 2.71 +
-                      (formData.drinks.smoothies || 0) * 3.62 
+                      ((formData.drinks.freshOrangeJuice || formData.drinks.verseJus) || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
+                      (formData.drinks.sodas || 0) * DRINK_PRICES.SODAS +
+                      (formData.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES 
                       : 0)
                   ).toFixed(2)} excl. VAT
                 </span>

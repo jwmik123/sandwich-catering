@@ -22,3 +22,13 @@ export const toppings = [
   { id: "ui", name: "Ui" },
   { id: "komkommer", name: "Komkommer" },
 ];
+
+// Drink prices (VAT-exclusive)
+export const DRINK_PRICES = {
+  FRESH_ORANGE_JUICE: 3.62,
+  SODAS: 2.71,
+  SMOOTHIES: 4.54,
+};
+
+// Sandwich pricing
+export const SANDWICH_PRICE_VARIETY = 6.83;
