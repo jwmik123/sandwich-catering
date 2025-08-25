@@ -42,6 +42,21 @@ const Footer = () => {
                 orders@thesandwichbar.nl
               </a>
             </p>
+            <p className="text-sm text-muted-foreground">
+              <a
+                href="tel:+31615657447"
+                className="text-muted-foreground hover:text-white"
+              >
+                +31 6 15 65 74 47
+              </a>
+              <br />
+              <a
+                href="tel:+31648144361"
+                className="text-muted-foreground hover:text-white"
+              >
+                +31 6 48 14 43 61
+              </a>
+            </p>
           </div>
 
           {/* Links */}
