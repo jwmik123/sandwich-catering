@@ -299,6 +299,8 @@ async function handlePaidStatus(quoteId) {
       sandwichOptions: sandwichOptions,
       createdAt: order.createdAt || new Date().toISOString(),
       paymentMethod: "online", // Since this is a paid webhook
+      howDidYouFindUs: order.howDidYouFindUs || [],
+      howDidYouFindUsOther: order.howDidYouFindUsOther || "",
     };
 
     // Set variety selection if available

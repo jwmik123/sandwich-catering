@@ -14,6 +14,29 @@ const ContactStep = ({
   deliveryCost,
   // totalAmount,
 }) => {
+  // Email validation helper
+  const validateEmailFormat = (emailString) => {
+    if (!emailString || emailString.trim() === "") return { isValid: false, message: "" };
+    
+    const emails = emailString.split(',').map(email => email.trim()).filter(email => email !== "");
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    const invalidEmails = emails.filter(email => !emailRegex.test(email));
+    
+    if (invalidEmails.length > 0) {
+      return { 
+        isValid: false, 
+        message: `Invalid email format: ${invalidEmails.join(', ')}` 
+      };
+    }
+    
+    return { 
+      isValid: true, 
+      message: emails.length > 1 ? `${emails.length} email addresses will receive notifications` : "" 
+    };
+  };
+
+  const emailValidation = validateEmailFormat(formData.email);
   const handleDownloadInvoice = async () => {
     try {
       // Calculate total amount including delivery costs
@@ -133,12 +156,29 @@ const ContactStep = ({
             <Label htmlFor="email">E-mail address*</Label>
             <Input
               id="email"
-              type="email"
+              type="text"
               value={formData.email}
               onChange={(e) => updateFormData("email", e.target.value)}
-              placeholder="your@email.com"
+              placeholder="your@email.com, additional@email.com"
               required
+              className={
+                formData.email && !emailValidation.isValid 
+                  ? "border-red-500" 
+                  : formData.email && emailValidation.isValid && emailValidation.message
+                  ? "border-green-500"
+                  : ""
+              }
             />
+            <div className="text-sm">
+              <p className="text-gray-500">
+                You can add multiple email addresses separated by commas. All emails will receive order confirmations and invoices.
+              </p>
+              {formData.email && emailValidation.message && (
+                <p className={emailValidation.isValid ? "text-green-600" : "text-red-600"}>
+                  {emailValidation.message}
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -155,6 +195,9 @@ const ContactStep = ({
             />
           </div>
         </div>
+
+        {/* How did you find us Section */}
+        
 
         {/* Company Details Section */}
         <div className="pt-6 border-t">
@@ -215,6 +258,78 @@ const ContactStep = ({
               </div>
             </div>
           )}
+        </div>
+        <div className="pt-6 border-t">
+          <div className="space-y-4">
+            <h3 className="font-medium text-gray-700 text-md">How did you find us? (optional)</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {[
+                { value: "google", label: "Google search" },
+                { value: "social_media", label: "Social media" },
+                { value: "recommendation", label: "Recommendation from friend/colleague" },
+                { value: "website", label: "Company website" },
+                { value: "advertisement", label: "Advertisement" },
+                { value: "repeat_customer", label: "Repeat customer" }
+              ].map((option) => (
+                <div key={option.value} className="flex gap-2 items-center">
+                  <Checkbox
+                    id={`findUs-${option.value}`}
+                    checked={formData.howDidYouFindUs?.includes(option.value) || false}
+                    onCheckedChange={(checked) => {
+                      const currentSelection = formData.howDidYouFindUs || [];
+                      if (checked) {
+                        updateFormData("howDidYouFindUs", [...currentSelection, option.value]);
+                      } else {
+                        updateFormData("howDidYouFindUs", currentSelection.filter(item => item !== option.value));
+                      }
+                    }}
+                  />
+                  <Label
+                    htmlFor={`findUs-${option.value}`}
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    {option.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+
+            {/* Other option with text input */}
+            <div className="space-y-2">
+              <div className="flex gap-2 items-center">
+                <Checkbox
+                  id="findUs-other"
+                  checked={formData.howDidYouFindUs?.includes("other") || false}
+                  onCheckedChange={(checked) => {
+                    const currentSelection = formData.howDidYouFindUs || [];
+                    if (checked) {
+                      updateFormData("howDidYouFindUs", [...currentSelection, "other"]);
+                    } else {
+                      updateFormData("howDidYouFindUs", currentSelection.filter(item => item !== "other"));
+                      updateFormData("howDidYouFindUsOther", ""); // Clear the text input
+                    }
+                  }}
+                />
+                <Label
+                  htmlFor="findUs-other"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Other
+                </Label>
+              </div>
+              
+              {formData.howDidYouFindUs?.includes("other") && (
+                <Input
+                  type="text"
+                  value={formData.howDidYouFindUsOther || ""}
+                  onChange={(e) => updateFormData("howDidYouFindUsOther", e.target.value)}
+                  placeholder="Please specify..."
+                  className="ml-6"
+                />
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

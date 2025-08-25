@@ -14,7 +14,21 @@ export const quote = defineType({
       name: "email",
       title: "Email",
       type: "string",
-      validation: (Rule) => Rule.email().required(),
+      validation: (Rule) => Rule.required().custom((email) => {
+        if (!email) return "Email is required";
+        
+        // Support multiple emails separated by commas
+        const emails = email.split(',').map(e => e.trim()).filter(e => e !== "");
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        for (const emailAddr of emails) {
+          if (!emailRegex.test(emailAddr)) {
+            return `Invalid email format: ${emailAddr}`;
+          }
+        }
+        
+        return true;
+      }),
     }),
     defineField({
       name: "phoneNumber",
@@ -27,6 +41,29 @@ export const quote = defineType({
       title: "Full Name",
       type: "string",
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "howDidYouFindUs",
+      title: "How did you find us",
+      type: "array",
+      of: [{ type: "string" }],
+      options: {
+        list: [
+          { title: "Google search", value: "google" },
+          { title: "Social media", value: "social_media" },
+          { title: "Recommendation from friend/colleague", value: "recommendation" },
+          { title: "Company website", value: "website" },
+          { title: "Advertisement", value: "advertisement" },
+          { title: "Repeat customer", value: "repeat_customer" },
+          { title: "Other", value: "other" }
+        ]
+      }
+    }),
+    defineField({
+      name: "howDidYouFindUsOther",
+      title: "How did you find us (Other)",
+      type: "string",
+      description: "Additional details when 'Other' is selected"
     }),
     defineField({
       name: "orderDetails",

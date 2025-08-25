@@ -34,9 +34,17 @@ export const useOrderValidation = (formData, deliveryError) => {
         );
 
       case 5:
-        // Validate email format
+        // Validate email format - support multiple emails separated by commas
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const isEmailValid = emailRegex.test(formData.email);
+        const validateMultipleEmails = (emailString) => {
+          if (!emailString || emailString.trim() === "") return false;
+          
+          const emails = emailString.split(',').map(email => email.trim());
+          return emails.length > 0 && emails.every(email => {
+            return email !== "" && emailRegex.test(email);
+          });
+        };
+        const isEmailValid = validateMultipleEmails(formData.email);
 
         // Validate phone number (just check if not empty)
         const isPhoneValid = formData.phoneNumber.trim() !== "";
