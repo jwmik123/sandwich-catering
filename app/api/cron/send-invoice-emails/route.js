@@ -25,13 +25,13 @@ export async function GET(request) {
     console.log(`📅 Looking for invoices with delivery date: ${today}`);
 
     // Find all invoices that:
-    // 1. Have a delivery date of today
-    // 2. Haven't had their invoice email sent yet
+    // 1. Have a delivery date of today (exact match)
+    // 2. Haven't had their invoice email sent yet (emailSent is false or undefined)
     console.log("🔍 Querying Sanity database...");
     const invoices = await client.fetch(
       `*[_type == "invoice" && 
-        orderDetails.deliveryDate match $today && 
-        !defined(emailSent)]`,
+        orderDetails.deliveryDate == $today && 
+        (!defined(emailSent) || emailSent != true)]`,
       { today }
     );
 

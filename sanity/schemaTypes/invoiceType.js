@@ -214,12 +214,34 @@ export const invoice = defineType({
       readOnly: true,
       fieldset: "yuki",
     }),
+
+    // -- Email Tracking Fields --
+    defineField({
+      name: "emailSent",
+      title: "Invoice Email Sent",
+      type: "boolean",
+      initialValue: false,
+      readOnly: true,
+      fieldset: "email",
+    }),
+    defineField({
+      name: "emailSentAt",
+      title: "Invoice Email Sent At",
+      type: "datetime",
+      readOnly: true,
+      fieldset: "email",
+    }),
   ],
 
   fieldsets: [
     {
       name: "yuki",
       title: "Yuki Integration Status",
+      options: { collapsible: true, collapsed: true },
+    },
+    {
+      name: "email",
+      title: "Email Status",
       options: { collapsible: true, collapsed: true },
     },
   ],
