@@ -39,10 +39,17 @@ export default function OrderConfirmation({
         .flat()
         .reduce((total, selection) => total + (selection.subTotal || 0), 0);
     } else {
-      subtotal = (orderDetails.totalSandwiches || 0) * 6.83; // €6.83 per sandwich
-      // Add gluten-free surcharge if applicable
+      // Calculate based on actual selected quantities
+      const regularSandwiches =
+        (orderDetails.varietySelection?.vega || 0) +
+        (orderDetails.varietySelection?.nonVega || 0) +
+        (orderDetails.varietySelection?.vegan || 0);
+
+      subtotal = regularSandwiches * 6.83; // €6.83 per sandwich
+
+      // Add gluten-free with full price (base + surcharge)
       if (orderDetails.varietySelection?.glutenFree > 0) {
-        subtotal += orderDetails.varietySelection.glutenFree * GLUTEN_FREE_SURCHARGE;
+        subtotal += orderDetails.varietySelection.glutenFree * (6.83 + GLUTEN_FREE_SURCHARGE);
       }
     }
 

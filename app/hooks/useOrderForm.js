@@ -87,12 +87,24 @@ export const useOrderForm = () => {
         .flat()
         .reduce((total, selection) => total + selection.subTotal, 0);
     } else {
-      // For variety selection
-      subtotal = formData.totalSandwiches * SANDWICH_PRICE_VARIETY;
+      // For variety selection - calculate based on actual selected quantities
+      const actualTotal =
+        (formData.varietySelection.vega || 0) +
+        (formData.varietySelection.nonVega || 0) +
+        (formData.varietySelection.vegan || 0) +
+        (formData.varietySelection.glutenFree || 0);
 
-      // Add gluten-free surcharge if applicable
+      // Base price for regular sandwiches
+      const regularSandwiches =
+        (formData.varietySelection.vega || 0) +
+        (formData.varietySelection.nonVega || 0) +
+        (formData.varietySelection.vegan || 0);
+
+      subtotal = regularSandwiches * SANDWICH_PRICE_VARIETY;
+
+      // Add gluten-free with surcharge
       if (formData.varietySelection && formData.varietySelection.glutenFree > 0) {
-        subtotal += formData.varietySelection.glutenFree * GLUTEN_FREE_SURCHARGE;
+        subtotal += formData.varietySelection.glutenFree * (SANDWICH_PRICE_VARIETY + GLUTEN_FREE_SURCHARGE);
       }
     }
     

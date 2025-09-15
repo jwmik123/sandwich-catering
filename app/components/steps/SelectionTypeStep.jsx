@@ -298,7 +298,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
               </div>
               <div className="flex justify-between text-sm text-custom-gray">
                 <span>Number of sandwiches</span>
-                <span>{formData.totalSandwiches}</span>
+                <span>{(formData.varietySelection.vega || 0) + (formData.varietySelection.nonVega || 0) + (formData.varietySelection.vegan || 0) + (formData.varietySelection.glutenFree || 0)}</span>
               </div>
               {formData.varietySelection?.glutenFree > 0 && (
                 <div className="flex justify-between text-sm text-custom-gray">
@@ -325,8 +325,10 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
                 <span>Total amount</span>
                 <span>
                   €{(
-                    formData.totalSandwiches * SANDWICH_PRICE_VARIETY +
-                    (formData.varietySelection?.glutenFree ? formData.varietySelection.glutenFree * GLUTEN_FREE_SURCHARGE : 0) +
+                    ((formData.varietySelection.vega || 0) +
+                     (formData.varietySelection.nonVega || 0) +
+                     (formData.varietySelection.vegan || 0)) * SANDWICH_PRICE_VARIETY +
+                    (formData.varietySelection?.glutenFree ? formData.varietySelection.glutenFree * (SANDWICH_PRICE_VARIETY + GLUTEN_FREE_SURCHARGE) : 0) +
                     (formData.drinks ?
                       ((formData.drinks.freshOrangeJuice || formData.drinks.verseJus) || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
                       (formData.drinks.sodas || 0) * DRINK_PRICES.SODAS +

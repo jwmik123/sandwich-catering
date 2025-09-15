@@ -538,10 +538,17 @@ const calculateSubtotal = (orderData) => {
       .flat()
       .reduce((total, selection) => total + selection.subTotal, 0);
   } else {
-    subtotal = orderData.totalSandwiches * SANDWICH_PRICE_VARIETY;
-    // Add gluten-free surcharge if applicable
+    // Calculate based on actual selected quantities
+    const regularSandwiches =
+      (orderData.varietySelection?.vega || 0) +
+      (orderData.varietySelection?.nonVega || 0) +
+      (orderData.varietySelection?.vegan || 0);
+
+    subtotal = regularSandwiches * SANDWICH_PRICE_VARIETY;
+
+    // Add gluten-free with full price (base + surcharge)
     if (orderData.varietySelection?.glutenFree > 0) {
-      subtotal += orderData.varietySelection.glutenFree * GLUTEN_FREE_SURCHARGE;
+      subtotal += orderData.varietySelection.glutenFree * (SANDWICH_PRICE_VARIETY + GLUTEN_FREE_SURCHARGE);
     }
   }
   
