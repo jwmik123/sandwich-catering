@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { postalCodeDeliveryCosts } from "@/app/assets/postals";
-import { DRINK_PRICES, SANDWICH_PRICE_VARIETY } from "@/app/assets/constants";
+import { DRINK_PRICES, SANDWICH_PRICE_VARIETY, GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
 
 export const useOrderForm = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +14,7 @@ export const useOrderForm = () => {
       vega: 0,
       nonVega: 0,
       vegan: 0,
+      glutenFree: 0,
     },
     // Stap 5
     deliveryDate: "",
@@ -66,14 +67,14 @@ export const useOrderForm = () => {
     // For regular postal codes (not special zones)
     if (typeof deliveryZone === "number") {
       return {
-        cost: orderAmount >= 100 ? 0 : deliveryZone,
+        cost: orderAmount >= 150 ? 0 : deliveryZone,
       };
     }
 
-    // For special zones (postal codes that require €100 for free delivery)
+    // For special zones (postal codes that require €150 for free delivery)
     if (typeof deliveryZone === "object") {
       return {
-        cost: orderAmount >= 100 ? 0 : deliveryZone.cost,
+        cost: orderAmount >= 150 ? 0 : deliveryZone.cost,
       };
     }
   };
@@ -88,14 +89,20 @@ export const useOrderForm = () => {
     } else {
       // For variety selection
       subtotal = formData.totalSandwiches * SANDWICH_PRICE_VARIETY;
+
+      // Add gluten-free surcharge if applicable
+      if (formData.varietySelection && formData.varietySelection.glutenFree > 0) {
+        subtotal += formData.varietySelection.glutenFree * GLUTEN_FREE_SURCHARGE;
+      }
     }
     
     // Add drinks pricing if drinks are selected
-    if (formData.addDrinks && formData.drinks) {
-      const drinksTotal = 
+    if (formData.drinks) {
+      const drinksTotal =
         ((formData.drinks.freshOrangeJuice || formData.drinks.verseJus) || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
         (formData.drinks.sodas || 0) * DRINK_PRICES.SODAS +
-        (formData.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES;
+        (formData.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES +
+        (formData.drinks.milk || 0) * DRINK_PRICES.MILK;
       subtotal += drinksTotal;
     }
     
@@ -121,9 +128,9 @@ export const useOrderForm = () => {
           setDeliveryError(``);
         } else if (result.cost > 0) {
           setDeliveryError(
-            `Free delivery available for orders over €100 in your area`
+            `Free delivery available for orders over €150 in your area`
           );
-        } else if (result.cost === 0 && totalAmount >= 100) {
+        } else if (result.cost === 0 && totalAmount >= 150) {
           setDeliveryError(null);
         }
       }
@@ -168,11 +175,11 @@ export const useOrderForm = () => {
           // Regular case with minimum order for free delivery
           else if (typeof deliveryZone === "object" && result.cost > 0) {
             setDeliveryError(
-              `Free delivery available for orders over €100 in your area`
+              `Free delivery available for orders over €150 in your area`
             );
           } else if (result?.cost > 0) {
             setDeliveryError(
-              `Free delivery available for orders over €100 in your area`
+              `Free delivery available for orders over €150 in your area`
             );
           }
         }
@@ -210,6 +217,7 @@ export const useOrderForm = () => {
               vega: 0,
               nonVega: 0,
               vegan: 0,
+              glutenFree: 0,
             },
             allergies: quote.orderDetails.allergies || "",
             // Step 5

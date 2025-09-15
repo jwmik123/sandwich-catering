@@ -37,6 +37,7 @@ export const product = defineType({
           { title: "Breakfast", value: "croissants" },
           { title: "Zoetigheden", value: "zoetigheden" },
           { title: "Dranken", value: "dranken" },
+          { title: "Fruit", value: "fruit" },
         ],
       },
     }),

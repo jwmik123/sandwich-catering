@@ -65,7 +65,7 @@ const ContactStep = ({
             selectionType: formData.selectionType,
             customSelection: formData.customSelection,
             varietySelection: formData.varietySelection,
-            addDrinks: formData.addDrinks || false,
+            addDrinks: true,
             drinks: formData.drinks || null,
             allergies: formData.allergies,
             deliveryCost: deliveryCost || 0, // Include delivery cost in order details

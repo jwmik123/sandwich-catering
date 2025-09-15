@@ -67,7 +67,7 @@ export async function POST(request) {
         vegan: 0,
       },
       // Include drinks data
-      addDrinks: orderDetails.addDrinks || false,
+      addDrinks: true,
       drinks: orderDetails.drinks || null,
     };
     // --- End Data Transformation ---

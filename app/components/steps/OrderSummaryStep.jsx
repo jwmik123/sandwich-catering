@@ -114,6 +114,12 @@ const OrderSummaryStep = ({
                   <span>Vegan</span>
                   <span>{formData.varietySelection.vegan} sandwiches</span>
                 </div>
+                {formData.varietySelection.glutenFree > 0 && (
+                  <div className="flex justify-between">
+                    <span>Gluten Free (+€2.75 each)</span>
+                    <span>{formData.varietySelection.glutenFree} sandwiches</span>
+                  </div>
+                )}
                 <div className="pt-3 border-t">
                   <div className="flex justify-between font-medium">
                     <span>Total</span>
@@ -122,7 +128,7 @@ const OrderSummaryStep = ({
                 </div>
               </div>
               {/* Drinks section for variety selection */}
-              {formData.addDrinks && ((formData.drinks?.freshOrangeJuice || formData.drinks?.verseJus) > 0 || formData.drinks?.sodas > 0 || formData.drinks?.smoothies > 0) && (
+              {((formData.drinks?.freshOrangeJuice || formData.drinks?.verseJus) > 0 || formData.drinks?.sodas > 0 || formData.drinks?.smoothies > 0 || formData.drinks?.milk > 0) && (
                 <div className="pt-4 mt-4 border-t">
                   <p className="mb-2 text-sm text-gray-500">Drinks</p>
                   <div className="space-y-2">
@@ -142,6 +148,12 @@ const OrderSummaryStep = ({
                       <div className="flex justify-between">
                         <span>Smoothies</span>
                         <span>{formData.drinks.smoothies}x €{(formData.drinks.smoothies * DRINK_PRICES.SMOOTHIES).toFixed(2)}</span>
+                      </div>
+                    )}
+                    {formData.drinks?.milk > 0 && (
+                      <div className="flex justify-between">
+                        <span>Milk</span>
+                        <span>{formData.drinks.milk}x €{(formData.drinks.milk * DRINK_PRICES.MILK).toFixed(2)}</span>
                       </div>
                     )}
                   </div>

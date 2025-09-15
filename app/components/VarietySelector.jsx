@@ -9,12 +9,14 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
     nonVega: false,
     vega: false,
     vegan: false,
+    glutenFree: false,
   });
 
   const [suggestedDistribution, setSuggestedDistribution] = useState({
     nonVega: 0,
     vega: 0,
     vegan: 0,
+    glutenFree: 0,
   });
 
   // Calculate suggested distributions when selections change
@@ -25,6 +27,7 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
         nonVega: 0,
         vega: 0,
         vegan: 0,
+        glutenFree: 0,
       });
       return;
     }
@@ -36,6 +39,7 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
       nonVega: selectedTypes.nonVega ? portionSize : 0,
       vega: selectedTypes.vega ? portionSize : 0,
       vegan: selectedTypes.vegan ? portionSize : 0,
+      glutenFree: selectedTypes.glutenFree ? portionSize : 0,
     };
 
     // Distribute remainder if any
@@ -192,6 +196,41 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
                   {selectedTypes.vegan && suggestedDistribution.vegan > 0 && (
                     <span className="ml-2 text-sm text-blue-600">
                       (Suggested: {suggestedDistribution.vegan})
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col">
+            <Label htmlFor="glutenFree" className="text-base font-bold">
+              Gluten Free (+€2.75 per sandwich)
+            </Label>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="glutenFree"
+                checked={selectedTypes.glutenFree}
+                onCheckedChange={(checked) =>
+                  handleCheckChange("glutenFree", checked)
+                }
+              />
+              <div className="flex-1">
+                <div className="flex items-center mt-2">
+                  <Input
+                    type="number"
+                    value={formData.varietySelection.glutenFree || ""}
+                    onChange={(e) => handleInputChange("glutenFree", e.target.value)}
+                    className="w-24"
+                    min="0"
+                    max={totalSandwiches}
+                  />
+                  <span className="ml-2 text-sm text-custom-gray">
+                    sandwiches
+                  </span>
+                  {selectedTypes.glutenFree && suggestedDistribution.glutenFree > 0 && (
+                    <span className="ml-2 text-sm text-blue-600">
+                      (Suggested: {suggestedDistribution.glutenFree})
                     </span>
                   )}
                 </div>

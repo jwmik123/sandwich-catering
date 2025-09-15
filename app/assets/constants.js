@@ -28,7 +28,9 @@ export const DRINK_PRICES = {
   FRESH_ORANGE_JUICE: 3.62,
   SODAS: 2.71,
   SMOOTHIES: 4.54,
+  MILK: 2.71,
 };
 
 // Sandwich pricing
 export const SANDWICH_PRICE_VARIETY = 6.83;
+export const GLUTEN_FREE_SURCHARGE = 2.75;

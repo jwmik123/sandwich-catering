@@ -3,7 +3,7 @@ import React from "react";
 import { Utensils } from "lucide-react";
 import MenuCategories from "@/app/components/MenuCategories";
 import VarietySelector from "@/app/components/VarietySelector";
-import { DRINK_PRICES, SANDWICH_PRICE_VARIETY } from "@/app/assets/constants";
+import { DRINK_PRICES, SANDWICH_PRICE_VARIETY, GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
 
 const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
   return (
@@ -96,21 +96,11 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
             </div>
             
             <div className="space-y-6">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="addDrinks"
-                  checked={formData.addDrinks || false}
-                  onChange={(e) => updateFormData("addDrinks", e.target.checked)}
-                  className="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-black focus:ring-2"
-                />
-                <label htmlFor="addDrinks" className="text-lg font-medium text-gray-900 cursor-pointer">
-                  Want to add some drinks?
-                </label>
-              </div>
-              
-              {formData.addDrinks && (
-                <div className="space-y-4 mt-4 p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-lg font-medium text-gray-900">
+                Add some drinks
+              </h3>
+
+              <div className="space-y-4 mt-4 p-4 bg-gray-50 rounded-lg">
                   <h4 className="text-md font-medium text-gray-800">Select Drinks</h4>
                   
                   {/* Verse Jus */}
@@ -235,26 +225,67 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
                       </button>
                     </div>
                   </div>
-                  
+
+                  {/* Milk */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Milk</label>
+                      <div className="text-xs text-gray-500">€{DRINK_PRICES.MILK} each</div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const current = formData.drinks?.milk || 0;
+                          const newAmount = Math.max(0, current - 1);
+                          updateFormData("drinks", {
+                            ...formData.drinks,
+                            milk: newAmount
+                          });
+                        }}
+                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
+                        disabled={!formData.drinks?.milk || formData.drinks?.milk <= 0}
+                      >
+                        -
+                      </button>
+                      <span className="w-8 text-center text-sm">
+                        {formData.drinks?.milk || 0}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const current = formData.drinks?.milk || 0;
+                          updateFormData("drinks", {
+                            ...formData.drinks,
+                            milk: current + 1
+                          });
+                        }}
+                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
                   {/* Total drinks summary */}
-                  {((formData.drinks?.freshOrangeJuice || formData.drinks?.verseJus) > 0 || formData.drinks?.sodas > 0 || formData.drinks?.smoothies > 0) && (
+                  {((formData.drinks?.freshOrangeJuice || formData.drinks?.verseJus) > 0 || formData.drinks?.sodas > 0 || formData.drinks?.smoothies > 0 || formData.drinks?.milk > 0) && (
                     <div className="mt-4 pt-3 border-t border-gray-200">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">
-                          Total drinks: {((formData.drinks?.freshOrangeJuice || formData.drinks?.verseJus) || 0) + (formData.drinks?.sodas || 0) + (formData.drinks?.smoothies || 0)}
+                          Total drinks: {((formData.drinks?.freshOrangeJuice || formData.drinks?.verseJus) || 0) + (formData.drinks?.sodas || 0) + (formData.drinks?.smoothies || 0) + (formData.drinks?.milk || 0)}
                         </span>
                         <span className="font-medium text-gray-800">
                           €{(
                             ((formData.drinks?.freshOrangeJuice || formData.drinks?.verseJus) || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
                             (formData.drinks?.sodas || 0) * DRINK_PRICES.SODAS +
-                            (formData.drinks?.smoothies || 0) * DRINK_PRICES.SMOOTHIES
+                            (formData.drinks?.smoothies || 0) * DRINK_PRICES.SMOOTHIES +
+                            (formData.drinks?.milk || 0) * DRINK_PRICES.MILK
                           ).toFixed(2)} excl. VAT
                         </span>
                       </div>
                     </div>
                   )}
                 </div>
-              )}
             </div>
           </div>
           
@@ -269,7 +300,13 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
                 <span>Number of sandwiches</span>
                 <span>{formData.totalSandwiches}</span>
               </div>
-              {formData.addDrinks && ((formData.drinks?.freshOrangeJuice || formData.drinks?.verseJus) > 0 || formData.drinks?.sodas > 0 || formData.drinks?.smoothies > 0) && (
+              {formData.varietySelection?.glutenFree > 0 && (
+                <div className="flex justify-between text-sm text-custom-gray">
+                  <span>Gluten-free surcharge ({formData.varietySelection.glutenFree}x)</span>
+                  <span>€{(formData.varietySelection.glutenFree * GLUTEN_FREE_SURCHARGE).toFixed(2)}</span>
+                </div>
+              )}
+              {((formData.drinks?.freshOrangeJuice || formData.drinks?.verseJus) > 0 || formData.drinks?.sodas > 0 || formData.drinks?.smoothies > 0 || formData.drinks?.milk > 0) && (
                 <>
                   <div className="flex justify-between text-sm text-custom-gray">
                     <span>Drinks total</span>
@@ -277,7 +314,8 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
                       €{(
                         ((formData.drinks?.freshOrangeJuice || formData.drinks?.verseJus) || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
                         (formData.drinks?.sodas || 0) * DRINK_PRICES.SODAS +
-                        (formData.drinks?.smoothies || 0) * DRINK_PRICES.SMOOTHIES
+                        (formData.drinks?.smoothies || 0) * DRINK_PRICES.SMOOTHIES +
+                        (formData.drinks?.milk || 0) * DRINK_PRICES.MILK
                       ).toFixed(2)}
                     </span>
                   </div>
@@ -287,11 +325,13 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
                 <span>Total amount</span>
                 <span>
                   €{(
-                    formData.totalSandwiches * SANDWICH_PRICE_VARIETY + 
-                    (formData.addDrinks && formData.drinks ? 
+                    formData.totalSandwiches * SANDWICH_PRICE_VARIETY +
+                    (formData.varietySelection?.glutenFree ? formData.varietySelection.glutenFree * GLUTEN_FREE_SURCHARGE : 0) +
+                    (formData.drinks ?
                       ((formData.drinks.freshOrangeJuice || formData.drinks.verseJus) || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
                       (formData.drinks.sodas || 0) * DRINK_PRICES.SODAS +
-                      (formData.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES 
+                      (formData.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES +
+                      (formData.drinks.milk || 0) * DRINK_PRICES.MILK
                       : 0)
                   ).toFixed(2)} excl. VAT
                 </span>

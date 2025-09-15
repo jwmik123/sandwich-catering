@@ -6,7 +6,7 @@ import { sendOrderConfirmation } from "@/lib/email";
 import { sendOrderSmsNotification } from "@/lib/sms";
 import { PRODUCT_QUERY } from "@/sanity/lib/queries";
 import { createYukiInvoice } from "@/lib/yuki-api";
-import { DRINK_PRICES } from "@/app/assets/constants";
+import { DRINK_PRICES, GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
 
 const mollieClient = createMollieClient({
   apiKey: process.env.MOLLIE_LIVE_API_KEY,
@@ -391,17 +391,23 @@ function calculateOrderTotal(orderDetails) {
       const totalSandwiches =
         (orderDetails.varietySelection?.vega || 0) +
         (orderDetails.varietySelection?.nonVega || 0) +
-        (orderDetails.varietySelection?.vegan || 0);
-      total = totalSandwiches * 6.83;
+        (orderDetails.varietySelection?.vegan || 0) +
+        (orderDetails.varietySelection?.glutenFree || 0);
+      total =
+        ((orderDetails.varietySelection?.vega || 0) +
+         (orderDetails.varietySelection?.nonVega || 0) +
+         (orderDetails.varietySelection?.vegan || 0)) * 6.83 +
+        (orderDetails.varietySelection?.glutenFree || 0) * (6.83 + GLUTEN_FREE_SURCHARGE);
     }
   }
 
   // Add drinks pricing if drinks are selected
   if (orderDetails.addDrinks && orderDetails.drinks) {
-    const drinksTotal = 
+    const drinksTotal =
       ((orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus) || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
       (orderDetails.drinks.sodas || 0) * DRINK_PRICES.SODAS +
-      (orderDetails.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES;
+      (orderDetails.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES +
+      (orderDetails.drinks.milk || 0) * DRINK_PRICES.MILK;
     total += drinksTotal;
   }
 

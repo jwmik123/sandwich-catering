@@ -7,7 +7,7 @@ import {
   Image,
 } from "@react-pdf/renderer";
 import { isDrink } from "@/lib/product-helpers";
-import { DRINK_PRICES, SANDWICH_PRICE_VARIETY } from "@/app/assets/constants";
+import { DRINK_PRICES, SANDWICH_PRICE_VARIETY, GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
 
 const styles = StyleSheet.create({
   page: {
@@ -413,6 +413,18 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                       ).toFixed(2)}
                     </Text>
                   </View>
+                  {orderData.varietySelection?.glutenFree > 0 && (
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableCellName}>Gluten Free</Text>
+                      <Text style={styles.tableCell}>
+                        {orderData.varietySelection.glutenFree}x
+                      </Text>
+                      <Text style={styles.tableCell}>€{(6.83 + GLUTEN_FREE_SURCHARGE).toFixed(2)}</Text>
+                      <Text style={styles.tableCell}>
+                        €{(orderData.varietySelection.glutenFree * (6.83 + GLUTEN_FREE_SURCHARGE)).toFixed(2)}
+                      </Text>
+                    </View>
+                  )}
                 </>
               )}
             </View>
@@ -458,6 +470,16 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                     <Text style={styles.tableCell}>€{DRINK_PRICES.SMOOTHIES}</Text>
                     <Text style={styles.tableCell}>
                       €{(orderData.drinks.smoothies * DRINK_PRICES.SMOOTHIES).toFixed(2)}
+                    </Text>
+                  </View>
+                )}
+                {orderData.drinks.milk > 0 && (
+                  <View style={styles.tableRow}>
+                    <Text style={styles.tableCellName}>Milk</Text>
+                    <Text style={styles.tableCell}>{orderData.drinks.milk}x</Text>
+                    <Text style={styles.tableCell}>€{DRINK_PRICES.MILK}</Text>
+                    <Text style={styles.tableCell}>
+                      €{(orderData.drinks.milk * DRINK_PRICES.MILK).toFixed(2)}
                     </Text>
                   </View>
                 )}
@@ -517,14 +539,19 @@ const calculateSubtotal = (orderData) => {
       .reduce((total, selection) => total + selection.subTotal, 0);
   } else {
     subtotal = orderData.totalSandwiches * SANDWICH_PRICE_VARIETY;
+    // Add gluten-free surcharge if applicable
+    if (orderData.varietySelection?.glutenFree > 0) {
+      subtotal += orderData.varietySelection.glutenFree * GLUTEN_FREE_SURCHARGE;
+    }
   }
   
   // Add drinks pricing if drinks are selected
   if (orderData.addDrinks && orderData.drinks) {
-    const drinksTotal = 
+    const drinksTotal =
       (orderData.drinks.freshOrangeJuice || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
       (orderData.drinks.sodas || 0) * DRINK_PRICES.SODAS +
-      (orderData.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES;
+      (orderData.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES +
+      (orderData.drinks.milk || 0) * DRINK_PRICES.MILK;
     subtotal += drinksTotal;
   }
   

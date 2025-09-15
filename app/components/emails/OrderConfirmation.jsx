@@ -8,7 +8,7 @@ import {
   Section,
 } from "@react-email/components";
 import { isDrink } from "@/lib/product-helpers";
-import { DRINK_PRICES } from "@/app/assets/constants";
+import { DRINK_PRICES, GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
 
 export default function OrderConfirmation({
   quoteId,
@@ -40,6 +40,10 @@ export default function OrderConfirmation({
         .reduce((total, selection) => total + (selection.subTotal || 0), 0);
     } else {
       subtotal = (orderDetails.totalSandwiches || 0) * 6.83; // €6.83 per sandwich
+      // Add gluten-free surcharge if applicable
+      if (orderDetails.varietySelection?.glutenFree > 0) {
+        subtotal += orderDetails.varietySelection.glutenFree * GLUTEN_FREE_SURCHARGE;
+      }
     }
 
     // Add drinks pricing if drinks are selected
@@ -47,7 +51,8 @@ export default function OrderConfirmation({
       const drinksTotal =
         ((orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus) || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
         (orderDetails.drinks.sodas || 0) * DRINK_PRICES.SODAS +
-        (orderDetails.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES;
+        (orderDetails.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES +
+        (orderDetails.drinks.milk || 0) * DRINK_PRICES.MILK;
       subtotal += drinksTotal;
     }
 
@@ -122,6 +127,12 @@ export default function OrderConfirmation({
                   Vegetarian: {orderDetails.varietySelection.vega} sandwiches
                   <br />
                   Vegan: {orderDetails.varietySelection.vegan} sandwiches
+                  {orderDetails.varietySelection.glutenFree > 0 && (
+                    <>
+                      <br />
+                      Gluten Free: {orderDetails.varietySelection.glutenFree} sandwiches (+€{GLUTEN_FREE_SURCHARGE} each)
+                    </>
+                  )}
                 </Text>
               </>
             )}
@@ -146,6 +157,12 @@ export default function OrderConfirmation({
                   {orderDetails.drinks?.smoothies > 0 && (
                     <>
                       Smoothies: {orderDetails.drinks.smoothies}x - €{(orderDetails.drinks.smoothies * DRINK_PRICES.SMOOTHIES).toFixed(2)}
+                      <br />
+                    </>
+                  )}
+                  {orderDetails.drinks?.milk > 0 && (
+                    <>
+                      Milk: {orderDetails.drinks.milk}x - €{(orderDetails.drinks.milk * DRINK_PRICES.MILK).toFixed(2)}
                       <br />
                     </>
                   )}
