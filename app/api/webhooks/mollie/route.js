@@ -139,6 +139,16 @@ async function handlePaidStatus(quoteId) {
             city
           }
         },
+        invoiceDetails {
+          sameAsDelivery,
+          address {
+            street,
+            houseNumber,
+            houseNumberAddition,
+            postalCode,
+            city
+          }
+        },
         companyDetails {
           companyName,
           companyVAT
@@ -276,6 +286,19 @@ async function handlePaidStatus(quoteId) {
             order.deliveryDetails?.address?.houseNumberAddition || "",
           postalCode: order.deliveryDetails?.address?.postalCode || "",
           city: order.deliveryDetails?.address?.city || "",
+        },
+      },
+
+      // Format invoiceDetails to match expected structure
+      invoiceDetails: {
+        sameAsDelivery: order.invoiceDetails?.sameAsDelivery || false,
+        address: {
+          street: order.invoiceDetails?.address?.street || "",
+          houseNumber: order.invoiceDetails?.address?.houseNumber || "",
+          houseNumberAddition:
+            order.invoiceDetails?.address?.houseNumberAddition || "",
+          postalCode: order.invoiceDetails?.address?.postalCode || "",
+          city: order.invoiceDetails?.address?.city || "",
         },
       },
 

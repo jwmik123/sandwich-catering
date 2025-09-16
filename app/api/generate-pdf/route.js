@@ -27,6 +27,7 @@ export async function POST(request) {
           ...data.deliveryDetails,
           deliveryDate: data.deliveryDetails.deliveryDate,
         }}
+        invoiceDetails={data.invoiceDetails}
         companyDetails={data.companyDetails}
         amount={data.amount}
         dueDate={dueDate}

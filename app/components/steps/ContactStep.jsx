@@ -82,6 +82,24 @@ const ContactStep = ({
             },
             phoneNumber: formData.phoneNumber,
           },
+          invoiceDetails: {
+            sameAsDelivery: formData.sameAsDelivery,
+            address: formData.sameAsDelivery
+              ? {
+                  street: formData.street,
+                  houseNumber: formData.houseNumber,
+                  houseNumberAddition: formData.houseNumberAddition,
+                  postalCode: formData.postalCode,
+                  city: formData.city,
+                }
+              : {
+                  street: formData.invoiceStreet,
+                  houseNumber: formData.invoiceHouseNumber,
+                  houseNumberAddition: formData.invoiceHouseNumberAddition,
+                  postalCode: formData.invoicePostalCode,
+                  city: formData.invoiceCity,
+                },
+          },
           companyDetails: {
             isCompany: formData.isCompany,
             name: formData.companyName,
