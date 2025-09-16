@@ -473,13 +473,13 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                     </Text>
                   </View>
                 )}
-                {orderData.drinks.milk > 0 && (
+                {orderData.drinks?.milk > 0 && (
                   <View style={styles.tableRow}>
                     <Text style={styles.tableCellName}>Milk</Text>
-                    <Text style={styles.tableCell}>{orderData.drinks.milk}x</Text>
+                    <Text style={styles.tableCell}>{orderData.drinks?.milk || 0}x</Text>
                     <Text style={styles.tableCell}>€{DRINK_PRICES.MILK}</Text>
                     <Text style={styles.tableCell}>
-                      €{(orderData.drinks.milk * DRINK_PRICES.MILK).toFixed(2)}
+                      €{((orderData.drinks?.milk || 0) * DRINK_PRICES.MILK).toFixed(2)}
                     </Text>
                   </View>
                 )}

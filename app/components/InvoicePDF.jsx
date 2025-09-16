@@ -545,15 +545,15 @@ const InvoicePDF = ({
                       </Text>
                     </View>
                   )}
-                  {orderDetails.drinks.milk > 0 && (
+                  {orderDetails?.addDrinks && orderDetails.drinks?.milk > 0 && (
                     <View style={styles.tableRow}>
                       <Text style={styles.tableCellName}>Milk</Text>
-                      <Text style={styles.tableCell}>{orderDetails.drinks.milk}x</Text>
+                      <Text style={styles.tableCell}>{orderDetails.drinks?.milk || 0}x</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.milk * DRINK_PRICES.MILK).toFixed(2)}
+                        €{((orderDetails.drinks?.milk || 0) * DRINK_PRICES.MILK).toFixed(2)}
                       </Text>
                     </View>
                   )}
@@ -665,12 +665,12 @@ const InvoicePDF = ({
                   {orderDetails?.addDrinks && orderDetails.drinks?.milk > 0 && (
                     <View style={styles.tableRow}>
                       <Text style={styles.tableCellName}>Milk</Text>
-                      <Text style={styles.tableCell}>{orderDetails.drinks.milk}x</Text>
+                      <Text style={styles.tableCell}>{orderDetails.drinks?.milk || 0}x</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.milk * DRINK_PRICES.MILK).toFixed(2)}
+                        €{((orderDetails.drinks?.milk || 0) * DRINK_PRICES.MILK).toFixed(2)}
                       </Text>
                     </View>
                   )}
