@@ -124,7 +124,13 @@ async function handlePaidStatus(quoteId) {
           customSelection,
           varietySelection,
           addDrinks,
-          drinks,
+          drinks {
+            freshOrangeJuice,
+            verseJus,
+            sodas,
+            smoothies,
+            milk
+          },
           allergies
         },
         deliveryDetails {

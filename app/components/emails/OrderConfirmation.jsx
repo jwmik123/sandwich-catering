@@ -145,7 +145,7 @@ export default function OrderConfirmation({
             )}
 
             {/* Drinks section */}
-            {orderDetails.addDrinks && ((orderDetails.drinks?.freshOrangeJuice || orderDetails.drinks?.verseJus) > 0 || orderDetails.drinks?.sodas > 0 || orderDetails.drinks?.smoothies > 0) && (
+            {orderDetails.addDrinks && ((orderDetails.drinks?.freshOrangeJuice || orderDetails.drinks?.verseJus) > 0 || orderDetails.drinks?.sodas > 0 || orderDetails.drinks?.smoothies > 0 || orderDetails.drinks?.milk > 0) && (
               <>
                 <Text style={subtitle}>Drinks</Text>
                 <Text style={detailText}>

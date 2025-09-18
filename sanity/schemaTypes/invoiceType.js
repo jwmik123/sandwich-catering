@@ -147,6 +147,7 @@ export const invoice = defineType({
             { name: "freshOrangeJuice", title: "Fresh Orange Juice", type: "number" },
             { name: "sodas", title: "Sodas", type: "number" },
             { name: "smoothies", title: "Smoothies", type: "number" },
+            { name: "milk", title: "Milk", type: "number" },
           ],
         },
         {

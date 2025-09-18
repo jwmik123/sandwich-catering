@@ -67,7 +67,7 @@ export async function POST(request) {
         vegan: 0,
       },
       // Include drinks data
-      addDrinks: true,
+      addDrinks: orderDetails.addDrinks || false,
       drinks: orderDetails.drinks || null,
     };
     // --- End Data Transformation ---
@@ -182,6 +182,8 @@ export async function POST(request) {
               nonVega: 0,
               vegan: 0,
             },
+            addDrinks: orderDetails.addDrinks || false,
+            drinks: orderDetails.drinks || null,
             paymentMethod: "invoice", // Add payment method
           },
           deliveryDetails: {
@@ -201,6 +203,10 @@ export async function POST(request) {
         };
 
         console.log("Sending order confirmation email...");
+        console.log("Drinks data being sent to email:", {
+          addDrinks: emailData.orderDetails.addDrinks,
+          drinks: emailData.orderDetails.drinks
+        });
         const emailSent = await sendOrderConfirmation(emailData, false);
 
         if (emailSent) {
