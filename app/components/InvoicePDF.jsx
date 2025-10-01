@@ -509,15 +509,15 @@ const InvoicePDF = ({
                       </View>
                     )}
                   {/* Drinks for custom selection */}
-                  {orderDetails?.addDrinks && ((orderDetails.drinks?.freshOrangeJuice || orderDetails.drinks?.verseJus) > 0) && (
+                  {orderDetails?.addDrinks && ((orderDetails.drinks?.freshOrangeJuice || orderDetails.drinks?.verseJus || 0) > 0) && (
                     <View style={styles.tableRow}>
                       <Text style={styles.tableCellName}>Fresh Orange Juice</Text>
-                      <Text style={styles.tableCell}>{(orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus)}x</Text>
+                      <Text style={styles.tableCell}>{(orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus || 0)}x</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{((orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus) * DRINK_PRICES.FRESH_ORANGE_JUICE).toFixed(2)}
+                        €{((orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE).toFixed(2)}
                       </Text>
                     </View>
                   )}
@@ -626,15 +626,15 @@ const InvoicePDF = ({
                       </View>
                     )}
                   {/* Drinks for variety selection */}
-                  {orderDetails?.addDrinks && ((orderDetails.drinks?.freshOrangeJuice || orderDetails.drinks?.verseJus) > 0) && (
+                  {orderDetails?.addDrinks && ((orderDetails.drinks?.freshOrangeJuice || orderDetails.drinks?.verseJus || 0) > 0) && (
                     <View style={styles.tableRow}>
                       <Text style={styles.tableCellName}>Fresh Orange Juice</Text>
-                      <Text style={styles.tableCell}>{(orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus)}x</Text>
+                      <Text style={styles.tableCell}>{(orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus || 0)}x</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{((orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus) * DRINK_PRICES.FRESH_ORANGE_JUICE).toFixed(2)}
+                        €{((orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE).toFixed(2)}
                       </Text>
                     </View>
                   )}
