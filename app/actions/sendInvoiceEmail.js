@@ -55,6 +55,8 @@ export async function sendInvoiceEmail(quoteId) {
           nonVega: 0,
           vegan: 0,
         },
+        addDrinks: invoice.orderDetails.addDrinks || false,
+        drinks: invoice.orderDetails.drinks || null,
         paymentMethod: "invoice",
       },
       deliveryDetails: {
