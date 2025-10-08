@@ -9,6 +9,13 @@ export const product = defineType({
   fields: [
     orderRankField({ type: "product" }),
     defineField({
+      name: "active",
+      title: "Active",
+      type: "boolean",
+      description: "Uncheck to hide this product from the menu (keeps it in old orders)",
+      initialValue: true,
+    }),
+    defineField({
       name: "name",
       title: "Name",
       type: "string",
