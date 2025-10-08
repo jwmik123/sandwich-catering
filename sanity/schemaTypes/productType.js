@@ -32,17 +32,9 @@ export const product = defineType({
     defineField({
       name: "category",
       title: "Category",
-      type: "string",
-      options: {
-        list: [
-          { title: "Specials", value: "specials" },
-          { title: "Basics", value: "basics" },
-          { title: "Breakfast", value: "croissants" },
-          { title: "Zoetigheden", value: "zoetigheden" },
-          { title: "Dranken", value: "dranken" },
-          { title: "Fruit", value: "fruit" },
-        ],
-      },
+      type: "reference",
+      to: [{ type: "category" }],
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "dietaryType",

@@ -9,7 +9,12 @@ export const PRODUCT_QUERY = defineQuery(`*[_type == "product"] | order(orderRan
   allergyInfo,
   allergyNotes,
   price,
-  category,
+  category->{
+    _id,
+    name,
+    "slug": slug.current,
+    description
+  },
   dietaryType,
   orderRank,
   hasSauceOptions,
@@ -24,4 +29,12 @@ export const PRODUCT_QUERY = defineQuery(`*[_type == "product"] | order(orderRan
     price,
     isDefault
   }
+}`);
+
+export const CATEGORY_QUERY = defineQuery(`*[_type == "category"] | order(orderRank asc) {
+  _id,
+  name,
+  "slug": slug.current,
+  description,
+  orderRank
 }`);

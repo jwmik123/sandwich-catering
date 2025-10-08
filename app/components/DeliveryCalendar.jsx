@@ -11,13 +11,25 @@ import {
 
 const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
   const handleSelect = (selectedDate) => {
+    if (!selectedDate) return;
+
     setDate(selectedDate);
-    // Format the date as ISO string with timezone offset
-    const formattedDate = selectedDate.toISOString().split("T")[0];
-    // Add one day to compensate for timezone conversion
-    const nextDay = new Date(formattedDate);
-    nextDay.setDate(nextDay.getDate() + 1);
-    updateFormData("deliveryDate", nextDay.toISOString().split("T")[0]);
+
+    // Create a new date at noon local time to avoid timezone issues
+    const localDate = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate(),
+      12, 0, 0, 0
+    );
+
+    // Format as YYYY-MM-DD
+    const year = localDate.getFullYear();
+    const month = String(localDate.getMonth() + 1).padStart(2, '0');
+    const day = String(localDate.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+
+    updateFormData("deliveryDate", formattedDate);
     // Reset time when date changes
     updateFormData("deliveryTime", "");
   };

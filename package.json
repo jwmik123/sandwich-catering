@@ -49,6 +49,7 @@
   },
   "devDependencies": {
     "@types/xml2js": "^0.4.14",
+    "dotenv": "^17.2.3",
     "postcss": "^8",
     "tailwindcss": "^3.4.1"
   }

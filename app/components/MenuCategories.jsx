@@ -24,29 +24,22 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
     return <div className="p-4 text-red-600">Missing required props</div>;
   }
 
-  // Get categories in the specified order
+  // Get categories dynamically from products (already ordered by orderRank from query)
   const uniqueCategories = useMemo(() => {
-    const categoryNames = {
-      specials: "Specials",
-      basics: "Basics",
-      croissants: "Breakfast",
-      zoetigheden: "Sweets",
-      dranken: "Drinks",
-    };
+    const categoryMap = new Map();
 
-    // Get all categories that exist in the data
-    const existingCategories = new Set(
-      sandwichOptions.map((item) => item.category)
-    );
+    sandwichOptions.forEach((item) => {
+      if (item.category && !categoryMap.has(item.category._id)) {
+        categoryMap.set(item.category._id, {
+          id: item.category._id,
+          name: item.category.name,
+          value: item.category.slug,
+          slug: item.category.slug,
+        });
+      }
+    });
 
-    // Filter categoryNames to only include categories that exist in the data
-    return Object.entries(categoryNames)
-      .filter(([key]) => existingCategories.has(key))
-      .map(([key, name]) => ({
-        id: key,
-        name: name,
-        value: key,
-      }));
+    return Array.from(categoryMap.values());
   }, [sandwichOptions]);
 
   // Detect reduced motion preference
@@ -253,7 +246,7 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
             {/* Category items */}
             <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
               {sandwichOptions
-                .filter((item) => item.category === category.value)
+                .filter((item) => item.category?.slug === category.value)
                 .map((item) => (
                   <div key={item._id} className="relative">
                     {/* this is the card for each sandwich */}

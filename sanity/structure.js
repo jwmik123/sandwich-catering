@@ -5,11 +5,27 @@ export const structure = (S, context) =>
   S.list()
     .title('Content')
     .items([
-      // Custom Products list with category grouping and drag-and-drop
+      // Categories management
+      orderableDocumentListDeskItem({
+        type: 'category',
+        title: 'Categories',
+        id: 'orderable-categories',
+        S,
+        context,
+      }),
+
+      S.divider(),
+
+      // Dynamic Products list by category
       S.listItem()
         .title('Products')
-        .child(
-          S.list()
+        .child(async () => {
+          // Fetch categories to build dynamic structure
+          const categories = await context.getClient({ apiVersion: '2024-01-01' }).fetch(
+            `*[_type == "category"] | order(orderRank asc) { _id, name, "slug": slug.current }`
+          )
+
+          return S.list()
             .title('Products by Category')
             .items([
               // All products with drag-and-drop
@@ -23,72 +39,25 @@ export const structure = (S, context) =>
 
               S.divider(),
 
-              // Specials with drag-and-drop
-              orderableDocumentListDeskItem({
-                type: 'product',
-                title: 'Specials',
-                id: 'orderable-products-specials',
-                filter: 'category == "specials"',
-                S,
-                context,
-              }),
-
-              // Basics with drag-and-drop
-              orderableDocumentListDeskItem({
-                type: 'product',
-                title: 'Basics',
-                id: 'orderable-products-basics',
-                filter: 'category == "basics"',
-                S,
-                context,
-              }),
-
-              // Breakfast with drag-and-drop
-              orderableDocumentListDeskItem({
-                type: 'product',
-                title: 'Breakfast',
-                id: 'orderable-products-breakfast',
-                filter: 'category == "croissants"',
-                S,
-                context,
-              }),
-
-              // Zoetigheden with drag-and-drop
-              orderableDocumentListDeskItem({
-                type: 'product',
-                title: 'Zoetigheden',
-                id: 'orderable-products-zoetigheden',
-                filter: 'category == "zoetigheden"',
-                S,
-                context,
-              }),
-
-              // Dranken with drag-and-drop
-              orderableDocumentListDeskItem({
-                type: 'product',
-                title: 'Dranken',
-                id: 'orderable-products-dranken',
-                filter: 'category == "dranken"',
-                S,
-                context,
-              }),
-
-              // Fruit with drag-and-drop
-              orderableDocumentListDeskItem({
-                type: 'product',
-                title: 'Fruit',
-                id: 'orderable-products-fruit',
-                filter: 'category == "fruit"',
-                S,
-                context,
-              }),
+              // Dynamically create category items
+              ...categories.map((cat) =>
+                orderableDocumentListDeskItem({
+                  type: 'product',
+                  title: cat.name,
+                  id: `orderable-products-${cat.slug}`,
+                  filter: `category._ref == $categoryId`,
+                  params: { categoryId: cat._id },
+                  S,
+                  context,
+                })
+              ),
             ])
-        ),
+        }),
 
       S.divider(),
 
       // All other document types
       ...S.documentTypeListItems().filter(
-        (listItem) => !['product'].includes(listItem.getId())
+        (listItem) => !['product', 'category'].includes(listItem.getId())
       ),
     ])
