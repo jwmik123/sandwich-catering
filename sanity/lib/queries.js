@@ -1,6 +1,6 @@
 import { defineQuery } from "next-sanity";
 
-export const PRODUCT_QUERY = defineQuery(`*[_type == "product"] {
+export const PRODUCT_QUERY = defineQuery(`*[_type == "product"] | order(orderRank asc) {
   _id,
   _createdAt,
   name,
@@ -11,6 +11,7 @@ export const PRODUCT_QUERY = defineQuery(`*[_type == "product"] {
   price,
   category,
   dietaryType,
+  orderRank,
   hasSauceOptions,
   sauceOptions[] {
     name,
