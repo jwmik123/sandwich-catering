@@ -23,7 +23,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { breadTypes, sauces, toppings } from "@/app/assets/constants";
-import { isDrink } from "@/lib/product-helpers";
+import { shouldHaveBreadType } from "@/lib/product-helpers";
 import { Info, X } from "lucide-react";
 import { urlFor } from "@/sanity/lib/image";
 
@@ -56,12 +56,12 @@ const SelectionModal = ({
     onAdd({
       sandwichId: sandwich.id,
       quantity: parseInt(quantity),
-      breadType: isDrink(sandwich) ? null : breadType,
+      breadType: shouldHaveBreadType(sandwich) ? breadType : null,
       sauce,
       toppings: selectedToppings,
       subTotal: calculateSubTotal(
         sandwich.price,
-        isDrink(sandwich) ? null : breadType,
+        shouldHaveBreadType(sandwich) ? breadType : null,
         parseInt(quantity),
         sauce,
         selectedToppings
@@ -108,7 +108,7 @@ const SelectionModal = ({
 
   const currentSubTotal = calculateSubTotal(
     sandwich?.price || 0,
-    isDrink(sandwich) ? null : breadType,
+    shouldHaveBreadType(sandwich) ? breadType : null,
     parseInt(quantity),
     sauce,
     selectedToppings
@@ -213,8 +213,8 @@ const SelectionModal = ({
               </Select>
             </div>
 
-            {/* Only show bread type selection for non-drinks */}
-            {!isDrink(sandwich) && (
+            {/* Only show bread type selection for sandwiches (specials/basics) */}
+            {shouldHaveBreadType(sandwich) && (
               <div className="space-y-2">
                 <Label>Bread type</Label>
                 <Select value={breadType} onValueChange={setBreadType}>
@@ -298,7 +298,7 @@ const SelectionModal = ({
                   <span>Base price:</span>
                   <span>€{sandwich?.price?.toFixed(2) || "0.00"}</span>
                 </div>
-                {!isDrink(sandwich) &&
+                {shouldHaveBreadType(sandwich) &&
                   breadTypes.find((b) => b.id === breadType)?.surcharge > 0 && (
                     <div className="flex justify-between text-sm text-muted-foreground">
                       <span>Bread surcharge:</span>
