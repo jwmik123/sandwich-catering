@@ -222,7 +222,6 @@ export const invoice = defineType({
       title: "Invoice Email Sent",
       type: "boolean",
       initialValue: false,
-      readOnly: true,
       fieldset: "email",
     }),
     defineField({
