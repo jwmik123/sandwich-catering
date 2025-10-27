@@ -210,8 +210,8 @@ const InvoicePDF = ({
       subtotalAmount += drinksTotal;
     }
 
-    // Delivery cost (VAT-exclusive) - try to get from amount object first, fallback to orderDetails
-    const deliveryCost = amount?.delivery || orderDetails.deliveryCost || deliveryDetails?.deliveryCost || 0;
+    // Delivery cost (VAT-exclusive) - from amount object or deliveryDetails
+    const deliveryCost = amount?.delivery || deliveryDetails?.deliveryCost || 0;
     
     // Calculate VAT and total using PaymentStep pattern
     const vatAmount = Math.ceil((subtotalAmount + deliveryCost) * 0.09 * 100) / 100;

@@ -29,9 +29,10 @@ export const invoice = defineType({
       title: "Amount",
       type: "object",
       fields: [
-        defineField({ name: "total", type: "number" }),
-        defineField({ name: "subtotal", type: "number" }),
-        defineField({ name: "vat", type: "number" }),
+        defineField({ name: "total", type: "number", title: "Total" }),
+        defineField({ name: "subtotal", type: "number", title: "Subtotal" }),
+        defineField({ name: "delivery", type: "number", title: "Delivery Cost" }),
+        defineField({ name: "vat", type: "number", title: "VAT" }),
       ],
     }),
     defineField({
@@ -124,7 +125,6 @@ export const invoice = defineType({
         { name: "phoneNumber", title: "Phone Number", type: "string" },
         { name: "deliveryDate", title: "Delivery Date", type: "string" },
         { name: "deliveryTime", title: "Delivery Time", type: "string" },
-        { name: "deliveryCost", title: "Delivery Cost", type: "number" },
         { name: "totalSandwiches", title: "Total Sandwiches", type: "number" },
         { name: "selectionType", title: "Selection Type", type: "string" },
         { name: "allergies", title: "Allergies", type: "text" },
