@@ -157,7 +157,8 @@ async function handlePaidStatus(quoteId) {
         },
         companyDetails {
           companyName,
-          companyVAT
+          companyVAT,
+          referenceNumber
         },
         status,
         paymentStatus,
@@ -209,13 +210,54 @@ async function handlePaidStatus(quoteId) {
       total: totalAmount,
     };
 
-    // Create an invoice document in Sanity for consistency
+    // Create an invoice document in Sanity for consistency (matching create-invoice structure)
     try {
       const deliveryDate = new Date(
         order.deliveryDetails.deliveryDate || Date.now()
       );
       const dueDate = new Date(deliveryDate);
       dueDate.setDate(deliveryDate.getDate() + 14);
+
+      // Transform orderDetails to structured format (same as create-invoice route)
+      const structuredOrderDetails = {
+        totalSandwiches: order.orderDetails?.totalSandwiches || 0,
+        selectionType: order.orderDetails?.selectionType || "variety",
+        allergies: order.orderDetails?.allergies || "",
+        // Convert customSelection from Sanity array format to structured array
+        customSelection:
+          order.orderDetails?.selectionType === "custom" && Array.isArray(order.orderDetails?.customSelection)
+            ? order.orderDetails.customSelection.map((item) => ({
+                _key: item.sandwichId?._ref || Math.random().toString(),
+                sandwichId: item.sandwichId,
+                selections: (item.selections || []).map((selection) => ({
+                  ...selection,
+                  _key: `${item.sandwichId?._ref}-${selection.breadType}-${Math.random()}`,
+                })),
+              }))
+            : [],
+        // Ensure varietySelection is always an object
+        varietySelection: order.orderDetails?.varietySelection || {
+          nonVega: 0,
+          vega: 0,
+          vegan: 0,
+        },
+        // Include drinks data
+        addDrinks: order.orderDetails?.addDrinks || false,
+        drinks: order.orderDetails?.drinks || null,
+      };
+
+      // Ensure we have valid company details (matching create-invoice structure)
+      const companyDetails = {
+        name: order.companyDetails?.companyName || "Unknown Company",
+        referenceNumber: order.companyDetails?.referenceNumber || null,
+        address: {
+          street: order.deliveryDetails?.address?.street || "",
+          houseNumber: order.deliveryDetails?.address?.houseNumber || "",
+          houseNumberAddition: order.deliveryDetails?.address?.houseNumberAddition || "",
+          postalCode: order.deliveryDetails?.address?.postalCode || "",
+          city: order.deliveryDetails?.address?.city || "",
+        },
+      };
 
       const invoicePayload = {
         _type: "invoice",
@@ -224,8 +266,8 @@ async function handlePaidStatus(quoteId) {
         amount: amountData,
         status: "paid", // From Mollie
         dueDate: dueDate.toISOString(),
-        companyDetails: order.companyDetails,
-        orderDetails: order.orderDetails,
+        companyDetails,
+        orderDetails: structuredOrderDetails,
         createdAt: new Date().toISOString(),
       };
 
@@ -270,10 +312,10 @@ async function handlePaidStatus(quoteId) {
         totalSandwiches: order.orderDetails?.totalSandwiches || 0,
         selectionType: order.orderDetails?.selectionType || "variety",
         allergies: order.orderDetails?.allergies || "",
-        deliveryCost: order.deliveryDetails?.deliveryCost || 0,
         addDrinks: order.orderDetails?.addDrinks || false,
         drinks: order.orderDetails?.drinks || null,
         varietySelection: order.orderDetails?.varietySelection || {},
+        paymentMethod: "online", // Mollie payments are online payments
 
         // Convert customSelection from Sanity array format to object format
         customSelection: {},

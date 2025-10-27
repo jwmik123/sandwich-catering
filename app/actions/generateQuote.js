@@ -72,6 +72,7 @@ export async function generateQuote(formData, sandwichOptions) {
       deliveryDetails: {
         deliveryDate: formData.deliveryDate,
         deliveryTime: formData.deliveryTime,
+        deliveryCost: formData.deliveryCost || 0,
         address: {
           street: formData.street,
           houseNumber: formData.houseNumber,

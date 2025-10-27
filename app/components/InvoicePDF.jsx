@@ -210,8 +210,8 @@ const InvoicePDF = ({
       subtotalAmount += drinksTotal;
     }
 
-    // Delivery cost (VAT-exclusive)
-    const deliveryCost = orderDetails.deliveryCost || 0;
+    // Delivery cost (VAT-exclusive) - try to get from amount object first, fallback to orderDetails
+    const deliveryCost = amount?.delivery || orderDetails.deliveryCost || deliveryDetails?.deliveryCost || 0;
     
     // Calculate VAT and total using PaymentStep pattern
     const vatAmount = Math.ceil((subtotalAmount + deliveryCost) * 0.09 * 100) / 100;
@@ -495,19 +495,6 @@ const InvoicePDF = ({
               {selectionType === "custom" ? (
                 <>
                   {renderCustomSelections()}
-                  {orderDetails?.deliveryCost &&
-                    orderDetails.deliveryCost > 0 && (
-                      <View style={styles.tableRow}>
-                        <Text style={styles.tableCellName}>Delivery</Text>
-                        <Text style={styles.tableCell}>1x</Text>
-                        <Text style={styles.tableCell}>-</Text>
-                        <Text style={styles.tableCell}>-</Text>
-                        <Text style={styles.tableCell}>-</Text>
-                        <Text style={styles.tableCell}>
-                          €{(orderDetails.deliveryCost || 0).toFixed(2)}
-                        </Text>
-                      </View>
-                    )}
                   {/* Drinks for custom selection */}
                   {orderDetails?.addDrinks && ((orderDetails.drinks?.freshOrangeJuice || orderDetails.drinks?.verseJus || 0) > 0) && (
                     <View style={styles.tableRow}>
@@ -612,19 +599,6 @@ const InvoicePDF = ({
                       </Text>
                     </View>
                   )}
-                  {orderDetails?.deliveryCost &&
-                    orderDetails.deliveryCost > 0 && (
-                      <View style={styles.tableRow}>
-                        <Text style={styles.tableCellName}>Delivery</Text>
-                        <Text style={styles.tableCell}>1x</Text>
-                        <Text style={styles.tableCell}>-</Text>
-                        <Text style={styles.tableCell}>-</Text>
-                        <Text style={styles.tableCell}>-</Text>
-                        <Text style={styles.tableCell}>
-                          €{(orderDetails.deliveryCost || 0).toFixed(2)}
-                        </Text>
-                      </View>
-                    )}
                   {/* Drinks for variety selection */}
                   {orderDetails?.addDrinks && ((orderDetails.drinks?.freshOrangeJuice || orderDetails.drinks?.verseJus || 0) > 0) && (
                     <View style={styles.tableRow}>

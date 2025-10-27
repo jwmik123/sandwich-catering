@@ -46,6 +46,16 @@ export async function POST(request) {
     // Transform the incoming orderDetails to a structured format for Sanity
     const structuredOrderDetails = {
       ...orderDetails,
+      // Ensure critical customer contact fields are included
+      name: orderDetails.name || orderDetails.fullName || "",
+      email: orderDetails.email || "",
+      phoneNumber: orderDetails.phoneNumber || "",
+      // Ensure delivery address fields are included (they might be at the top level of orderDetails)
+      street: orderDetails.street || "",
+      houseNumber: orderDetails.houseNumber || "",
+      houseNumberAddition: orderDetails.houseNumberAddition || "",
+      postalCode: orderDetails.postalCode || "",
+      city: orderDetails.city || "",
       // Convert customSelection from an object to a structured array
       customSelection:
         orderDetails.selectionType === "custom"
