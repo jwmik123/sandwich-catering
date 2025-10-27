@@ -220,6 +220,19 @@ async function handlePaidStatus(quoteId) {
 
       // Transform orderDetails to structured format (same as create-invoice route)
       const structuredOrderDetails = {
+        // Customer info (needed for cron job)
+        name: order.name || "",
+        email: order.email || "",
+        phoneNumber: order.phoneNumber || "",
+        // Delivery info (needed for cron job)
+        deliveryDate: order.deliveryDetails?.deliveryDate || "",
+        deliveryTime: order.deliveryDetails?.deliveryTime || "12:00",
+        street: order.deliveryDetails?.address?.street || "",
+        houseNumber: order.deliveryDetails?.address?.houseNumber || "",
+        houseNumberAddition: order.deliveryDetails?.address?.houseNumberAddition || "",
+        postalCode: order.deliveryDetails?.address?.postalCode || "",
+        city: order.deliveryDetails?.address?.city || "",
+        // Order info
         totalSandwiches: order.orderDetails?.totalSandwiches || 0,
         selectionType: order.orderDetails?.selectionType || "variety",
         allergies: order.orderDetails?.allergies || "",

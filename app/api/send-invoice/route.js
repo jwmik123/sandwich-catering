@@ -1,23 +1,54 @@
-"use server";
-
+// app/api/send-invoice/route.js
 import { client } from "@/sanity/lib/client";
+import { NextResponse } from "next/server";
 import { sendOrderConfirmation } from "@/lib/email";
 import { PRODUCT_QUERY } from "@/sanity/lib/queries";
 import { createYukiInvoice } from "@/lib/yuki-api";
 
-export async function sendInvoiceEmail(quoteId) {
+export async function POST(request) {
+  console.log("===== SEND INVOICE API CALLED =====");
+
   try {
-    // Fetch the invoice from Sanity
+    const { invoiceId } = await request.json();
+
+    if (!invoiceId) {
+      console.error("Missing invoiceId in request");
+      return NextResponse.json(
+        { success: false, error: "Missing invoiceId" },
+        { status: 400 }
+      );
+    }
+
+    console.log("Fetching invoice with ID:", invoiceId);
+
+    // Fetch the invoice from Sanity (matching cron job query)
     const invoice = await client.fetch(
-      `*[_type == "invoice" && quoteId == $quoteId][0]`,
-      { quoteId }
+      `*[_type == "invoice" && _id == $invoiceId][0]`,
+      { invoiceId }
     );
 
     if (!invoice) {
-      console.error("Invoice not found for quoteId:", quoteId);
-      return { success: false, error: "Invoice not found" };
+      console.error(`Invoice with ID ${invoiceId} not found`);
+      return NextResponse.json(
+        { success: false, error: "Invoice not found" },
+        { status: 404 }
+      );
     }
 
+    console.log("Invoice found:", invoice.quoteId);
+
+    // Check if email exists in orderDetails
+    if (!invoice.orderDetails?.email) {
+      console.error(`No email found in invoice orderDetails for ${invoice.quoteId}`);
+      return NextResponse.json(
+        { success: false, error: "No email address found for this invoice" },
+        { status: 404 }
+      );
+    }
+
+    console.log("Email found:", invoice.orderDetails.email);
+
+    // Convert customSelection from Sanity array format to object format (matching cron job logic)
     if (
       invoice.orderDetails &&
       invoice.orderDetails.selectionType === "custom" &&
@@ -37,12 +68,13 @@ export async function sendInvoiceEmail(quoteId) {
       invoice.orderDetails.customSelection = customSelectionObject;
     }
 
-    // Fetch sandwich options for the email
+    // Fetch sandwich options for the email (matching cron job)
     const sandwichOptions = await client.fetch(PRODUCT_QUERY);
+    console.log(`Retrieved ${sandwichOptions.length} sandwich options`);
 
-    // Prepare email data
+    // Prepare email data (matching cron job format exactly)
     const emailData = {
-      quoteId,
+      quoteId: invoice.quoteId,
       email: invoice.orderDetails.email,
       fullName: invoice.orderDetails.name,
       orderDetails: {
@@ -75,40 +107,57 @@ export async function sendInvoiceEmail(quoteId) {
       sandwichOptions,
     };
 
-    // Send the invoice email
+    console.log("Sending invoice email to:", invoice.orderDetails.email);
+
+    // Send the invoice email (matching cron job)
     const emailSent = await sendOrderConfirmation(emailData, true);
 
     if (emailSent) {
-      // If email is sent successfully, also create the Yuki invoice
+      console.log("Invoice email sent successfully");
+
+      // If email is sent successfully, also create the Yuki invoice (matching cron job)
       if (process.env.YUKI_ENABLED === "true") {
         console.log(
-          `Creating Yuki invoice on delivery date for quote: ${quoteId}`
+          `Creating Yuki invoice for quote: ${invoice.quoteId}`
         );
         // We don't need to await this, it can run in the background
-        createYukiInvoice(quoteId, invoice._id).catch((error) => {
+        createYukiInvoice(invoice.quoteId, invoice._id).catch((error) => {
           console.error(
-            `Background Yuki invoice creation failed for ${quoteId}:`,
+            `Background Yuki invoice creation failed for ${invoice.quoteId}:`,
             error
           );
         });
       } else {
         console.log(
-          "Yuki integration disabled, skipping invoice creation for cron job."
+          "Yuki integration disabled, skipping invoice creation."
         );
       }
 
-      // Update the invoice status to indicate email was sent
+      // Update the invoice status to indicate email was sent (matching cron job)
       await client
         .patch(invoice._id)
         .set({ emailSent: true, emailSentAt: new Date().toISOString() })
         .commit();
 
-      return { success: true };
+      console.log("===== SEND INVOICE API COMPLETED SUCCESSFULLY =====");
+      return NextResponse.json({
+        success: true,
+        message: `Invoice sent to ${invoice.orderDetails.email}`,
+      });
     } else {
-      return { success: false, error: "Failed to send invoice email" };
+      console.error("Failed to send invoice email");
+      return NextResponse.json(
+        { success: false, error: "Failed to send invoice email" },
+        { status: 500 }
+      );
     }
   } catch (error) {
-    console.error("Error sending invoice email:", error);
-    return { success: false, error: error.message };
+    console.error("Send invoice failed:", error);
+    console.error("Error stack:", error.stack);
+    console.log("===== SEND INVOICE API FAILED =====");
+    return NextResponse.json(
+      { success: false, error: error.message || "Unknown error occurred" },
+      { status: 500 }
+    );
   }
 }

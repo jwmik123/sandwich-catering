@@ -166,6 +166,10 @@ const InvoicePDF = ({
   // Function to get sandwich name from ID
   const getSandwichName = (sandwichId) => {
     const sandwich = sandwichOptions.find((s) => s._id === sandwichId);
+    if (!sandwich) {
+      console.log(`Could not find sandwich with ID: ${sandwichId}`);
+      console.log(`Available sandwich IDs:`, sandwichOptions.map(s => s._id));
+    }
     return sandwich ? sandwich.name : "Unknown Sandwich";
   };
 
@@ -232,7 +236,23 @@ const InvoicePDF = ({
 
   // Calculate due date as 14 days after delivery date
   const deliveryDate = deliveryDetails?.deliveryDate
-    ? new Date(deliveryDetails.deliveryDate + "T00:00:00+02:00")
+    ? (() => {
+        const dateStr = deliveryDetails.deliveryDate;
+        // Check if date is in DD-MM-YYYY format (day first)
+        if (dateStr.match(/^\d{2}-\d{2}-\d{4}$/)) {
+          const [day, month, year] = dateStr.split('-');
+          return new Date(`${year}-${month}-${day}T00:00:00+02:00`);
+        }
+        // Check if date is in YYYY-MM-DD format (ISO format)
+        else if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          return new Date(dateStr + "T00:00:00+02:00");
+        }
+        // Try to parse as-is (fallback)
+        else {
+          const parsed = new Date(dateStr);
+          return isNaN(parsed.getTime()) ? new Date() : parsed;
+        }
+      })()
     : new Date();
 
   // If we have a delivery date, calculate due date as 14 days after delivery date
