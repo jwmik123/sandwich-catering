@@ -133,9 +133,10 @@ export const invoice = defineType({
           title: "Variety Selection",
           type: "object",
           fields: [
-            { name: "nonVega", type: "number" },
-            { name: "vega", type: "number" },
-            { name: "vegan", type: "number" },
+            { name: "nonVega", type: "number", title: "Non-Vegetarian" },
+            { name: "vega", type: "number", title: "Vegetarian" },
+            { name: "vegan", type: "number", title: "Vegan" },
+            { name: "glutenFree", type: "number", title: "Gluten Free" },
           ],
         },
         { name: "addDrinks", title: "Add Drinks", type: "boolean" },
@@ -145,6 +146,7 @@ export const invoice = defineType({
           type: "object",
           fields: [
             { name: "freshOrangeJuice", title: "Fresh Orange Juice", type: "number" },
+            { name: "verseJus", title: "Verse Jus", type: "number" },
             { name: "sodas", title: "Sodas", type: "number" },
             { name: "smoothies", title: "Smoothies", type: "number" },
             { name: "milk", title: "Milk", type: "number" },
@@ -170,10 +172,11 @@ export const invoice = defineType({
                     {
                       type: "object",
                       fields: [
-                        { name: "breadType", type: "string" },
-                        { name: "sauce", type: "string" },
-                        { name: "quantity", type: "number" },
-                        { name: "subTotal", type: "number" },
+                        { name: "breadType", type: "string", title: "Bread Type" },
+                        { name: "sauce", type: "string", title: "Sauce" },
+                        { name: "toppings", type: "array", title: "Toppings", of: [{ type: "string" }] },
+                        { name: "quantity", type: "number", title: "Quantity" },
+                        { name: "subTotal", type: "number", title: "Subtotal" },
                       ],
                     },
                   ],
