@@ -8,7 +8,7 @@ import {
   Section,
 } from "@react-email/components";
 import { isDrink } from "@/lib/product-helpers";
-import { DRINK_PRICES, GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
+import { GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
 
 export default function OrderConfirmation({
   quoteId,
@@ -21,6 +21,8 @@ export default function OrderConfirmation({
   referenceNumber = null,
   amount = null, // New: prefer amount object if provided
 }) {
+  // Get drinks with details from orderDetails
+  const drinksWithDetails = orderDetails?.drinksWithDetails || [];
   // Helper function to check if bread type should be shown
   const shouldShowBreadType = (sandwichId, breadType) => {
     const sandwich = sandwichOptions.find((s) => s._id === sandwichId);
@@ -54,12 +56,8 @@ export default function OrderConfirmation({
     }
 
     // Add drinks pricing if drinks are selected
-    if (orderDetails.addDrinks && orderDetails.drinks) {
-      const drinksTotal =
-        ((orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus) || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
-        (orderDetails.drinks.sodas || 0) * DRINK_PRICES.SODAS +
-        (orderDetails.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES +
-        (orderDetails.drinks.milk || 0) * DRINK_PRICES.MILK;
+    if (orderDetails.addDrinks && drinksWithDetails.length > 0) {
+      const drinksTotal = drinksWithDetails.reduce((sum, drink) => sum + drink.total, 0);
       subtotal += drinksTotal;
     }
 
@@ -145,34 +143,16 @@ export default function OrderConfirmation({
             )}
 
             {/* Drinks section */}
-            {orderDetails.addDrinks && ((orderDetails.drinks?.freshOrangeJuice || orderDetails.drinks?.verseJus) > 0 || orderDetails.drinks?.sodas > 0 || orderDetails.drinks?.smoothies > 0 || orderDetails.drinks?.milk > 0) && (
+            {orderDetails.addDrinks && drinksWithDetails.length > 0 && (
               <>
                 <Text style={subtitle}>Drinks</Text>
                 <Text style={detailText}>
-                  {(orderDetails.drinks?.freshOrangeJuice || orderDetails.drinks?.verseJus) > 0 && (
-                    <>
-                      Fresh Orange Juice: {(orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus)}x - €{((orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus) * DRINK_PRICES.FRESH_ORANGE_JUICE).toFixed(2)}
+                  {drinksWithDetails.map((drink, index) => (
+                    <span key={index}>
+                      {drink.name}: {drink.quantity}x - €{drink.total.toFixed(2)}
                       <br />
-                    </>
-                  )}
-                  {orderDetails.drinks?.sodas > 0 && (
-                    <>
-                      Sodas: {orderDetails.drinks.sodas}x - €{(orderDetails.drinks.sodas * DRINK_PRICES.SODAS).toFixed(2)}
-                      <br />
-                    </>
-                  )}
-                  {orderDetails.drinks?.smoothies > 0 && (
-                    <>
-                      Smoothies: {orderDetails.drinks.smoothies}x - €{(orderDetails.drinks.smoothies * DRINK_PRICES.SMOOTHIES).toFixed(2)}
-                      <br />
-                    </>
-                  )}
-                  {orderDetails.drinks?.milk > 0 && (
-                    <>
-                      Milk: {orderDetails.drinks.milk}x - €{(orderDetails.drinks.milk * DRINK_PRICES.MILK).toFixed(2)}
-                      <br />
-                    </>
-                  )}
+                    </span>
+                  ))}
                 </Text>
               </>
             )}

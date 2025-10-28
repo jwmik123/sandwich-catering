@@ -7,7 +7,7 @@ import {
   Image,
 } from "@react-pdf/renderer";
 import { isDrink } from "@/lib/product-helpers";
-import { DRINK_PRICES, SANDWICH_PRICE_VARIETY, GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
+import { SANDWICH_PRICE_VARIETY, GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
 
 const styles = StyleSheet.create({
   page: {
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
+export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [], drinksWithDetails = [] }) => {
   // Safely get nested values
   const companyName =
     orderData.companyDetails?.name ||
@@ -443,46 +443,16 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                 <Text style={styles.tableHeaderCell}>Total</Text>
               </View>
               <View style={styles.tableBody}>
-                {orderData.drinks?.freshOrangeJuice > 0 && (
-                  <View style={styles.tableRow}>
-                    <Text style={styles.tableCellName}>Fresh Orange Juice</Text>
-                    <Text style={styles.tableCell}>{orderData.drinks.freshOrangeJuice}x</Text>
-                    <Text style={styles.tableCell}>€{DRINK_PRICES.FRESH_ORANGE_JUICE}</Text>
+                {drinksWithDetails.map((drink, index) => (
+                  <View key={index} style={styles.tableRow}>
+                    <Text style={styles.tableCellName}>{drink.name}</Text>
+                    <Text style={styles.tableCell}>{drink.quantity}x</Text>
+                    <Text style={styles.tableCell}>€{drink.price.toFixed(2)}</Text>
                     <Text style={styles.tableCell}>
-                      €{(orderData.drinks.freshOrangeJuice * DRINK_PRICES.FRESH_ORANGE_JUICE).toFixed(2)}
+                      €{drink.total.toFixed(2)}
                     </Text>
                   </View>
-                )}
-                {orderData.drinks?.sodas > 0 && (
-                  <View style={styles.tableRow}>
-                    <Text style={styles.tableCellName}>Sodas</Text>
-                    <Text style={styles.tableCell}>{orderData.drinks.sodas}x</Text>
-                    <Text style={styles.tableCell}>€{DRINK_PRICES.SODAS}</Text>
-                    <Text style={styles.tableCell}>
-                      €{(orderData.drinks.sodas * DRINK_PRICES.SODAS).toFixed(2)}
-                    </Text>
-                  </View>
-                )}
-                {orderData.drinks?.smoothies > 0 && (
-                  <View style={styles.tableRow}>
-                    <Text style={styles.tableCellName}>Smoothies</Text>
-                    <Text style={styles.tableCell}>{orderData.drinks.smoothies}x</Text>
-                    <Text style={styles.tableCell}>€{DRINK_PRICES.SMOOTHIES}</Text>
-                    <Text style={styles.tableCell}>
-                      €{(orderData.drinks.smoothies * DRINK_PRICES.SMOOTHIES).toFixed(2)}
-                    </Text>
-                  </View>
-                )}
-                {orderData.drinks?.milk > 0 && (
-                  <View style={styles.tableRow}>
-                    <Text style={styles.tableCellName}>Milk</Text>
-                    <Text style={styles.tableCell}>{orderData.drinks?.milk || 0}x</Text>
-                    <Text style={styles.tableCell}>€{DRINK_PRICES.MILK}</Text>
-                    <Text style={styles.tableCell}>
-                      €{((orderData.drinks?.milk || 0) * DRINK_PRICES.MILK).toFixed(2)}
-                    </Text>
-                  </View>
-                )}
+                ))}
               </View>
             </View>
           </View>
@@ -501,19 +471,19 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Subtotal:</Text>
             <Text style={styles.totalValue}>
-              €{calculateSubtotal(orderData).toFixed(2)}
+              €{calculateSubtotal(orderData, drinksWithDetails).toFixed(2)}
             </Text>
           </View>
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>VAT (9%):</Text>
             <Text style={styles.totalValue}>
-              €{(calculateSubtotal(orderData) * 0.09).toFixed(2)}
+              €{(calculateSubtotal(orderData, drinksWithDetails) * 0.09).toFixed(2)}
             </Text>
           </View>
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Total:</Text>
             <Text style={[styles.totalValue, { fontWeight: 600 }]}>
-              €{(calculateSubtotal(orderData) * 1.09).toFixed(2)}
+              €{(calculateSubtotal(orderData, drinksWithDetails) * 1.09).toFixed(2)}
             </Text>
           </View>
         </View>
@@ -530,9 +500,9 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
 };
 
 // Utility function to calculate subtotal
-const calculateSubtotal = (orderData) => {
+const calculateSubtotal = (orderData, drinksWithDetails = []) => {
   let subtotal = 0;
-  
+
   if (orderData.selectionType === "custom") {
     subtotal = Object.values(orderData.customSelection || {})
       .flat()
@@ -551,17 +521,13 @@ const calculateSubtotal = (orderData) => {
       subtotal += orderData.varietySelection.glutenFree * (SANDWICH_PRICE_VARIETY + GLUTEN_FREE_SURCHARGE);
     }
   }
-  
-  // Add drinks pricing if drinks are selected
-  if (orderData.addDrinks && orderData.drinks) {
-    const drinksTotal =
-      (orderData.drinks.freshOrangeJuice || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
-      (orderData.drinks.sodas || 0) * DRINK_PRICES.SODAS +
-      (orderData.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES +
-      (orderData.drinks.milk || 0) * DRINK_PRICES.MILK;
+
+  // Add drinks pricing from drinksWithDetails
+  if (orderData.addDrinks && drinksWithDetails.length > 0) {
+    const drinksTotal = drinksWithDetails.reduce((sum, drink) => sum + drink.total, 0);
     subtotal += drinksTotal;
   }
-  
+
   return subtotal;
 };
 

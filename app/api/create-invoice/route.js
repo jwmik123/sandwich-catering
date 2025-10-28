@@ -2,8 +2,9 @@
 import { client } from "@/sanity/lib/client";
 import { NextResponse } from "next/server";
 import { sendOrderConfirmation } from "@/lib/email";
-import { PRODUCT_QUERY } from "@/sanity/lib/queries";
+import { PRODUCT_QUERY, DRINK_QUERY } from "@/sanity/lib/queries";
 import { createYukiInvoice } from "@/lib/yuki-api";
+import { getDrinksWithDetails } from "@/lib/product-helpers";
 
 export async function POST(request) {
   console.log("===== CREATE INVOICE API CALLED =====");
@@ -43,6 +44,19 @@ export async function POST(request) {
     }
 
     // --- Data Transformation ---
+    // Fetch drinks from Sanity to create drinksWithDetails
+    let drinksWithDetails = [];
+    if (orderDetails.drinks && Object.keys(orderDetails.drinks).length > 0) {
+      try {
+        console.log("Fetching drinks from Sanity...");
+        const drinks = await client.fetch(DRINK_QUERY);
+        drinksWithDetails = getDrinksWithDetails(orderDetails.drinks, drinks);
+        console.log(`Created drinksWithDetails with ${drinksWithDetails.length} drinks`);
+      } catch (drinkError) {
+        console.error("Error fetching drinks:", drinkError);
+      }
+    }
+
     // Transform the incoming orderDetails to a structured format for Sanity
     const structuredOrderDetails = {
       ...orderDetails,
@@ -77,8 +91,9 @@ export async function POST(request) {
         vegan: 0,
       },
       // Include drinks data
-      addDrinks: orderDetails.addDrinks || false,
+      addDrinks: drinksWithDetails.length > 0, // Set to true if there are drinks
       drinks: orderDetails.drinks || null,
+      drinksWithDetails: drinksWithDetails, // Add the detailed drinks info
     };
     // --- End Data Transformation ---
 
@@ -192,8 +207,9 @@ export async function POST(request) {
               nonVega: 0,
               vegan: 0,
             },
-            addDrinks: orderDetails.addDrinks || false,
-            drinks: orderDetails.drinks || null,
+            addDrinks: structuredOrderDetails.addDrinks, // Use structured data with correct flag
+            drinks: structuredOrderDetails.drinks,
+            drinksWithDetails: structuredOrderDetails.drinksWithDetails, // Include drinks details
             paymentMethod: "invoice", // Add payment method
           },
           deliveryDetails: {
@@ -215,7 +231,8 @@ export async function POST(request) {
         console.log("Sending order confirmation email...");
         console.log("Drinks data being sent to email:", {
           addDrinks: emailData.orderDetails.addDrinks,
-          drinks: emailData.orderDetails.drinks
+          drinks: emailData.orderDetails.drinks,
+          drinksWithDetails: emailData.orderDetails.drinksWithDetails
         });
         const emailSent = await sendOrderConfirmation(emailData, false);
 

@@ -154,12 +154,35 @@ export const quote = defineType({
         }),
         defineField({
           name: "drinks",
-          title: "Drinks Selection",
+          title: "Drinks Selection (Raw Data)",
           type: "object",
+          description: "Raw drink quantity data. For display, use drinksWithDetails below.",
           fields: [
+            // Legacy field names for backward compatibility with old orders
             defineField({ name: "freshOrangeJuice", title: "Fresh Orange Juice", type: "number" }),
+            defineField({ name: "verseJus", title: "Verse Jus", type: "number" }),
             defineField({ name: "sodas", title: "Sodas", type: "number" }),
             defineField({ name: "smoothies", title: "Smoothies", type: "number" }),
+            defineField({ name: "milk", title: "Milk", type: "number" }),
+          ],
+          hidden: ({ document }) => !document?.orderDetails?.addDrinks,
+        }),
+        defineField({
+          name: "drinksWithDetails",
+          title: "Drinks with Details",
+          type: "array",
+          description: "Drinks with names, quantities, and prices for display purposes",
+          of: [
+            {
+              type: "object",
+              fields: [
+                defineField({ name: "name", title: "Drink Name", type: "string" }),
+                defineField({ name: "slug", title: "Slug", type: "string" }),
+                defineField({ name: "quantity", title: "Quantity", type: "number" }),
+                defineField({ name: "price", title: "Price (per item)", type: "number" }),
+                defineField({ name: "total", title: "Total Price", type: "number" }),
+              ],
+            },
           ],
           hidden: ({ document }) => !document?.orderDetails?.addDrinks,
         }),

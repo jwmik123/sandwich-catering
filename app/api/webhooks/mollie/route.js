@@ -4,9 +4,10 @@ import { client } from "@/sanity/lib/client";
 import { NextResponse } from "next/server";
 import { sendOrderConfirmation } from "@/lib/email";
 import { sendOrderSmsNotification } from "@/lib/sms";
-import { PRODUCT_QUERY } from "@/sanity/lib/queries";
+import { PRODUCT_QUERY, DRINK_QUERY } from "@/sanity/lib/queries";
 import { createYukiInvoice } from "@/lib/yuki-api";
-import { DRINK_PRICES, GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
+import { GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
+import { getDrinksWithDetails, calculateDrinksTotal } from "@/lib/product-helpers";
 
 const mollieClient = createMollieClient({
   apiKey: process.env.MOLLIE_LIVE_API_KEY,
@@ -124,13 +125,8 @@ async function handlePaidStatus(quoteId) {
           customSelection,
           varietySelection,
           addDrinks,
-          drinks {
-            freshOrangeJuice,
-            verseJus,
-            sodas,
-            smoothies,
-            milk
-          },
+          drinks,
+          drinksWithDetails,
           allergies
         },
         deliveryDetails {
@@ -191,8 +187,36 @@ async function handlePaidStatus(quoteId) {
       console.log("Will continue with empty sandwich options array");
     }
 
+    // Fetch drinks and create drinksWithDetails if not already present (for backward compatibility)
+    let drinksWithDetails = order.orderDetails?.drinksWithDetails || [];
+    if (!drinksWithDetails || drinksWithDetails.length === 0) {
+      if (order.orderDetails?.drinks) {
+        console.log("Fetching drinks to create drinksWithDetails...");
+        try {
+          const drinks = await client.fetch(DRINK_QUERY);
+
+          // Convert old camelCase format to slug format for getDrinksWithDetails
+          const drinksData = {};
+          Object.entries(order.orderDetails.drinks).forEach(([key, value]) => {
+            if (value > 0) {
+              // Convert camelCase to kebab-case: freshOrangeJuice -> fresh-orange-juice
+              const slug = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+              drinksData[slug] = value;
+            }
+          });
+
+          console.log("Converted drinks data:", JSON.stringify(drinksData, null, 2));
+          drinksWithDetails = getDrinksWithDetails(drinksData, drinks);
+          console.log(`Created drinksWithDetails for ${drinksWithDetails.length} drinks`);
+        } catch (drinkError) {
+          console.error("Error fetching drinks:", drinkError);
+          drinksWithDetails = [];
+        }
+      }
+    }
+
     // Calculate amounts using PaymentStep.jsx pattern
-    const subtotalAmount = calculateOrderTotal(order.orderDetails); // Items only, VAT-exclusive
+    const subtotalAmount = calculateOrderTotal(order.orderDetails, drinksWithDetails); // Items only, VAT-exclusive
     const deliveryCost = order.deliveryDetails.deliveryCost || 0; // VAT-exclusive
     const vatAmount = Math.ceil((subtotalAmount + deliveryCost) * 0.09 * 100) / 100;
     const totalAmount = subtotalAmount + deliveryCost + vatAmount; // Consistent with InvoicePDF calculation
@@ -257,6 +281,7 @@ async function handlePaidStatus(quoteId) {
         // Include drinks data
         addDrinks: order.orderDetails?.addDrinks || false,
         drinks: order.orderDetails?.drinks || null,
+        drinksWithDetails: drinksWithDetails,
       };
 
       // Ensure we have valid company details (matching create-invoice structure)
@@ -327,6 +352,7 @@ async function handlePaidStatus(quoteId) {
         allergies: order.orderDetails?.allergies || "",
         addDrinks: order.orderDetails?.addDrinks || false,
         drinks: order.orderDetails?.drinks || null,
+        drinksWithDetails: drinksWithDetails,
         varietySelection: order.orderDetails?.varietySelection || {},
         paymentMethod: "online", // Mollie payments are online payments
 
@@ -424,6 +450,10 @@ async function handlePaidStatus(quoteId) {
       "Company details:",
       JSON.stringify(formattedOrder.companyDetails, null, 2)
     );
+    console.log(
+      "Drinks with details for email:",
+      JSON.stringify(formattedOrder.orderDetails.drinksWithDetails, null, 2)
+    );
 
     await sendOrderConfirmation(formattedOrder, false);
     console.log(`Order confirmation sent for quote ${quoteId}`);
@@ -454,7 +484,7 @@ async function handleCanceledPayment(quoteId) {
 }
 
 // Helper function to calculate total from order data
-function calculateOrderTotal(orderDetails) {
+function calculateOrderTotal(orderDetails, drinksWithDetails = []) {
   if (!orderDetails) return 0;
   let total = 0;
 
@@ -485,13 +515,9 @@ function calculateOrderTotal(orderDetails) {
     }
   }
 
-  // Add drinks pricing if drinks are selected
-  if (orderDetails.addDrinks && orderDetails.drinks) {
-    const drinksTotal =
-      ((orderDetails.drinks.freshOrangeJuice || orderDetails.drinks.verseJus) || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
-      (orderDetails.drinks.sodas || 0) * DRINK_PRICES.SODAS +
-      (orderDetails.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES +
-      (orderDetails.drinks.milk || 0) * DRINK_PRICES.MILK;
+  // Add drinks pricing from drinksWithDetails
+  if (orderDetails.addDrinks && drinksWithDetails.length > 0) {
+    const drinksTotal = drinksWithDetails.reduce((sum, drink) => sum + drink.total, 0);
     total += drinksTotal;
   }
 

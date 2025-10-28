@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import { postalCodeDeliveryCosts } from "@/app/assets/postals";
-import { DRINK_PRICES, SANDWICH_PRICE_VARIETY, GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
+import { SANDWICH_PRICE_VARIETY, GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
+import { calculateDrinksTotal } from "@/lib/product-helpers";
 
-export const useOrderForm = () => {
+export const useOrderForm = (drinks = []) => {
   const [formData, setFormData] = useState({
     // Stap 1
     totalSandwiches: 15,
@@ -110,11 +111,7 @@ export const useOrderForm = () => {
     
     // Add drinks pricing if drinks are selected
     if (formData.drinks) {
-      const drinksTotal =
-        ((formData.drinks.freshOrangeJuice || formData.drinks.verseJus) || 0) * DRINK_PRICES.FRESH_ORANGE_JUICE +
-        (formData.drinks.sodas || 0) * DRINK_PRICES.SODAS +
-        (formData.drinks.smoothies || 0) * DRINK_PRICES.SMOOTHIES +
-        (formData.drinks.milk || 0) * DRINK_PRICES.MILK;
+      const drinksTotal = calculateDrinksTotal(formData.drinks, drinks);
       subtotal += drinksTotal;
     }
     

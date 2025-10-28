@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { client } from "@/sanity/lib/client";
-import { PRODUCT_QUERY } from "@/sanity/lib/queries";
+import { PRODUCT_QUERY, DRINK_QUERY } from "@/sanity/lib/queries";
 import Wizard from "@/app/components/wizard/Wizard";
 import SandwichAmountStep from "@/app/components/steps/SandwichAmountStep";
 import SelectionTypeStep from "@/app/components/steps/SelectionTypeStep";
@@ -24,6 +24,7 @@ import { useOrderValidation } from "@/app/hooks/useOrderValidation";
 
 const Home = () => {
   const [sandwichOptions, setSandwichOptions] = useState([]);
+  const [drinks, setDrinks] = useState([]);
   const [date, setDate] = useState(null);
   const {
     formData,
@@ -32,7 +33,7 @@ const Home = () => {
     deliveryError,
     totalAmount,
     restoreQuote,
-  } = useOrderForm();
+  } = useOrderForm(drinks);
 
   const { isStepValid, getValidationMessage } = useOrderValidation(formData, deliveryError);
 
@@ -42,6 +43,14 @@ const Home = () => {
       setSandwichOptions(products);
     };
     fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    const fetchDrinks = async () => {
+      const drinksData = await client.fetch(DRINK_QUERY);
+      setDrinks(drinksData);
+    };
+    fetchDrinks();
   }, []);
 
   const [currentStep, setCurrentStep] = useState(() => {
@@ -95,6 +104,7 @@ const Home = () => {
             formData={formData}
             updateFormData={updateFormData}
             sandwichOptions={sandwichOptions}
+            drinks={drinks}
           />
         );
       case 3:
@@ -104,6 +114,7 @@ const Home = () => {
             updateFormData={updateFormData}
             setCurrentStep={setCurrentStep}
             sandwichOptions={sandwichOptions}
+            drinks={drinks}
             secondaryButtonClasses={secondaryButtonClasses}
             totalAmount={totalAmount}
           />

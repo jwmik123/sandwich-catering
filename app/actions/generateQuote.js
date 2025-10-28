@@ -6,6 +6,8 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { customAlphabet } from "nanoid";
 import { revalidatePath } from "next/cache";
 import OrderPDF from "@/app/components/OrderPDF";
+import { DRINK_QUERY } from "@/sanity/lib/queries";
+import { getDrinksWithDetails } from "@/lib/product-helpers";
 
 const nanoid = customAlphabet("1234567890abcdefghijklmnopqrstuvwxyz", 8);
 
@@ -19,12 +21,30 @@ export async function generateQuote(formData, sandwichOptions) {
       sandwichOptions ? sandwichOptions.length : 0
     );
 
+    // Fetch drinks from Sanity
+    const drinks = await client.fetch(DRINK_QUERY);
+
+    // Get drinks with details for storage
+    const drinksWithDetails = getDrinksWithDetails(formData.drinks, drinks);
+
+    // Transform drinks object to use camelCase for Sanity (backwards compatibility)
+    // Convert slug-based keys to camelCase: "fresh-orange-juice" -> "freshOrangeJuice"
+    const transformedDrinks = {};
+    if (formData.drinks) {
+      Object.entries(formData.drinks).forEach(([key, value]) => {
+        // Convert kebab-case to camelCase
+        const camelKey = key.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+        transformedDrinks[camelKey] = value;
+      });
+    }
+
     // Generate PDF buffer
     const pdfBuffer = await renderToBuffer(
       <OrderPDF
         orderData={formData}
         quoteId={quoteId}
         sandwichOptions={sandwichOptions} // Pass sandwich options to the PDF
+        drinksWithDetails={drinksWithDetails} // Pass drinks details to PDF
       />
     );
 
@@ -66,7 +86,8 @@ export async function generateQuote(formData, sandwichOptions) {
             ? formData.varietySelection
             : null,
         addDrinks: true,
-        drinks: formData.drinks || null,
+        drinks: transformedDrinks || null, // Use transformed camelCase keys for Sanity
+        drinksWithDetails: drinksWithDetails, // Store drinks with names and prices
         allergies: formData.allergies,
       },
       deliveryDetails: {

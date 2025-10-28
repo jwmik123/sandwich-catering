@@ -1,10 +1,26 @@
 import { renderToBuffer } from "@react-pdf/renderer";
 import InvoicePDF from "@/app/components/InvoicePDF";
 import { NextResponse } from "next/server";
+import { client } from "@/sanity/lib/client";
+import { DRINK_QUERY } from "@/sanity/lib/queries";
+import { getDrinksWithDetails } from "@/lib/product-helpers";
 
 export async function POST(request) {
   try {
     const data = await request.json();
+
+    // Fetch drinks from Sanity
+    const drinks = await client.fetch(DRINK_QUERY);
+
+    // Get drinks with details for the PDF
+    const drinksWithDetails = data.orderDetails?.drinks
+      ? getDrinksWithDetails(data.orderDetails.drinks, drinks)
+      : [];
+
+    // Add drinksWithDetails to orderDetails
+    if (data.orderDetails) {
+      data.orderDetails.drinksWithDetails = drinksWithDetails;
+    }
 
     // Calculate due date if not provided (14 days after delivery date)
     let dueDate = data.dueDate ? new Date(data.dueDate) : null;

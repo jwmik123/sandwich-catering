@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Tooltip,
   TooltipContent,
@@ -144,7 +145,13 @@ const SelectionModal = ({
   };
 
   const additionalCosts = getAdditionalCosts();
-  const totalPerItem = (sandwich?.price || 0) + additionalCosts;
+
+  // Add bread surcharge to the total
+  const breadSurcharge = shouldHaveBreadType(sandwich)
+    ? breadTypes.find((b) => b.id === breadType)?.surcharge || 0
+    : 0;
+
+  const totalPerItem = (sandwich?.price || 0) + breadSurcharge + additionalCosts;
   const totalPrice = totalPerItem * parseInt(quantity);
 
   // console.log(sandwich);
@@ -217,20 +224,26 @@ const SelectionModal = ({
             {shouldHaveBreadType(sandwich) && (
               <div className="space-y-2">
                 <Label>Bread type</Label>
-                <Select value={breadType} onValueChange={setBreadType}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
+                <div className="p-3 space-y-2 rounded-md border">
+                  <RadioGroup value={breadType} onValueChange={setBreadType}>
                     {breadTypes.map((bread) => (
-                      <SelectItem key={bread.id} value={bread.id}>
-                        {bread.name}
-                        {bread.surcharge > 0 &&
-                          ` (+€${bread.surcharge.toFixed(2)})`}
-                      </SelectItem>
+                      <div key={bread.id} className="flex items-center space-x-2">
+                        <RadioGroupItem value={bread.id} id={bread.id} />
+                        <Label
+                          htmlFor={bread.id}
+                          className="flex-1 text-sm font-normal cursor-pointer"
+                        >
+                          {bread.name}
+                          {bread.surcharge > 0 && (
+                            <span className="ml-1 text-gray-500">
+                              (+€{bread.surcharge.toFixed(2)})
+                            </span>
+                          )}
+                        </Label>
+                      </div>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </RadioGroup>
+                </div>
               </div>
             )}
 
@@ -300,7 +313,7 @@ const SelectionModal = ({
                 </div>
                 {shouldHaveBreadType(sandwich) &&
                   breadTypes.find((b) => b.id === breadType)?.surcharge > 0 && (
-                    <div className="flex justify-between text-sm text-muted-foreground">
+                    <div className="flex justify-between text-sm text-muted">
                       <span>Bread surcharge:</span>
                       <span>
                         +€
@@ -311,7 +324,7 @@ const SelectionModal = ({
                     </div>
                   )}
                 {sandwich?.hasSauceOptions && sauce !== "geen" && (
-                  <div className="flex justify-between text-sm text-muted-foreground">
+                  <div className="flex justify-between text-sm text-muted">
                     <span>Sauce:</span>
                     <span>
                       +€
@@ -322,7 +335,7 @@ const SelectionModal = ({
                   </div>
                 )}
                 {sandwich?.hasToppings && selectedToppings.length > 0 && (
-                  <div className="flex justify-between text-sm text-muted-foreground">
+                  <div className="flex justify-between text-sm text-muted">
                     <span>Toppings:</span>
                     <span>
                       +€

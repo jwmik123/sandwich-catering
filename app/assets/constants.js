@@ -23,11 +23,13 @@ export const toppings = [
   { id: "komkommer", name: "Komkommer" },
 ];
 
-// Drink prices (VAT-exclusive)
+// Drink prices (VAT-exclusive) - DEPRECATED: Use Sanity drinks instead
+// These are kept as fallbacks for backwards compatibility
 export const DRINK_PRICES = {
   FRESH_ORANGE_JUICE: 3.62,
   SODAS: 2.71,
-  SMOOTHIES: 4.54,
+  COLD_PRESSED_JUICES: 6.38, // Updated from SMOOTHIES
+  SMOOTHIES: 6.38, // Kept for backwards compatibility
   MILK: 2.71,
 };
 

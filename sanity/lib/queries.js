@@ -38,3 +38,12 @@ export const CATEGORY_QUERY = defineQuery(`*[_type == "category"] | order(orderR
   description,
   orderRank
 }`);
+
+export const DRINK_QUERY = defineQuery(`*[_type == "drink" && active == true] | order(orderRank asc) {
+  _id,
+  name,
+  "slug": slug.current,
+  price,
+  description,
+  orderRank
+}`);
