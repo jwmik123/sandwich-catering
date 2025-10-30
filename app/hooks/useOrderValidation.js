@@ -18,7 +18,7 @@ export const useOrderValidation = (formData, deliveryError) => {
             formData.varietySelection.nonVega +
             formData.varietySelection.vegan +
             (formData.varietySelection.glutenFree || 0) >=
-            15 // Minimum 15 sandwiches required, but allow selecting more
+            formData.totalSandwiches // Must match the amount selected in step 1
         );
       case 3:
         return true; // Overview step is always valid
@@ -91,8 +91,8 @@ export const useOrderValidation = (formData, deliveryError) => {
             formData.varietySelection.vegan +
             (formData.varietySelection.glutenFree || 0);
 
-          if (total < 15) {
-            return `Please select at least 15 sandwiches (currently ${total})`;
+          if (total < formData.totalSandwiches) {
+            return `Please select at least ${formData.totalSandwiches} sandwiches (currently ${total})`;
           }
         }
         return "";
