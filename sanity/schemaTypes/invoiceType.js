@@ -130,7 +130,7 @@ export const invoice = defineType({
         { name: "houseNumberAddition", title: "House Number Addition", type: "string" },
         { name: "postalCode", title: "Postal Code", type: "string" },
         { name: "city", title: "City", type: "string" },
-        { name: "totalSandwiches", title: "Total Sandwiches", type: "number" },
+        { name: "totalSandwiches", title: "Total Sandwiches", type: "string" },
         { name: "selectionType", title: "Selection Type", type: "string" },
         { name: "allergies", title: "Allergies", type: "text" },
         {
@@ -199,7 +199,6 @@ export const invoice = defineType({
       title: "Sent to Yuki",
       type: "boolean",
       initialValue: false,
-      readOnly: true,
       fieldset: "yuki",
     }),
     defineField({
