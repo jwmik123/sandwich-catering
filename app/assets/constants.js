@@ -1,8 +1,8 @@
 // constants.js
 export const breadTypes = [
   { id: "baguette", name: "Baguette", surcharge: 0 },
-  { id: "spelt", name: "Spelt bread", surcharge: 0.5 },
-  { id: "gluten-free", name: "Gluten-free bread", surcharge: 3.5 },
+  { id: "spelt", name: "Spelt bread", surcharge: 0.46 },
+  { id: "gluten-free", name: "Gluten-free bread", surcharge: 1.38 },
 ];
 
 export const sauces = [
@@ -35,4 +35,4 @@ export const DRINK_PRICES = {
 
 // Sandwich pricing
 export const SANDWICH_PRICE_VARIETY = 6.83;
-export const GLUTEN_FREE_SURCHARGE = 2.75;
+export const GLUTEN_FREE_SURCHARGE = 1.38;

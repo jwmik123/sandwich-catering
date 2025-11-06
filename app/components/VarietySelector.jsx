@@ -205,7 +205,7 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
 
           <div className="flex flex-col">
             <Label htmlFor="glutenFree" className="text-base font-bold">
-              Gluten Free (+€2.75 per sandwich)
+              Gluten Free (+€1.38 per sandwich)
             </Label>
             <div className="flex items-center space-x-2">
               <Checkbox
