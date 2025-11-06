@@ -71,17 +71,38 @@ export async function POST(request) {
       postalCode: orderDetails.postalCode || "",
       city: orderDetails.city || "",
       // Convert customSelection from an object to a structured array
+      // Handle BOTH formats:
+      // 1. Custom orders: key is sandwichId (GUID)
+      // 2. Popup products (variety orders): key is categorySlug (string)
       customSelection:
-        orderDetails.selectionType === "custom"
-          ? Object.entries(orderDetails.customSelection || {}).map(
-              ([sandwichId, selections]) => ({
-                _key: sandwichId, // Use sandwichId as the key for Sanity array
-                sandwichId: { _type: "reference", _ref: sandwichId },
-                selections: selections.map((selection) => ({
-                  ...selection,
-                  _key: `${sandwichId}-${selection.breadType}-${Math.random()}`, // Create a unique key for each selection item
-                })),
-              })
+        orderDetails.customSelection && Object.keys(orderDetails.customSelection).length > 0
+          ? Object.entries(orderDetails.customSelection).map(
+              ([key, selections]) => {
+                // Determine if this is a sandwichId (GUID format) or categorySlug (readable string)
+                const isSandwichId = key.length > 20 && !key.includes('-'); // GUIDs are long and typically don't have dashes in Sanity
+
+                if (isSandwichId) {
+                  // Custom order format - use sandwichId reference
+                  return {
+                    _key: key,
+                    sandwichId: { _type: "reference", _ref: key },
+                    selections: selections.map((selection) => ({
+                      ...selection,
+                      _key: `${key}-${selection.breadType || 'default'}-${Math.random()}`,
+                    })),
+                  };
+                } else {
+                  // Popup product format - use categorySlug
+                  return {
+                    _key: key,
+                    categorySlug: key,
+                    selections: selections.map((selection) => ({
+                      ...selection,
+                      _key: `${key}-${selection.id || selection.name}-${Math.random()}`,
+                    })),
+                  };
+                }
+              }
             )
           : [],
       // Ensure varietySelection is always an object

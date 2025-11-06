@@ -98,7 +98,8 @@ export const quote = defineType({
         }),
         defineField({
           name: "customSelection",
-          title: "Custom Selection",
+          title: "Custom Selection / Additional Items",
+          description: "Contains custom sandwich selections for custom orders, or additional items from upsell popup for variety orders",
           type: "array",
           of: [
             {
@@ -106,8 +107,14 @@ export const quote = defineType({
               fields: [
                 defineField({
                   name: "sandwichId",
+                  title: "Sandwich ID (for custom orders)",
                   type: "reference",
                   to: [{ type: "product" }],
+                }),
+                defineField({
+                  name: "categorySlug",
+                  title: "Category Slug (for popup products)",
+                  type: "string",
                 }),
                 defineField({
                   name: "selections",
@@ -116,11 +123,17 @@ export const quote = defineType({
                     {
                       type: "object",
                       fields: [
-                        defineField({ name: "breadType", type: "string" }),
-                        defineField({ name: "sauce", type: "string" }),
-                        defineField({ name: "topping", type: "string" }),
-                        defineField({ name: "quantity", type: "number" }),
-                        defineField({ name: "subTotal", type: "number" }),
+                        defineField({ name: "id", type: "string", title: "Product ID" }),
+                        defineField({ name: "name", type: "string", title: "Product Name" }),
+                        defineField({ name: "price", type: "number", title: "Price" }),
+                        defineField({ name: "breadType", type: "string", title: "Bread Type" }),
+                        defineField({ name: "sauce", type: "string", title: "Sauce" }),
+                        defineField({ name: "selectedSauce", type: "string", title: "Selected Sauce" }),
+                        defineField({ name: "selectedToppings", type: "array", title: "Selected Toppings", of: [{ type: "string" }] }),
+                        defineField({ name: "toppings", type: "array", title: "Toppings", of: [{ type: "string" }] }),
+                        defineField({ name: "topping", type: "string", title: "Topping (legacy)" }),
+                        defineField({ name: "quantity", type: "number", title: "Quantity" }),
+                        defineField({ name: "subTotal", type: "number", title: "Subtotal" }),
                       ],
                     },
                   ],
@@ -128,8 +141,6 @@ export const quote = defineType({
               ],
             },
           ],
-          hidden: ({ document }) =>
-            document?.orderDetails?.selectionType !== "custom",
         }),
         defineField({
           name: "varietySelection",

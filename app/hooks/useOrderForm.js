@@ -82,12 +82,12 @@ export const useOrderForm = (drinks = []) => {
 
   const calculateTotal = (formData) => {
     let subtotal = 0;
-    
+
     if (formData.selectionType === "custom") {
       subtotal = Object.values(formData.customSelection)
         .flat()
         .reduce((total, selection) => total + selection.subTotal, 0);
-    } else {
+    } else if (formData.selectionType === "variety") {
       // For variety selection - calculate based on actual selected quantities
       const actualTotal =
         (formData.varietySelection.vega || 0) +
@@ -107,14 +107,22 @@ export const useOrderForm = (drinks = []) => {
       if (formData.varietySelection && formData.varietySelection.glutenFree > 0) {
         subtotal += formData.varietySelection.glutenFree * (SANDWICH_PRICE_VARIETY + GLUTEN_FREE_SURCHARGE);
       }
+
+      // Add any custom products from popup (upsell items)
+      if (formData.customSelection && Object.keys(formData.customSelection).length > 0) {
+        const customTotal = Object.values(formData.customSelection)
+          .flat()
+          .reduce((total, selection) => total + selection.subTotal, 0);
+        subtotal += customTotal;
+      }
     }
-    
+
     // Add drinks pricing if drinks are selected
     if (formData.drinks) {
       const drinksTotal = calculateDrinksTotal(formData.drinks, drinks);
       subtotal += drinksTotal;
     }
-    
+
     return subtotal; // excluding VAT
   };
 

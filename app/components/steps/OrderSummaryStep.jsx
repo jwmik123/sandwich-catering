@@ -128,6 +128,24 @@ const OrderSummaryStep = ({
                   </div>
                 </div>
               </div>
+              {/* Additional items from popup (upsell) */}
+              {formData.customSelection && Object.keys(formData.customSelection).length > 0 && (
+                <div className="pt-4 mt-4 border-t">
+                  <p className="mb-2 text-sm text-gray-500">Additional items</p>
+                  <div className="space-y-2">
+                    {Object.entries(formData.customSelection)
+                      .filter(([_, selections]) => selections?.length > 0)
+                      .map(([categorySlug, selections]) => {
+                        return selections.map((selection, index) => (
+                          <div key={`${categorySlug}-${index}`} className="flex justify-between">
+                            <span>{selection.name}</span>
+                            <span>{selection.quantity}x €{selection.subTotal.toFixed(2)}</span>
+                          </div>
+                        ));
+                      })}
+                  </div>
+                </div>
+              )}
               {/* Drinks section for variety selection */}
               {drinks.length > 0 && drinks.some(drink => (formData.drinks?.[drink.slug] || 0) > 0) && (
                 <div className="pt-4 mt-4 border-t">

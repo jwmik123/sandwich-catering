@@ -192,7 +192,7 @@ const InvoicePDF = ({
       subtotalAmount = Object.values(orderDetails.customSelection || {})
         .flat()
         .reduce((total, selection) => total + (selection.subTotal || 0), 0);
-    } else {
+    } else if (orderDetails.selectionType === "variety") {
       const totalSandwiches =
         (orderDetails.varietySelection?.vega || 0) +
         (orderDetails.varietySelection?.nonVega || 0) +
@@ -203,6 +203,14 @@ const InvoicePDF = ({
          (orderDetails.varietySelection?.nonVega || 0) +
          (orderDetails.varietySelection?.vegan || 0)) * 6.83 +
         (orderDetails.varietySelection?.glutenFree || 0) * (6.83 + GLUTEN_FREE_SURCHARGE); // VAT-exclusive
+
+      // Add any custom products from popup (upsell items)
+      if (orderDetails.customSelection && Object.keys(orderDetails.customSelection).length > 0) {
+        const customTotal = Object.values(orderDetails.customSelection)
+          .flat()
+          .reduce((total, selection) => total + (selection.subTotal || 0), 0);
+        subtotalAmount += customTotal;
+      }
     }
 
     // Add drinks pricing if drinks are selected
@@ -564,6 +572,25 @@ const InvoicePDF = ({
                       </Text>
                     </View>
                   )}
+                  {/* Additional items from popup (upsell) */}
+                  {customSelection && Object.keys(customSelection).length > 0 &&
+                    Object.entries(customSelection).flatMap(([categorySlug, selections]) =>
+                      Array.isArray(selections) ? selections : []
+                    ).map((selection, index) => (
+                      <View key={`popup-${index}`} style={styles.tableRow}>
+                        <Text style={styles.tableCellName}>{selection.name || 'Unknown Item'}</Text>
+                        <Text style={styles.tableCell}>
+                          {selection.quantity}x
+                        </Text>
+                        <Text style={styles.tableCell}>-</Text>
+                        <Text style={styles.tableCell}>-</Text>
+                        <Text style={styles.tableCell}>-</Text>
+                        <Text style={styles.tableCell}>
+                          €{(selection.subTotal || 0).toFixed(2)}
+                        </Text>
+                      </View>
+                    ))
+                  }
                   {/* Drinks for variety selection */}
                   {orderDetails?.addDrinks && orderDetails.drinksWithDetails?.map((drink, index) => (
                     <View key={index} style={styles.tableRow}>
