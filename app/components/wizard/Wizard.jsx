@@ -13,12 +13,21 @@ const Wizard = ({
   getValidationMessage,
   secondaryButtonClasses,
   primaryButtonClasses,
+  onBeforeNext,
 }) => {
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     const validationMessage = getValidationMessage(currentStep);
     if (!isStepValid(currentStep) && validationMessage) {
       toast.error(validationMessage);
     } else if (isStepValid(currentStep)) {
+      // Call custom onBeforeNext handler if provided
+      if (onBeforeNext) {
+        const shouldProceed = await onBeforeNext(currentStep);
+        if (shouldProceed === false) {
+          // Don't proceed to next step
+          return;
+        }
+      }
       setCurrentStep((prev) => prev + 1);
     }
   };

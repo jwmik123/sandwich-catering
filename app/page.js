@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { client } from "@/sanity/lib/client";
-import { PRODUCT_QUERY, DRINK_QUERY } from "@/sanity/lib/queries";
+import { PRODUCT_QUERY, DRINK_QUERY, POPUP_CONFIG_QUERY } from "@/sanity/lib/queries";
 import Wizard from "@/app/components/wizard/Wizard";
 import SandwichAmountStep from "@/app/components/steps/SandwichAmountStep";
 import SelectionTypeStep from "@/app/components/steps/SelectionTypeStep";
@@ -19,12 +19,15 @@ import OrderSummaryStep from "@/app/components/steps/OrderSummaryStep";
 import DeliveryStep from "@/app/components/steps/DeliveryStep";
 import ContactStep from "@/app/components/steps/ContactStep";
 import PaymentStep from "@/app/components/steps/PaymentStep";
+import UpsellPopup from "@/app/components/UpsellPopup";
 import { useOrderForm } from "@/app/hooks/useOrderForm";
 import { useOrderValidation } from "@/app/hooks/useOrderValidation";
 
 const Home = () => {
   const [sandwichOptions, setSandwichOptions] = useState([]);
   const [drinks, setDrinks] = useState([]);
+  const [popupConfig, setPopupConfig] = useState(null);
+  const [showUpsellPopup, setShowUpsellPopup] = useState(false);
   const [date, setDate] = useState(null);
   const {
     formData,
@@ -36,6 +39,82 @@ const Home = () => {
   } = useOrderForm(drinks);
 
   const { isStepValid, getValidationMessage } = useOrderValidation(formData, deliveryError);
+
+  const handleBeforeNext = (step) => {
+    // Step 2 is the Selection Type step
+    if (step === 2) {
+      // Check if we should show the upsell popup
+      const hasShown = typeof window !== "undefined" && localStorage.getItem("varietyPopupShown");
+
+      if (
+        formData.selectionType === "variety" &&
+        popupConfig &&
+        popupConfig.active &&
+        !hasShown &&
+        popupConfig.products &&
+        popupConfig.products.length > 0
+      ) {
+        const currentTotal = Object.values(formData.varietySelection).reduce(
+          (sum, val) => sum + (val || 0),
+          0
+        );
+
+        if (currentTotal >= 15) {
+          setShowUpsellPopup(true);
+          return false; // Don't proceed yet
+        }
+      }
+    }
+    return true; // Proceed normally
+  };
+
+  const handleAddProducts = (productsToAdd) => {
+    // Add products to the custom selection
+    const updatedCustomSelection = { ...formData.customSelection };
+
+    productsToAdd.forEach(({ product, quantity }) => {
+      const categorySlug = product.category.slug;
+
+      if (!updatedCustomSelection[categorySlug]) {
+        updatedCustomSelection[categorySlug] = [];
+      }
+
+      // Check if product already exists in selection
+      const existingIndex = updatedCustomSelection[categorySlug].findIndex(
+        (item) => item.id === product._id
+      );
+
+      if (existingIndex >= 0) {
+        // Update existing product quantity
+        updatedCustomSelection[categorySlug][existingIndex].quantity += quantity;
+        updatedCustomSelection[categorySlug][existingIndex].subTotal =
+          updatedCustomSelection[categorySlug][existingIndex].quantity * product.price;
+      } else {
+        // Add new product
+        updatedCustomSelection[categorySlug].push({
+          id: product._id,
+          name: product.name,
+          price: product.price,
+          quantity: quantity,
+          subTotal: quantity * product.price,
+          selectedSauce: null,
+          selectedToppings: [],
+        });
+      }
+    });
+
+    updateFormData("customSelection", updatedCustomSelection);
+    setShowUpsellPopup(false);
+
+    // Proceed to next step
+    setCurrentStep(3);
+  };
+
+  const handleClosePopup = () => {
+    setShowUpsellPopup(false);
+    // Proceed to next step
+    setCurrentStep(3);
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -51,6 +130,14 @@ const Home = () => {
       setDrinks(drinksData);
     };
     fetchDrinks();
+  }, []);
+
+  useEffect(() => {
+    const fetchPopupConfig = async () => {
+      const config = await client.fetch(POPUP_CONFIG_QUERY);
+      setPopupConfig(config);
+    };
+    fetchPopupConfig();
   }, []);
 
   const [currentStep, setCurrentStep] = useState(() => {
@@ -165,9 +252,20 @@ const Home = () => {
         getValidationMessage={getValidationMessage}
         secondaryButtonClasses={secondaryButtonClasses}
         primaryButtonClasses={primaryButtonClasses}
+        onBeforeNext={handleBeforeNext}
       >
         {renderStepContent()}
       </Wizard>
+
+      {/* Upsell Popup */}
+      {showUpsellPopup && popupConfig && (
+        <UpsellPopup
+          isOpen={showUpsellPopup}
+          onClose={handleClosePopup}
+          config={popupConfig}
+          onAddProducts={handleAddProducts}
+        />
+      )}
 
       {/* Quote Lookup Link */}
       <div className="flex justify-between items-center mt-6 container mx-auto px-4">

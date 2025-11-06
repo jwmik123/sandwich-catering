@@ -47,3 +47,22 @@ export const DRINK_QUERY = defineQuery(`*[_type == "drink" && active == true] | 
   description,
   orderRank
 }`);
+
+export const POPUP_CONFIG_QUERY = defineQuery(`*[_type == "popupConfig" && active == true][0] {
+  _id,
+  active,
+  popupTitle,
+  popupDescription,
+  products[]->{
+    _id,
+    name,
+    description,
+    image,
+    price,
+    category->{
+      _id,
+      name,
+      "slug": slug.current
+    }
+  }
+}`);
