@@ -21,18 +21,6 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }) {
 
   const isMobile = windowWidth < 968; // sm breakpoint
 
-  const handlePreviousClick = () => {
-    const newMonth = new Date(month);
-    newMonth.setMonth(month.getMonth() - (isMobile ? 1 : 2));
-    setMonth(newMonth);
-  };
-
-  const handleNextClick = () => {
-    const newMonth = new Date(month);
-    newMonth.setMonth(month.getMonth() + (isMobile ? 1 : 2));
-    setMonth(newMonth);
-  };
-
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -40,6 +28,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }) {
       month={month}
       onMonthChange={setMonth}
       numberOfMonths={isMobile ? 1 : 2}
+      weekStartsOn={1}
       classNames={{
         months: "flex space-x-4",
         month: "space-y-4",
@@ -57,7 +46,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }) {
         month_grid: "w-full border-collapse space-y-1",
         weekdays: "flex",
         weekday:
-          "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
+          "text-muted rounded-md w-9 font-bold text-[0.8rem]",
         week: "flex w-full mt-2",
         day_button: cn(
           buttonVariants({ variant: "ghost" }),
@@ -68,7 +57,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }) {
           "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
         today: "bg-custom-gray/10 text-custom-gray",
         outside:
-          "day-outside text-muted-foreground aria-selected:bg-accent/50 aria-selected:text-muted-foreground opacity-50",
+          "day-outside text-muted aria-selected:bg-accent/50 aria-selected:text-muted opacity-50",
         disabled: "text-gray-400 opacity-50",
         range_middle:
           "aria-selected:bg-accent aria-selected:text-accent-foreground",

@@ -9,6 +9,7 @@ import {
 } from "@react-email/components";
 import { isDrink } from "@/lib/product-helpers";
 import { GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
+import { parseDateString } from "@/lib/utils";
 
 export default function OrderConfirmation({
   quoteId,
@@ -94,7 +95,7 @@ export default function OrderConfirmation({
             <Text style={subtitle}>Delivery details</Text>
             <Text style={detailText}>
               Date:{" "}
-              {new Date(deliveryDetails.deliveryDate).toLocaleDateString(
+              {parseDateString(deliveryDetails.deliveryDate).toLocaleDateString(
                 "nl-NL"
               )}
               <br />

@@ -8,6 +8,7 @@ import {
 } from "@react-pdf/renderer";
 import { isDrink } from "@/lib/product-helpers";
 import { SANDWICH_PRICE_VARIETY, GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
+import { parseDateString } from "@/lib/utils";
 
 const styles = StyleSheet.create({
   page: {
@@ -239,7 +240,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [], drinksWithD
                 <View style={styles.row}>
                   <Text style={styles.label}>Date:</Text>
                   <Text style={styles.value}>
-                    {new Date(orderData.deliveryDate).toLocaleDateString(
+                    {parseDateString(orderData.deliveryDate).toLocaleDateString(
                       "nl-NL"
                     )}
                   </Text>

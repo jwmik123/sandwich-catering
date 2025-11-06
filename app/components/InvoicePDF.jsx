@@ -9,6 +9,7 @@ import {
 } from "@react-pdf/renderer";
 import { isDrink } from "@/lib/product-helpers";
 import { GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
+import { parseDateString } from "@/lib/utils";
 
 const styles = StyleSheet.create({
   page: {
@@ -230,25 +231,9 @@ const InvoicePDF = ({
     ? new Date(dueDate)
     : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
 
-  // Calculate due date as 14 days after delivery date
+  // Parse delivery date using helper to avoid timezone issues
   const deliveryDate = deliveryDetails?.deliveryDate
-    ? (() => {
-        const dateStr = deliveryDetails.deliveryDate;
-        // Check if date is in DD-MM-YYYY format (day first)
-        if (dateStr.match(/^\d{2}-\d{2}-\d{4}$/)) {
-          const [day, month, year] = dateStr.split('-');
-          return new Date(`${year}-${month}-${day}T00:00:00+02:00`);
-        }
-        // Check if date is in YYYY-MM-DD format (ISO format)
-        else if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
-          return new Date(dateStr + "T00:00:00+02:00");
-        }
-        // Try to parse as-is (fallback)
-        else {
-          const parsed = new Date(dateStr);
-          return isNaN(parsed.getTime()) ? new Date() : parsed;
-        }
-      })()
+    ? parseDateString(deliveryDetails.deliveryDate)
     : new Date();
 
   // If we have a delivery date, calculate due date as 14 days after delivery date

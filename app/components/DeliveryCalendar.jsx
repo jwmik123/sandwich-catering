@@ -15,18 +15,11 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
 
     setDate(selectedDate);
 
-    // Create a new date at noon local time to avoid timezone issues
-    const localDate = new Date(
-      selectedDate.getFullYear(),
-      selectedDate.getMonth(),
-      selectedDate.getDate(),
-      12, 0, 0, 0
-    );
-
-    // Format as YYYY-MM-DD
-    const year = localDate.getFullYear();
-    const month = String(localDate.getMonth() + 1).padStart(2, '0');
-    const day = String(localDate.getDate()).padStart(2, '0');
+    // Extract the date components directly from the selected date
+    // to avoid any timezone conversion issues
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const day = String(selectedDate.getDate()).padStart(2, '0');
     const formattedDate = `${year}-${month}-${day}`;
 
     updateFormData("deliveryDate", formattedDate);
