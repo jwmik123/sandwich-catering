@@ -83,7 +83,6 @@ export const postalCodeDeliveryCosts = {
   1095: { cost: 19.95, alwaysCharge: true, minOrder: 150 },
   1114: { cost: 19.95, alwaysCharge: true, minOrder: 150 },
 
-
   // €24,95 delivery zones - require minimum order of €100
   1026: { cost: 24.95, minOrder: 150, alwaysCharge: true },
   1027: { cost: 24.95, minOrder: 150, alwaysCharge: true },
