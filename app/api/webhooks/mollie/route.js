@@ -3,7 +3,6 @@ import { createMollieClient } from "@mollie/api-client";
 import { client } from "@/sanity/lib/client";
 import { NextResponse } from "next/server";
 import { sendOrderConfirmation } from "@/lib/email";
-import { sendOrderSmsNotification } from "@/lib/sms";
 import { PRODUCT_QUERY, DRINK_QUERY } from "@/sanity/lib/queries";
 import { createYukiInvoice } from "@/lib/yuki-api";
 import { GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
@@ -457,10 +456,6 @@ async function handlePaidStatus(quoteId) {
 
     await sendOrderConfirmation(formattedOrder, false);
     console.log(`Order confirmation sent for quote ${quoteId}`);
-
-    // Send SMS notification directly
-    await sendOrderSmsNotification(formattedOrder);
-    console.log(`SMS notification sent for paid order ${quoteId}`);
   } catch (error) {
     console.error(`Error in handlePaidStatus for quote ${quoteId}:`, error);
     console.error("Error stack:", error.stack);
