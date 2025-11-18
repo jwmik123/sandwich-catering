@@ -285,8 +285,9 @@ async function handlePaidStatus(quoteId) {
       };
 
       // Ensure we have valid company details (matching create-invoice structure)
+      // Use companyName if available (business order), otherwise use the person's name
       const companyDetails = {
-        name: order.companyDetails?.companyName || "Unknown Company",
+        name: order.companyDetails?.companyName || order.name || "Customer",
         referenceNumber: order.companyDetails?.referenceNumber || null,
         address: {
           street: order.deliveryDetails?.address?.street || "",
@@ -390,20 +391,19 @@ async function handlePaidStatus(quoteId) {
       },
 
       // Format companyDetails
-      companyDetails: order.companyDetails
-        ? {
-            name: order.companyDetails.companyName || "",
-            vatNumber: order.companyDetails.companyVAT || "",
-            address: {
-              street: order.deliveryDetails?.address?.street || "",
-              houseNumber: order.deliveryDetails?.address?.houseNumber || "",
-              houseNumberAddition:
-                order.deliveryDetails?.address?.houseNumberAddition || "",
-              postalCode: order.deliveryDetails?.address?.postalCode || "",
-              city: order.deliveryDetails?.address?.city || "",
-            },
-          }
-        : null,
+      // Always provide company details using companyName if available (business), otherwise use person's name
+      companyDetails: {
+        name: order.companyDetails?.companyName || order.name || "Customer",
+        vatNumber: order.companyDetails?.companyVAT || "",
+        address: {
+          street: order.deliveryDetails?.address?.street || "",
+          houseNumber: order.deliveryDetails?.address?.houseNumber || "",
+          houseNumberAddition:
+            order.deliveryDetails?.address?.houseNumberAddition || "",
+          postalCode: order.deliveryDetails?.address?.postalCode || "",
+          city: order.deliveryDetails?.address?.city || "",
+        },
+      },
 
       // Add all other necessary fields
       status: order.status || "pending",

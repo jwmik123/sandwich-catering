@@ -252,8 +252,9 @@ const InvoicePDF = ({
   const today = new Date();
 
   // Safely get nested values
+  // Use companyName if available (business order), otherwise use fullName (non-business order)
   const companyName =
-    companyDetails?.name || companyDetails?.companyName || fullName || "Unknown Company";
+    companyDetails?.name || companyDetails?.companyName || fullName || "Customer";
   const phoneNumber = companyDetails?.phoneNumber || "";
   const address = companyDetails?.address || {};
   const street = address?.street || "";

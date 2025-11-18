@@ -174,11 +174,12 @@ const styles = StyleSheet.create({
 
 export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [], drinksWithDetails = [] }) => {
   // Safely get nested values
+  // Use companyName if available (business order), otherwise use the person's name
   const companyName =
     orderData.companyDetails?.name ||
     orderData.companyDetails?.companyName ||
     orderData.name ||
-    "Unknown Company";
+    "Customer";
   const phoneNumber = orderData.companyDetails?.phoneNumber || "";
   const address = orderData.companyDetails?.address || {};
   const street = address?.street || "";

@@ -150,8 +150,9 @@ export async function POST(request) {
     console.log("- Amount:", amountData);
 
     // Ensure we have valid company details
+    // Use companyName if available (business order), otherwise use the person's name
     const companyDetails = {
-      name: orderDetails.companyName || "Unknown Company",
+      name: orderDetails.companyName || orderDetails.name || "Customer",
       referenceNumber: orderDetails.referenceNumber || null,
       address: {
         street: orderDetails.street || "",
