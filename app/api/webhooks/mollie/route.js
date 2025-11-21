@@ -121,7 +121,24 @@ async function handlePaidStatus(quoteId) {
         orderDetails {
           totalSandwiches,
           selectionType,
-          customSelection,
+          customSelection[] {
+            sandwichId->{
+              _id,
+              name,
+              price,
+              category,
+              dietaryType,
+              hasSauceOptions,
+              sauceOptions
+            },
+            selections[] {
+              breadType,
+              sauce,
+              toppings,
+              quantity,
+              subTotal
+            }
+          },
           varietySelection,
           addDrinks,
           drinks,

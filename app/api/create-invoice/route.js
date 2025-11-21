@@ -78,10 +78,12 @@ export async function POST(request) {
         orderDetails.customSelection && Object.keys(orderDetails.customSelection).length > 0
           ? Object.entries(orderDetails.customSelection).map(
               ([key, selections]) => {
-                // Determine if this is a sandwichId (GUID format) or categorySlug (readable string)
-                const isSandwichId = key.length > 20 && !key.includes('-'); // GUIDs are long and typically don't have dashes in Sanity
+                // Determine if this is a sandwichId (UUID format like d5be0e3d-9c89-478e-92f3-51396d037b55)
+                // or categorySlug (readable string like "breakfast" or "sweets")
+                // Sanity document IDs are UUIDs with dashes in format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+                const isUuidFormat = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(key);
 
-                if (isSandwichId) {
+                if (isUuidFormat) {
                   // Custom order format - use sandwichId reference
                   return {
                     _key: key,
@@ -192,6 +194,40 @@ export async function POST(request) {
     //   console.log("Yuki integration is disabled. Skipping invoice creation.");
     // }
 
+    // Fetch the original quote to get properly structured customSelection with dereferenced sandwiches
+    console.log("Fetching quote from Sanity to get dereferenced sandwich data...");
+    let quoteData = null;
+    try {
+      quoteData = await client.fetch(
+        `*[_type == "quote" && quoteId == $quoteId][0]{
+          orderDetails {
+            customSelection[] {
+              sandwichId->{
+                _id,
+                name,
+                price,
+                category,
+                dietaryType,
+                hasSauceOptions,
+                sauceOptions
+              },
+              selections[] {
+                breadType,
+                sauce,
+                toppings,
+                quantity,
+                subTotal
+              }
+            }
+          }
+        }`,
+        { quoteId }
+      );
+      console.log("Quote data fetched successfully");
+    } catch (fetchError) {
+      console.error("Error fetching quote:", fetchError);
+    }
+
     // Fetch sandwich options to include in the email
     console.log("Fetching sandwich options for email...");
     let sandwichOptions = [];
@@ -213,6 +249,27 @@ export async function POST(request) {
       );
 
       try {
+        // Transform the array format from Sanity to the object format expected by email/PDF templates
+        let customSelectionWithNames = orderDetails.customSelection || {};
+
+        if (quoteData?.orderDetails?.customSelection && Array.isArray(quoteData.orderDetails.customSelection)) {
+          // Convert array format to object format and inject sandwich names into selections
+          customSelectionWithNames = {};
+          quoteData.orderDetails.customSelection.forEach(item => {
+            const sandwichId = item.sandwichId?._id;
+            const sandwichName = item.sandwichId?.name;
+            if (sandwichId && item.selections) {
+              // Map selections and add sandwich name to each one
+              customSelectionWithNames[sandwichId] = item.selections.map(sel => ({
+                ...sel,
+                sandwichName: sandwichName, // Add sandwich name to selection
+                sandwichId: sandwichId, // Add sandwich ID to selection
+              }));
+            }
+          });
+          console.log("Transformed customSelection with sandwich names for email");
+        }
+
         // Prepare email data with explicitly structured objects
         const emailData = {
           quoteId,
@@ -223,7 +280,8 @@ export async function POST(request) {
             // Ensure these exist with defaults
             selectionType: orderDetails.selectionType || "custom",
             allergies: orderDetails.allergies || "",
-            customSelection: orderDetails.customSelection || {},
+            // Use the properly dereferenced customSelection from the quote
+            customSelection: customSelectionWithNames,
             varietySelection: orderDetails.varietySelection || {
               vega: 0,
               nonVega: 0,

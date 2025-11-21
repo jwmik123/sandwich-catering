@@ -67,18 +67,39 @@ export async function generateQuote(formData, sandwichOptions) {
         totalSandwiches: formData.totalSandwiches,
         selectionType: formData.selectionType,
         customSelection:
-          formData.selectionType === "custom"
+          formData.customSelection && Object.keys(formData.customSelection).length > 0
             ? Object.entries(formData.customSelection).map(
-                ([sandwichId, selections]) => ({
-                  sandwichId: { _type: "reference", _ref: sandwichId },
-                  selections: selections.map((selection) => ({
-                    breadType: selection.breadType,
-                    sauce: selection.sauce,
-                    toppings: selection.toppings,
-                    quantity: selection.quantity,
-                    subTotal: selection.subTotal,
-                  })),
-                })
+                ([key, selections]) => {
+                  // Determine if this is a sandwichId (UUID format) or categorySlug (readable string)
+                  // Sanity document IDs are UUIDs with dashes in format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+                  const isUuidFormat = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(key);
+
+                  if (isUuidFormat) {
+                    // Custom order format - use sandwichId reference
+                    return {
+                      sandwichId: { _type: "reference", _ref: key },
+                      selections: selections.map((selection) => ({
+                        breadType: selection.breadType,
+                        sauce: selection.sauce,
+                        toppings: selection.toppings,
+                        quantity: selection.quantity,
+                        subTotal: selection.subTotal,
+                      })),
+                    };
+                  } else {
+                    // Popup product format - use categorySlug
+                    return {
+                      categorySlug: key,
+                      selections: selections.map((selection) => ({
+                        id: selection.id,
+                        name: selection.name,
+                        price: selection.price,
+                        quantity: selection.quantity,
+                        subTotal: selection.subTotal,
+                      })),
+                    };
+                  }
+                }
               )
             : null,
         varietySelection:
