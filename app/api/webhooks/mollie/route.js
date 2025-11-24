@@ -277,16 +277,43 @@ async function handlePaidStatus(quoteId) {
         selectionType: order.orderDetails?.selectionType || "variety",
         allergies: order.orderDetails?.allergies || "",
         // Convert customSelection from Sanity array format to structured array
+        // Handle both custom orders (sandwichId) and variety orders with popup items (categorySlug)
         customSelection:
-          order.orderDetails?.selectionType === "custom" && Array.isArray(order.orderDetails?.customSelection)
-            ? order.orderDetails.customSelection.map((item) => ({
-                _key: item.sandwichId?._ref || Math.random().toString(),
-                sandwichId: item.sandwichId,
-                selections: (item.selections || []).map((selection) => ({
-                  ...selection,
-                  _key: `${item.sandwichId?._ref}-${selection.breadType}-${Math.random()}`,
-                })),
-              }))
+          Array.isArray(order.orderDetails?.customSelection)
+            ? order.orderDetails.customSelection.map((item) => {
+                if (item.sandwichId) {
+                  // Custom sandwich order - use clean reference
+                  return {
+                    _key: item.sandwichId?._id || Math.random().toString(),
+                    sandwichId: item.sandwichId?._id
+                      ? { _type: "reference", _ref: item.sandwichId._id }
+                      : null,
+                    selections: (item.selections || []).map((selection) => ({
+                      breadType: selection.breadType,
+                      sauce: selection.sauce,
+                      toppings: selection.toppings,
+                      quantity: selection.quantity,
+                      subTotal: selection.subTotal,
+                      _key: `${item.sandwichId?._id}-${selection.breadType}-${Math.random()}`,
+                    })),
+                  };
+                } else if (item.categorySlug) {
+                  // Popup product - use categorySlug
+                  return {
+                    _key: item.categorySlug || Math.random().toString(),
+                    categorySlug: item.categorySlug,
+                    selections: (item.selections || []).map((selection) => ({
+                      id: selection.id,
+                      name: selection.name,
+                      price: selection.price,
+                      quantity: selection.quantity,
+                      subTotal: selection.subTotal,
+                      _key: `${item.categorySlug}-${selection.id || selection.name}-${Math.random()}`,
+                    })),
+                  };
+                }
+                return null;
+              }).filter(Boolean)
             : [],
         // Ensure varietySelection is always an object
         varietySelection: order.orderDetails?.varietySelection || {
@@ -354,6 +381,33 @@ async function handlePaidStatus(quoteId) {
       // Log error but don't block confirmation emails
     }
 
+    // Transform the array format from Sanity to the object format expected by email/PDF templates
+    let customSelectionWithNames = {};
+
+    if (order.orderDetails?.customSelection && Array.isArray(order.orderDetails.customSelection)) {
+      // Convert array format to object format and inject sandwich names into selections
+      order.orderDetails.customSelection.forEach(item => {
+        const sandwichId = item.sandwichId?._id;
+        const sandwichName = item.sandwichId?.name;
+        const categorySlug = item.categorySlug;
+
+        if (sandwichId && item.selections) {
+          // Custom sandwich with sandwich ID
+          customSelectionWithNames[sandwichId] = item.selections.map(sel => ({
+            ...sel,
+            sandwichName: sandwichName, // Add sandwich name to selection
+            sandwichId: sandwichId, // Add sandwich ID to selection
+          }));
+        } else if (categorySlug && item.selections) {
+          // Popup product with category slug
+          customSelectionWithNames[categorySlug] = item.selections.map(sel => ({
+            ...sel,
+          }));
+        }
+      });
+      console.log("Transformed customSelection with sandwich names for Mollie email");
+    }
+
     // Create a properly formatted order object expected by the email/PDF components
     const formattedOrder = {
       quoteId: order.quoteId,
@@ -373,8 +427,8 @@ async function handlePaidStatus(quoteId) {
         varietySelection: order.orderDetails?.varietySelection || {},
         paymentMethod: "online", // Mollie payments are online payments
 
-        // Convert customSelection from Sanity array format to object format
-        customSelection: {},
+        // Use the properly dereferenced customSelection from the quote
+        customSelection: customSelectionWithNames,
       },
 
       // Format deliveryDetails to match expected structure
