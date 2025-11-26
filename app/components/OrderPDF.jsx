@@ -427,6 +427,21 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [], drinksWithD
                       </Text>
                     </View>
                   )}
+                  {/* Upsell addon items */}
+                  {orderData.upsellAddons && orderData.upsellAddons.length > 0 &&
+                    orderData.upsellAddons.map((addon, index) => (
+                      <View key={`addon-${addon.id || index}`} style={styles.tableRow}>
+                        <Text style={styles.tableCellName}>{addon.name || 'Unknown Item'}</Text>
+                        <Text style={styles.tableCell}>
+                          {addon.quantity}x
+                        </Text>
+                        <Text style={styles.tableCell}>€{addon.price.toFixed(2)}</Text>
+                        <Text style={styles.tableCell}>
+                          €{(addon.subTotal || 0).toFixed(2)}
+                        </Text>
+                      </View>
+                    ))
+                  }
                 </>
               )}
             </View>

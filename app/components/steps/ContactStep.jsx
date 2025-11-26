@@ -47,6 +47,15 @@ const ContactStep = ({
           .reduce((total, selection) => total + selection.subTotal, 0);
       } else {
         calculatedAmount = formData.totalSandwiches * 6.83;
+
+        // Add upsell addons for variety orders
+        if (formData.upsellAddons && formData.upsellAddons.length > 0) {
+          const addonsTotal = formData.upsellAddons.reduce(
+            (total, addon) => total + addon.subTotal,
+            0
+          );
+          calculatedAmount += addonsTotal;
+        }
       }
 
       // Add delivery cost if present
@@ -65,6 +74,7 @@ const ContactStep = ({
             selectionType: formData.selectionType,
             customSelection: formData.customSelection,
             varietySelection: formData.varietySelection,
+            upsellAddons: formData.upsellAddons || [],
             addDrinks: true,
             drinks: formData.drinks || null,
             allergies: formData.allergies,

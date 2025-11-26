@@ -197,6 +197,24 @@ export const quote = defineType({
           ],
           hidden: ({ document }) => !document?.orderDetails?.addDrinks,
         }),
+        defineField({
+          name: "upsellAddons",
+          title: "Upsell Add-ons",
+          type: "array",
+          description: "Additional products added from upsell popup (for variety orders)",
+          of: [
+            {
+              type: "object",
+              fields: [
+                defineField({ name: "id", title: "Product ID", type: "string" }),
+                defineField({ name: "name", title: "Product Name", type: "string" }),
+                defineField({ name: "price", title: "Price (per item)", type: "number" }),
+                defineField({ name: "quantity", title: "Quantity", type: "number" }),
+                defineField({ name: "subTotal", title: "Subtotal", type: "number" }),
+              ],
+            },
+          ],
+        }),
       ],
     }),
     defineField({

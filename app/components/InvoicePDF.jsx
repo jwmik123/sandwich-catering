@@ -204,12 +204,11 @@ const InvoicePDF = ({
          (orderDetails.varietySelection?.vegan || 0)) * 6.83 +
         (orderDetails.varietySelection?.glutenFree || 0) * (6.83 + GLUTEN_FREE_SURCHARGE); // VAT-exclusive
 
-      // Add any custom products from popup (upsell items)
-      if (orderDetails.customSelection && Object.keys(orderDetails.customSelection).length > 0) {
-        const customTotal = Object.values(orderDetails.customSelection)
-          .flat()
-          .reduce((total, selection) => total + (selection.subTotal || 0), 0);
-        subtotalAmount += customTotal;
+      // Add any upsell addon products
+      if (orderDetails.upsellAddons && orderDetails.upsellAddons.length > 0) {
+        const addonsTotal = orderDetails.upsellAddons
+          .reduce((total, addon) => total + (addon.subTotal || 0), 0);
+        subtotalAmount += addonsTotal;
       }
     }
 
@@ -573,21 +572,19 @@ const InvoicePDF = ({
                       </Text>
                     </View>
                   )}
-                  {/* Additional items from popup (upsell) */}
-                  {customSelection && Object.keys(customSelection).length > 0 &&
-                    Object.entries(customSelection).flatMap(([categorySlug, selections]) =>
-                      Array.isArray(selections) ? selections : []
-                    ).map((selection, index) => (
-                      <View key={`popup-${index}`} style={styles.tableRow}>
-                        <Text style={styles.tableCellName}>{selection.name || 'Unknown Item'}</Text>
+                  {/* Upsell addon items */}
+                  {orderDetails?.upsellAddons && orderDetails.upsellAddons.length > 0 &&
+                    orderDetails.upsellAddons.map((addon, index) => (
+                      <View key={`addon-${addon.id || index}`} style={styles.tableRow}>
+                        <Text style={styles.tableCellName}>{addon.name || 'Unknown Item'}</Text>
                         <Text style={styles.tableCell}>
-                          {selection.quantity}x
+                          {addon.quantity}x
                         </Text>
                         <Text style={styles.tableCell}>-</Text>
                         <Text style={styles.tableCell}>-</Text>
                         <Text style={styles.tableCell}>-</Text>
                         <Text style={styles.tableCell}>
-                          €{(selection.subTotal || 0).toFixed(2)}
+                          €{(addon.subTotal || 0).toFixed(2)}
                         </Text>
                       </View>
                     ))

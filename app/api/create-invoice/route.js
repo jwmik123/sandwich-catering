@@ -70,43 +70,35 @@ export async function POST(request) {
       houseNumberAddition: orderDetails.houseNumberAddition || "",
       postalCode: orderDetails.postalCode || "",
       city: orderDetails.city || "",
-      // Convert customSelection from an object to a structured array
-      // Handle BOTH formats:
-      // 1. Custom orders: key is sandwichId (GUID)
-      // 2. Popup products (variety orders): key is categorySlug (string)
+      // Convert customSelection from an object to a structured array (custom orders only)
       customSelection:
-        orderDetails.customSelection && Object.keys(orderDetails.customSelection).length > 0
+        orderDetails.selectionType === "custom" && orderDetails.customSelection && Object.keys(orderDetails.customSelection).length > 0
           ? Object.entries(orderDetails.customSelection).map(
-              ([key, selections]) => {
-                // Determine if this is a sandwichId (UUID format like d5be0e3d-9c89-478e-92f3-51396d037b55)
-                // or categorySlug (readable string like "breakfast" or "sweets")
-                // Sanity document IDs are UUIDs with dashes in format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-                const isUuidFormat = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(key);
-
-                if (isUuidFormat) {
-                  // Custom order format - use sandwichId reference
-                  return {
-                    _key: key,
-                    sandwichId: { _type: "reference", _ref: key },
-                    selections: selections.map((selection) => ({
-                      ...selection,
-                      _key: `${key}-${selection.breadType || 'default'}-${Math.random()}`,
-                    })),
-                  };
-                } else {
-                  // Popup product format - use categorySlug
-                  return {
-                    _key: key,
-                    categorySlug: key,
-                    selections: selections.map((selection) => ({
-                      ...selection,
-                      _key: `${key}-${selection.id || selection.name}-${Math.random()}`,
-                    })),
-                  };
-                }
-              }
+              ([sandwichId, selections]) => ({
+                _key: sandwichId,
+                sandwichId: { _type: "reference", _ref: sandwichId },
+                selections: selections.map((selection) => ({
+                  breadType: selection.breadType,
+                  sauce: selection.sauce,
+                  toppings: selection.toppings,
+                  quantity: selection.quantity,
+                  subTotal: selection.subTotal,
+                  _key: `${sandwichId}-${selection.breadType || 'default'}-${Math.random()}`,
+                })),
+              })
             )
           : [],
+      // Upsell addons (popup products for variety orders)
+      upsellAddons: orderDetails.upsellAddons
+        ? orderDetails.upsellAddons.map((addon) => ({
+            _key: addon.id || addon._key || `addon-${Math.random()}`,
+            id: addon.id,
+            name: addon.name,
+            price: addon.price,
+            quantity: addon.quantity,
+            subTotal: addon.subTotal,
+          }))
+        : [],
       // Ensure varietySelection is always an object
       varietySelection: orderDetails.varietySelection || {
         nonVega: 0,
@@ -218,6 +210,13 @@ export async function POST(request) {
                 quantity,
                 subTotal
               }
+            },
+            upsellAddons[] {
+              id,
+              name,
+              price,
+              quantity,
+              subTotal
             }
           }
         }`,
@@ -282,6 +281,8 @@ export async function POST(request) {
             allergies: orderDetails.allergies || "",
             // Use the properly dereferenced customSelection from the quote
             customSelection: customSelectionWithNames,
+            // Include upsell addons from the quote
+            upsellAddons: quoteData?.orderDetails?.upsellAddons || orderDetails.upsellAddons || [],
             varietySelection: orderDetails.varietySelection || {
               vega: 0,
               nonVega: 0,

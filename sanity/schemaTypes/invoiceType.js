@@ -159,8 +159,8 @@ export const invoice = defineType({
         },
         {
           name: "customSelection",
-          title: "Custom Selection / Additional Items",
-          description: "Contains custom sandwich selections for custom orders, or additional items from upsell popup for variety orders",
+          title: "Custom Selection",
+          description: "Custom sandwich selections (for custom orders only)",
           type: "array",
           of: [
             {
@@ -168,14 +168,9 @@ export const invoice = defineType({
               fields: [
                 {
                   name: "sandwichId",
-                  title: "Sandwich ID (for custom orders)",
+                  title: "Sandwich ID",
                   type: "reference",
                   to: [{ type: "product" }],
-                },
-                {
-                  name: "categorySlug",
-                  title: "Category Slug (for popup products)",
-                  type: "string",
                 },
                 {
                   name: "selections",
@@ -184,13 +179,8 @@ export const invoice = defineType({
                     {
                       type: "object",
                       fields: [
-                        { name: "id", type: "string", title: "Product ID" },
-                        { name: "name", type: "string", title: "Product Name" },
-                        { name: "price", type: "number", title: "Price" },
                         { name: "breadType", type: "string", title: "Bread Type" },
                         { name: "sauce", type: "string", title: "Sauce" },
-                        { name: "selectedSauce", type: "string", title: "Selected Sauce" },
-                        { name: "selectedToppings", type: "array", title: "Selected Toppings", of: [{ type: "string" }] },
                         { name: "toppings", type: "array", title: "Toppings", of: [{ type: "string" }] },
                         { name: "quantity", type: "number", title: "Quantity" },
                         { name: "subTotal", type: "number", title: "Subtotal" },
@@ -198,6 +188,24 @@ export const invoice = defineType({
                     },
                   ],
                 },
+              ],
+            },
+          ],
+        },
+        {
+          name: "upsellAddons",
+          title: "Upsell Add-ons",
+          type: "array",
+          description: "Additional products added from upsell popup (for variety orders)",
+          of: [
+            {
+              type: "object",
+              fields: [
+                { name: "id", type: "string", title: "Product ID" },
+                { name: "name", type: "string", title: "Product Name" },
+                { name: "price", type: "number", title: "Price (per item)" },
+                { name: "quantity", type: "number", title: "Quantity" },
+                { name: "subTotal", type: "number", title: "Subtotal" },
               ],
             },
           ],

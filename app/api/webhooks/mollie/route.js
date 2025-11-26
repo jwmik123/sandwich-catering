@@ -139,6 +139,13 @@ async function handlePaidStatus(quoteId) {
               subTotal
             }
           },
+          upsellAddons[] {
+            id,
+            name,
+            price,
+            quantity,
+            subTotal
+          },
           varietySelection,
           addDrinks,
           drinks,
@@ -276,45 +283,35 @@ async function handlePaidStatus(quoteId) {
         totalSandwiches: order.orderDetails?.totalSandwiches || 0,
         selectionType: order.orderDetails?.selectionType || "variety",
         allergies: order.orderDetails?.allergies || "",
-        // Convert customSelection from Sanity array format to structured array
-        // Handle both custom orders (sandwichId) and variety orders with popup items (categorySlug)
+        // Convert customSelection from Sanity array format to structured array (custom orders only)
         customSelection:
-          Array.isArray(order.orderDetails?.customSelection)
-            ? order.orderDetails.customSelection.map((item) => {
-                if (item.sandwichId) {
-                  // Custom sandwich order - use clean reference
-                  return {
-                    _key: item.sandwichId?._id || Math.random().toString(),
-                    sandwichId: item.sandwichId?._id
-                      ? { _type: "reference", _ref: item.sandwichId._id }
-                      : null,
-                    selections: (item.selections || []).map((selection) => ({
-                      breadType: selection.breadType,
-                      sauce: selection.sauce,
-                      toppings: selection.toppings,
-                      quantity: selection.quantity,
-                      subTotal: selection.subTotal,
-                      _key: `${item.sandwichId?._id}-${selection.breadType}-${Math.random()}`,
-                    })),
-                  };
-                } else if (item.categorySlug) {
-                  // Popup product - use categorySlug
-                  return {
-                    _key: item.categorySlug || Math.random().toString(),
-                    categorySlug: item.categorySlug,
-                    selections: (item.selections || []).map((selection) => ({
-                      id: selection.id,
-                      name: selection.name,
-                      price: selection.price,
-                      quantity: selection.quantity,
-                      subTotal: selection.subTotal,
-                      _key: `${item.categorySlug}-${selection.id || selection.name}-${Math.random()}`,
-                    })),
-                  };
-                }
-                return null;
-              }).filter(Boolean)
+          order.orderDetails?.selectionType === "custom" && Array.isArray(order.orderDetails?.customSelection)
+            ? order.orderDetails.customSelection.map((item) => ({
+                _key: item.sandwichId?._id || Math.random().toString(),
+                sandwichId: item.sandwichId?._id
+                  ? { _type: "reference", _ref: item.sandwichId._id }
+                  : null,
+                selections: (item.selections || []).map((selection) => ({
+                  breadType: selection.breadType,
+                  sauce: selection.sauce,
+                  toppings: selection.toppings,
+                  quantity: selection.quantity,
+                  subTotal: selection.subTotal,
+                  _key: `${item.sandwichId?._id}-${selection.breadType}-${Math.random()}`,
+                })),
+              }))
             : [],
+        // Upsell addons (popup products for variety orders)
+        upsellAddons: order.orderDetails?.upsellAddons
+          ? order.orderDetails.upsellAddons.map((addon) => ({
+              _key: addon.id || addon._key || `addon-${Math.random()}`,
+              id: addon.id,
+              name: addon.name,
+              price: addon.price,
+              quantity: addon.quantity,
+              subTotal: addon.subTotal,
+            }))
+          : [],
         // Ensure varietySelection is always an object
         varietySelection: order.orderDetails?.varietySelection || {
           nonVega: 0,
@@ -389,7 +386,6 @@ async function handlePaidStatus(quoteId) {
       order.orderDetails.customSelection.forEach(item => {
         const sandwichId = item.sandwichId?._id;
         const sandwichName = item.sandwichId?.name;
-        const categorySlug = item.categorySlug;
 
         if (sandwichId && item.selections) {
           // Custom sandwich with sandwich ID
@@ -397,11 +393,6 @@ async function handlePaidStatus(quoteId) {
             ...sel,
             sandwichName: sandwichName, // Add sandwich name to selection
             sandwichId: sandwichId, // Add sandwich ID to selection
-          }));
-        } else if (categorySlug && item.selections) {
-          // Popup product with category slug
-          customSelectionWithNames[categorySlug] = item.selections.map(sel => ({
-            ...sel,
           }));
         }
       });
@@ -429,6 +420,8 @@ async function handlePaidStatus(quoteId) {
 
         // Use the properly dereferenced customSelection from the quote
         customSelection: customSelectionWithNames,
+        // Include upsell addons
+        upsellAddons: order.orderDetails?.upsellAddons || [],
       },
 
       // Format deliveryDetails to match expected structure

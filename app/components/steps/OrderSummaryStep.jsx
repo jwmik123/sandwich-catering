@@ -128,21 +128,17 @@ const OrderSummaryStep = ({
                   </div>
                 </div>
               </div>
-              {/* Additional items from popup (upsell) */}
-              {formData.customSelection && Object.keys(formData.customSelection).length > 0 && (
+              {/* Upsell addon items */}
+              {formData.upsellAddons && formData.upsellAddons.length > 0 && (
                 <div className="pt-4 mt-4 border-t">
                   <p className="mb-2 text-sm text-gray-500">Additional items</p>
                   <div className="space-y-2">
-                    {Object.entries(formData.customSelection)
-                      .filter(([_, selections]) => selections?.length > 0)
-                      .map(([categorySlug, selections]) => {
-                        return selections.map((selection, index) => (
-                          <div key={`${categorySlug}-${index}`} className="flex justify-between">
-                            <span>{selection.name}</span>
-                            <span>{selection.quantity}x €{selection.subTotal.toFixed(2)}</span>
-                          </div>
-                        ));
-                      })}
+                    {formData.upsellAddons.map((addon, index) => (
+                      <div key={`addon-${addon.id || index}`} className="flex justify-between">
+                        <span>{addon.name}</span>
+                        <span>{addon.quantity}x €{addon.subTotal.toFixed(2)}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}

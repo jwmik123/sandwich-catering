@@ -108,12 +108,13 @@ export const useOrderForm = (drinks = []) => {
         subtotal += formData.varietySelection.glutenFree * (SANDWICH_PRICE_VARIETY + GLUTEN_FREE_SURCHARGE);
       }
 
-      // Add any custom products from popup (upsell items)
-      if (formData.customSelection && Object.keys(formData.customSelection).length > 0) {
-        const customTotal = Object.values(formData.customSelection)
-          .flat()
-          .reduce((total, selection) => total + selection.subTotal, 0);
-        subtotal += customTotal;
+      // Add any upsell addon products
+      if (formData.upsellAddons && formData.upsellAddons.length > 0) {
+        const addonsTotal = formData.upsellAddons.reduce(
+          (total, addon) => total + addon.subTotal,
+          0
+        );
+        subtotal += addonsTotal;
       }
     }
 

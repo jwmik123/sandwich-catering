@@ -69,41 +69,33 @@ const Home = () => {
   };
 
   const handleAddProducts = (productsToAdd) => {
-    // Add products to the custom selection
-    const updatedCustomSelection = { ...formData.customSelection };
+    // Add products to the upsellAddons field (NOT customSelection)
+    const updatedUpsellAddons = [...(formData.upsellAddons || [])];
 
     productsToAdd.forEach(({ product, quantity }) => {
-      const categorySlug = product.category.slug;
-
-      if (!updatedCustomSelection[categorySlug]) {
-        updatedCustomSelection[categorySlug] = [];
-      }
-
-      // Check if product already exists in selection
-      const existingIndex = updatedCustomSelection[categorySlug].findIndex(
+      // Check if product already exists
+      const existingIndex = updatedUpsellAddons.findIndex(
         (item) => item.id === product._id
       );
 
       if (existingIndex >= 0) {
         // Update existing product quantity
-        updatedCustomSelection[categorySlug][existingIndex].quantity += quantity;
-        updatedCustomSelection[categorySlug][existingIndex].subTotal =
-          updatedCustomSelection[categorySlug][existingIndex].quantity * product.price;
+        updatedUpsellAddons[existingIndex].quantity += quantity;
+        updatedUpsellAddons[existingIndex].subTotal =
+          updatedUpsellAddons[existingIndex].quantity * product.price;
       } else {
         // Add new product
-        updatedCustomSelection[categorySlug].push({
+        updatedUpsellAddons.push({
           id: product._id,
           name: product.name,
           price: product.price,
           quantity: quantity,
           subTotal: quantity * product.price,
-          selectedSauce: null,
-          selectedToppings: [],
         });
       }
     });
 
-    updateFormData("customSelection", updatedCustomSelection);
+    updateFormData("upsellAddons", updatedUpsellAddons);
     setShowUpsellPopup(false);
 
     // Proceed to next step

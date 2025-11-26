@@ -66,42 +66,35 @@ export async function generateQuote(formData, sandwichOptions) {
       orderDetails: {
         totalSandwiches: formData.totalSandwiches,
         selectionType: formData.selectionType,
+        // CustomSelection should ONLY contain sandwich selections (custom orders)
         customSelection:
-          formData.customSelection && Object.keys(formData.customSelection).length > 0
+          formData.selectionType === "custom" && formData.customSelection && Object.keys(formData.customSelection).length > 0
             ? Object.entries(formData.customSelection).map(
-                ([key, selections]) => {
-                  // Determine if this is a sandwichId (UUID format) or categorySlug (readable string)
-                  // Sanity document IDs are UUIDs with dashes in format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-                  const isUuidFormat = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(key);
-
-                  if (isUuidFormat) {
-                    // Custom order format - use sandwichId reference
-                    return {
-                      sandwichId: { _type: "reference", _ref: key },
-                      selections: selections.map((selection) => ({
-                        breadType: selection.breadType,
-                        sauce: selection.sauce,
-                        toppings: selection.toppings,
-                        quantity: selection.quantity,
-                        subTotal: selection.subTotal,
-                      })),
-                    };
-                  } else {
-                    // Popup product format - use categorySlug
-                    return {
-                      categorySlug: key,
-                      selections: selections.map((selection) => ({
-                        id: selection.id,
-                        name: selection.name,
-                        price: selection.price,
-                        quantity: selection.quantity,
-                        subTotal: selection.subTotal,
-                      })),
-                    };
-                  }
-                }
+                ([sandwichId, selections]) => ({
+                  _key: sandwichId,
+                  sandwichId: { _type: "reference", _ref: sandwichId },
+                  selections: selections.map((selection) => ({
+                    _key: `${sandwichId}-${selection.breadType}-${Math.random()}`,
+                    breadType: selection.breadType,
+                    sauce: selection.sauce,
+                    toppings: selection.toppings,
+                    quantity: selection.quantity,
+                    subTotal: selection.subTotal,
+                  })),
+                })
               )
             : null,
+        // UpsellAddons for popup products (variety orders)
+        upsellAddons: formData.upsellAddons
+          ? formData.upsellAddons.map((addon) => ({
+              _key: addon.id || `addon-${Math.random()}`,
+              id: addon.id,
+              name: addon.name,
+              price: addon.price,
+              quantity: addon.quantity,
+              subTotal: addon.subTotal,
+            }))
+          : null,
         varietySelection:
           formData.selectionType === "variety"
             ? formData.varietySelection
