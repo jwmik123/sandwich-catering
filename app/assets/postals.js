@@ -80,6 +80,8 @@ export const postalCodeDeliveryCosts = {
   1033: { cost: 19.95, alwaysCharge: true, minOrder: 150 },
   1067: { cost: 19.95, alwaysCharge: true, minOrder: 150 },
   1068: { cost: 19.95, alwaysCharge: true, minOrder: 150 },
+  1093: { cost: 19.95, alwaysCharge: true, minOrder: 150 },
+  1094: { cost: 19.95, alwaysCharge: true, minOrder: 150 },
   1095: { cost: 19.95, alwaysCharge: true, minOrder: 150 },
   1114: { cost: 19.95, alwaysCharge: true, minOrder: 150 },
 
