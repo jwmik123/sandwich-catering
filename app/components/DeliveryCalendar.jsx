@@ -27,12 +27,18 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
     updateFormData("deliveryTime", "");
   };
 
-  // Function to disable past dates and weekends
+  // Function to disable past dates and specific disabled dates
   const disabledDays = (date) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     // Disable today and past dates
     if (date <= today) return true;
+
+    // Check for specifically disabled dates (format: YYYY-MM-DD)
+    const disabledDates = process.env.NEXT_PUBLIC_DISABLED_DELIVERY_DATES?.split(',') || [];
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    if (disabledDates.includes(dateStr)) return true;
+
     return false;
   };
 
