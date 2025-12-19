@@ -345,6 +345,7 @@ async function handlePaidStatus(quoteId) {
         amount: amountData,
         status: "paid", // From Mollie
         dueDate: dueDate.toISOString(),
+        emailSent: true,
         companyDetails,
         orderDetails: structuredOrderDetails,
         createdAt: new Date().toISOString(),
