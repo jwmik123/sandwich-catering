@@ -111,7 +111,7 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
               )}
             </SelectContent>
           </Select>
-          <p className="text-xs text-gray-500 py-2">
+          <p className="text-xs text-red-500 py-2">
           please note that your order may arrive up to 15 minutes earlier or later than the requested delivery time.
           </p>
         </div>
