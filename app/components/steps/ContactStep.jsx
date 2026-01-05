@@ -198,7 +198,7 @@ const ContactStep = ({
               }
             />
             <div className="text-sm">
-              <p className="text-gray-500">
+              <p className="text-red-500">
                 You can add multiple email addresses separated by commas. All emails will receive order confirmations and invoices.
               </p>
               {formData.email && emailValidation.message && (
