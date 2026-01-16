@@ -163,7 +163,7 @@ const DeliveryStep = ({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="invoiceHouseNumberAddition">Addition</Label>
+                    <Label htmlFor="invoiceHouseNumberAddition">Addition (fe: 1st floor)</Label>
                     <Input
                       id="invoiceHouseNumberAddition"
                       type="text"

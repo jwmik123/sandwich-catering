@@ -413,7 +413,7 @@ const InvoicePDF = ({
                   <Text style={styles.label}>Address:</Text>
                   <Text style={styles.value}>
                     {deliveryStreet} {deliveryHouseNumber}
-                    {deliveryHouseNumberAddition}
+                    {deliveryHouseNumberAddition ? `, addition: ${deliveryHouseNumberAddition}` : ""}
                     {"\n"}
                     {deliveryPostalCode} {deliveryCity}
                   </Text>
@@ -434,7 +434,7 @@ const InvoicePDF = ({
                 <Text style={styles.label}>Address:</Text>
                 <Text style={styles.value}>
                   {invoiceStreet} {invoiceHouseNumber}
-                  {invoiceHouseNumberAddition}
+                  {invoiceHouseNumberAddition ? `, addition: ${invoiceHouseNumberAddition}` : ""}
                   {"\n"}
                   {invoicePostalCode} {invoiceCity}
                 </Text>

@@ -254,7 +254,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [], drinksWithD
                   <Text style={styles.label}>Address:</Text>
                   <Text style={styles.value}>
                     {deliveryStreet} {deliveryHouseNumber}
-                    {deliveryHouseNumberAddition}
+                    {deliveryHouseNumberAddition ? `, addition: ${deliveryHouseNumberAddition}` : ""}
                     {"\n"}
                     {deliveryPostalCode} {deliveryCity}
                   </Text>
@@ -275,7 +275,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [], drinksWithD
                 <Text style={styles.label}>Address:</Text>
                 <Text style={styles.value}>
                   {invoiceStreet} {invoiceHouseNumber}
-                  {invoiceHouseNumberAddition}
+                  {invoiceHouseNumberAddition ? `, addition: ${invoiceHouseNumberAddition}` : ""}
                   {"\n"}
                   {invoicePostalCode} {invoiceCity}
                 </Text>

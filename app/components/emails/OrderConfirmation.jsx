@@ -104,7 +104,7 @@ export default function OrderConfirmation({
               Phone: {deliveryDetails.phoneNumber || "Not provided"}
               <br />
               Address: {deliveryDetails.street} {deliveryDetails.houseNumber}
-              {deliveryDetails.houseNumberAddition}
+              {deliveryDetails.houseNumberAddition ? `, addition: ${deliveryDetails.houseNumberAddition}` : ""}
               <br />
               {deliveryDetails.postalCode} {deliveryDetails.city}
             </Text>
