@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { postalCodeDeliveryCosts } from "@/app/assets/postals";
 import { SANDWICH_PRICE_VARIETY, GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
 import { calculateDrinksTotal } from "@/lib/product-helpers";
+import { round2 } from "@/lib/vat-calculations";
 
 export const useOrderForm = (drinks = []) => {
   const [formData, setFormData] = useState({
@@ -84,47 +85,42 @@ export const useOrderForm = (drinks = []) => {
     let subtotal = 0;
 
     if (formData.selectionType === "custom") {
+      // Custom selections already have rounded subTotals from SelectionModal
       subtotal = Object.values(formData.customSelection)
         .flat()
-        .reduce((total, selection) => total + selection.subTotal, 0);
+        .reduce((total, selection) => round2(total + selection.subTotal), 0);
     } else if (formData.selectionType === "variety") {
-      // For variety selection - calculate based on actual selected quantities
-      const actualTotal =
-        (formData.varietySelection.vega || 0) +
-        (formData.varietySelection.nonVega || 0) +
-        (formData.varietySelection.vegan || 0) +
-        (formData.varietySelection.glutenFree || 0);
-
       // Base price for regular sandwiches
       const regularSandwiches =
         (formData.varietySelection.vega || 0) +
         (formData.varietySelection.nonVega || 0) +
         (formData.varietySelection.vegan || 0);
 
-      subtotal = regularSandwiches * SANDWICH_PRICE_VARIETY;
+      subtotal = round2(regularSandwiches * SANDWICH_PRICE_VARIETY);
 
       // Add gluten-free with surcharge
       if (formData.varietySelection && formData.varietySelection.glutenFree > 0) {
-        subtotal += formData.varietySelection.glutenFree * (SANDWICH_PRICE_VARIETY + GLUTEN_FREE_SURCHARGE);
+        const glutenFreeTotal = round2(formData.varietySelection.glutenFree * (SANDWICH_PRICE_VARIETY + GLUTEN_FREE_SURCHARGE));
+        subtotal = round2(subtotal + glutenFreeTotal);
       }
 
       // Add any upsell addon products
       if (formData.upsellAddons && formData.upsellAddons.length > 0) {
         const addonsTotal = formData.upsellAddons.reduce(
-          (total, addon) => total + addon.subTotal,
+          (total, addon) => round2(total + addon.subTotal),
           0
         );
-        subtotal += addonsTotal;
+        subtotal = round2(subtotal + addonsTotal);
       }
     }
 
     // Add drinks pricing if drinks are selected
     if (formData.drinks) {
       const drinksTotal = calculateDrinksTotal(formData.drinks, drinks);
-      subtotal += drinksTotal;
+      subtotal = round2(subtotal + drinksTotal);
     }
 
-    return subtotal; // excluding VAT
+    return subtotal; // excluding VAT, rounded to 2 decimals
   };
 
   const totalAmount = calculateTotal(formData);

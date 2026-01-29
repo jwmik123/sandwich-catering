@@ -326,16 +326,26 @@ async function handlePaidStatus(quoteId) {
 
       // Ensure we have valid company details (matching create-invoice structure)
       // Use companyName if available (business order), otherwise use the person's name
+      // Use invoice address if sameAsDelivery is false, otherwise use delivery address
+      const useInvoiceAddress = order.invoiceDetails?.sameAsDelivery === false;
       const companyDetails = {
         name: order.companyDetails?.companyName || order.name || "Customer",
         referenceNumber: order.companyDetails?.referenceNumber || null,
-        address: {
-          street: order.deliveryDetails?.address?.street || "",
-          houseNumber: order.deliveryDetails?.address?.houseNumber || "",
-          houseNumberAddition: order.deliveryDetails?.address?.houseNumberAddition || "",
-          postalCode: order.deliveryDetails?.address?.postalCode || "",
-          city: order.deliveryDetails?.address?.city || "",
-        },
+        address: useInvoiceAddress
+          ? {
+              street: order.invoiceDetails?.address?.street || "",
+              houseNumber: order.invoiceDetails?.address?.houseNumber || "",
+              houseNumberAddition: order.invoiceDetails?.address?.houseNumberAddition || "",
+              postalCode: order.invoiceDetails?.address?.postalCode || "",
+              city: order.invoiceDetails?.address?.city || "",
+            }
+          : {
+              street: order.deliveryDetails?.address?.street || "",
+              houseNumber: order.deliveryDetails?.address?.houseNumber || "",
+              houseNumberAddition: order.deliveryDetails?.address?.houseNumberAddition || "",
+              postalCode: order.deliveryDetails?.address?.postalCode || "",
+              city: order.deliveryDetails?.address?.city || "",
+            },
       };
 
       const invoicePayload = {
@@ -456,17 +466,27 @@ async function handlePaidStatus(quoteId) {
 
       // Format companyDetails
       // Always provide company details using companyName if available (business), otherwise use person's name
+      // Use invoice address if sameAsDelivery is false, otherwise use delivery address
       companyDetails: {
         name: order.companyDetails?.companyName || order.name || "Customer",
         vatNumber: order.companyDetails?.companyVAT || "",
-        address: {
-          street: order.deliveryDetails?.address?.street || "",
-          houseNumber: order.deliveryDetails?.address?.houseNumber || "",
-          houseNumberAddition:
-            order.deliveryDetails?.address?.houseNumberAddition || "",
-          postalCode: order.deliveryDetails?.address?.postalCode || "",
-          city: order.deliveryDetails?.address?.city || "",
-        },
+        address: order.invoiceDetails?.sameAsDelivery === false
+          ? {
+              street: order.invoiceDetails?.address?.street || "",
+              houseNumber: order.invoiceDetails?.address?.houseNumber || "",
+              houseNumberAddition:
+                order.invoiceDetails?.address?.houseNumberAddition || "",
+              postalCode: order.invoiceDetails?.address?.postalCode || "",
+              city: order.invoiceDetails?.address?.city || "",
+            }
+          : {
+              street: order.deliveryDetails?.address?.street || "",
+              houseNumber: order.deliveryDetails?.address?.houseNumber || "",
+              houseNumberAddition:
+                order.deliveryDetails?.address?.houseNumberAddition || "",
+              postalCode: order.deliveryDetails?.address?.postalCode || "",
+              city: order.deliveryDetails?.address?.city || "",
+            },
       },
 
       // Add all other necessary fields

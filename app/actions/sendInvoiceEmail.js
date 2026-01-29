@@ -62,12 +62,18 @@ export async function sendInvoiceEmail(quoteId) {
       deliveryDetails: {
         deliveryDate: invoice.orderDetails.deliveryDate,
         deliveryTime: invoice.orderDetails.deliveryTime || "12:00",
-        street: invoice.orderDetails.street || "",
-        houseNumber: invoice.orderDetails.houseNumber || "",
-        houseNumberAddition: invoice.orderDetails.houseNumberAddition || "",
-        postalCode: invoice.orderDetails.postalCode || "",
-        city: invoice.orderDetails.city || "",
         phoneNumber: invoice.orderDetails.phoneNumber || "",
+        address: {
+          street: invoice.orderDetails.street || "",
+          houseNumber: invoice.orderDetails.houseNumber || "",
+          houseNumberAddition: invoice.orderDetails.houseNumberAddition || "",
+          postalCode: invoice.orderDetails.postalCode || "",
+          city: invoice.orderDetails.city || "",
+        },
+      },
+      // Use companyDetails.address for invoice address (already correctly set during invoice creation)
+      invoiceDetails: {
+        address: invoice.companyDetails?.address || {},
       },
       companyDetails: invoice.companyDetails,
       amount: invoice.amount, // Pass the entire amount object

@@ -5,6 +5,7 @@ import { sendOrderConfirmation } from "@/lib/email";
 import { PRODUCT_QUERY, DRINK_QUERY } from "@/sanity/lib/queries";
 import { createYukiInvoice } from "@/lib/yuki-api";
 import { getDrinksWithDetails } from "@/lib/product-helpers";
+import { round2 } from "@/lib/vat-calculations";
 
 export async function POST(request) {
   console.log("===== CREATE INVOICE API CALLED =====");
@@ -123,15 +124,17 @@ export async function POST(request) {
       deliveryDate.toISOString()
     );
 
-    // Calculate amounts using PaymentStep.jsx pattern
-    // The amount passed is the final total with VAT: (subtotal + delivery) * 1.09
-    const finalTotal = Number(amount) || 0;
-    const deliveryCost = orderDetails.deliveryCost || 0;
-    
-    // Reverse calculate to get the subtotal (items only, VAT-exclusive)  
-    const subtotalAmount = (finalTotal / 1.09) - deliveryCost;
-    const vatAmount = Math.ceil((subtotalAmount + deliveryCost) * 0.09 * 100) / 100;
-    
+    // Calculate amounts using consistent rounding to match Yuki
+    // The amount passed is the final total with VAT (already properly rounded from PaymentStep)
+    const finalTotal = round2(Number(amount) || 0);
+    const deliveryCost = round2(orderDetails.deliveryCost || 0);
+
+    // Reverse calculate to get the subtotal (items only, VAT-exclusive)
+    // Use round2 at each step to maintain 2-decimal precision
+    const baseBeforeVAT = round2(finalTotal / 1.09);
+    const subtotalAmount = round2(baseBeforeVAT - deliveryCost);
+    const vatAmount = round2((subtotalAmount + deliveryCost) * 0.09);
+
     const amountData = {
       subtotal: subtotalAmount,
       delivery: deliveryCost,
@@ -145,16 +148,26 @@ export async function POST(request) {
 
     // Ensure we have valid company details
     // Use companyName if available (business order), otherwise use the person's name
+    // Use invoice address if sameAsDelivery is false, otherwise use delivery address
+    const useInvoiceAddress = orderDetails.sameAsDelivery === false;
     const companyDetails = {
       name: orderDetails.companyName || orderDetails.name || "Customer",
       referenceNumber: orderDetails.referenceNumber || null,
-      address: {
-        street: orderDetails.street || "",
-        houseNumber: orderDetails.houseNumber || "",
-        houseNumberAddition: orderDetails.houseNumberAddition || "",
-        postalCode: orderDetails.postalCode || "",
-        city: orderDetails.city || "",
-      },
+      address: useInvoiceAddress
+        ? {
+            street: orderDetails.invoiceStreet || "",
+            houseNumber: orderDetails.invoiceHouseNumber || "",
+            houseNumberAddition: orderDetails.invoiceHouseNumberAddition || "",
+            postalCode: orderDetails.invoicePostalCode || "",
+            city: orderDetails.invoiceCity || "",
+          }
+        : {
+            street: orderDetails.street || "",
+            houseNumber: orderDetails.houseNumber || "",
+            houseNumberAddition: orderDetails.houseNumberAddition || "",
+            postalCode: orderDetails.postalCode || "",
+            city: orderDetails.city || "",
+          },
     };
 
     // Create invoice record in Sanity
@@ -296,12 +309,32 @@ export async function POST(request) {
           deliveryDetails: {
             deliveryDate: orderDetails.deliveryDate || new Date().toISOString(),
             deliveryTime: orderDetails.deliveryTime || "12:00",
-            street: orderDetails.street || "",
-            houseNumber: orderDetails.houseNumber || "",
-            houseNumberAddition: orderDetails.houseNumberAddition || "",
-            postalCode: orderDetails.postalCode || "",
-            city: orderDetails.city || "",
             phoneNumber: orderDetails.phoneNumber || "",
+            address: {
+              street: orderDetails.street || "",
+              houseNumber: orderDetails.houseNumber || "",
+              houseNumberAddition: orderDetails.houseNumberAddition || "",
+              postalCode: orderDetails.postalCode || "",
+              city: orderDetails.city || "",
+            },
+          },
+          invoiceDetails: {
+            sameAsDelivery: orderDetails.sameAsDelivery !== false,
+            address: orderDetails.sameAsDelivery === false
+              ? {
+                  street: orderDetails.invoiceStreet || "",
+                  houseNumber: orderDetails.invoiceHouseNumber || "",
+                  houseNumberAddition: orderDetails.invoiceHouseNumberAddition || "",
+                  postalCode: orderDetails.invoicePostalCode || "",
+                  city: orderDetails.invoiceCity || "",
+                }
+              : {
+                  street: orderDetails.street || "",
+                  houseNumber: orderDetails.houseNumber || "",
+                  houseNumberAddition: orderDetails.houseNumberAddition || "",
+                  postalCode: orderDetails.postalCode || "",
+                  city: orderDetails.city || "",
+                },
           },
           companyDetails,
           amount: amountData,

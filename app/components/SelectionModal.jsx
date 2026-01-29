@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/tooltip";
 import { breadTypes, sauces, toppings } from "@/app/assets/constants";
 import { shouldHaveBreadType } from "@/lib/product-helpers";
+import { round2 } from "@/lib/vat-calculations";
 import { Info, X } from "lucide-react";
 import { urlFor } from "@/sanity/lib/image";
 
@@ -104,7 +105,9 @@ const SelectionModal = ({
       });
     }
 
-    return (basePrice + breadSurcharge + sauceCost + toppingCost) * qty;
+    // Round the unit price and total to 2 decimals to match Yuki calculations
+    const unitPrice = round2(basePrice + breadSurcharge + sauceCost + toppingCost);
+    return round2(unitPrice * qty);
   };
 
   const currentSubTotal = calculateSubTotal(
@@ -151,8 +154,8 @@ const SelectionModal = ({
     ? breadTypes.find((b) => b.id === breadType)?.surcharge || 0
     : 0;
 
-  const totalPerItem = (sandwich?.price || 0) + breadSurcharge + additionalCosts;
-  const totalPrice = totalPerItem * parseInt(quantity);
+  const totalPerItem = round2((sandwich?.price || 0) + breadSurcharge + additionalCosts);
+  const totalPrice = round2(totalPerItem * parseInt(quantity));
 
   // console.log(sandwich);
   // Helper function to display allergy information
