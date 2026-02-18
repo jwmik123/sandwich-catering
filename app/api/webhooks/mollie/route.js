@@ -504,12 +504,14 @@ async function handlePaidStatus(quoteId) {
         vega: order.orderDetails.varietySelection.vega || 0,
         nonVega: order.orderDetails.varietySelection.nonVega || 0,
         vegan: order.orderDetails.varietySelection.vegan || 0,
+        glutenFree: order.orderDetails.varietySelection.glutenFree || 0,
       };
     } else {
       formattedOrder.orderDetails.varietySelection = {
         vega: 0,
         nonVega: 0,
         vegan: 0,
+        glutenFree: 0,
       };
     }
 

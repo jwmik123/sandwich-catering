@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { FileText } from "lucide-react";
+import { FileText, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import QuoteButton from "@/app/components/QuoteButton";
@@ -15,6 +15,7 @@ const OrderSummaryStep = ({
   drinks = [],
   secondaryButtonClasses,
   totalAmount,
+  onRemoveAddon,
 }) => {
   return (
     <div className="space-y-6">
@@ -134,9 +135,20 @@ const OrderSummaryStep = ({
                   <p className="mb-2 text-sm text-gray-500">Additional items</p>
                   <div className="space-y-2">
                     {formData.upsellAddons.map((addon, index) => (
-                      <div key={`addon-${addon.id || index}`} className="flex justify-between">
+                      <div key={`addon-${addon.id || index}`} className="flex justify-between items-center">
                         <span>{addon.name}</span>
-                        <span>{addon.quantity}x €{addon.subTotal.toFixed(2)}</span>
+                        <div className="flex items-center gap-2">
+                          <span>{addon.quantity}x €{addon.subTotal.toFixed(2)}</span>
+                          {onRemoveAddon && (
+                            <button
+                              onClick={() => onRemoveAddon(addon.id)}
+                              className="text-gray-400 hover:text-red-500 flex items-center justify-center"
+                            >
+                              <span className="text-xs">Remove</span> 
+                              {/* <X className="w-4 h-4" /> */}
+                            </button>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>

@@ -68,6 +68,13 @@ const Home = () => {
     return true; // Proceed normally
   };
 
+  const handleRemoveAddon = (addonId) => {
+    const updatedUpsellAddons = (formData.upsellAddons || []).filter(
+      (addon) => addon.id !== addonId
+    );
+    updateFormData("upsellAddons", updatedUpsellAddons);
+  };
+
   const handleAddProducts = (productsToAdd) => {
     // Add products to the upsellAddons field (NOT customSelection)
     const updatedUpsellAddons = [...(formData.upsellAddons || [])];
@@ -196,6 +203,7 @@ const Home = () => {
             drinks={drinks}
             secondaryButtonClasses={secondaryButtonClasses}
             totalAmount={totalAmount}
+            onRemoveAddon={handleRemoveAddon}
           />
         );
       case 4:

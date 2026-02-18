@@ -154,6 +154,7 @@ export const quote = defineType({
               type: "number",
             }),
             defineField({ name: "vegan", title: "Vegan", type: "number" }),
+            defineField({ name: "glutenFree", title: "Gluten Free", type: "number" }),
           ],
           hidden: ({ document }) =>
             document?.orderDetails?.selectionType !== "variety",

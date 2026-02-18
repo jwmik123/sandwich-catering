@@ -13,8 +13,17 @@ import { Input } from "@/components/ui/input";
 import { urlFor } from "@/sanity/lib/image";
 import Image from "next/image";
 
+const STORAGE_KEY = "upsellSelectedProducts";
+
 const UpsellPopup = ({ isOpen, onClose, config, onAddProducts }) => {
-  const [selectedProducts, setSelectedProducts] = useState({});
+  const [selectedProducts, setSelectedProducts] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem(STORAGE_KEY);
+      return stored ? JSON.parse(stored) : {};
+    } catch {
+      return {};
+    }
+  });
 
   if (!config || !config.products || config.products.length === 0) {
     return null;
@@ -22,14 +31,14 @@ const UpsellPopup = ({ isOpen, onClose, config, onAddProducts }) => {
 
   const handleQuantityChange = (productId, quantity) => {
     const numQuantity = Math.max(0, parseInt(quantity) || 0);
-    setSelectedProducts((prev) => ({
-      ...prev,
-      [productId]: numQuantity,
-    }));
+    setSelectedProducts((prev) => {
+      const updated = { ...prev, [productId]: numQuantity };
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const handleAddToOrder = () => {
-    // Filter out products with 0 quantity
     const productsToAdd = Object.entries(selectedProducts)
       .filter(([_, quantity]) => quantity > 0)
       .map(([productId, quantity]) => {
@@ -44,14 +53,10 @@ const UpsellPopup = ({ isOpen, onClose, config, onAddProducts }) => {
       onAddProducts(productsToAdd);
     }
 
-    // Mark that the popup has been shown
-    localStorage.setItem("varietyPopupShown", "true");
     onClose();
   };
 
   const handleNoThanks = () => {
-    // Mark that the popup has been shown
-    localStorage.setItem("varietyPopupShown", "true");
     onClose();
   };
 
