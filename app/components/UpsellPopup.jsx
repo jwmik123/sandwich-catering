@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +16,10 @@ import Image from "next/image";
 const STORAGE_KEY = "upsellSelectedProducts";
 
 const UpsellPopup = ({ isOpen, onClose, config, onAddProducts }) => {
+  useEffect(() => {
+    localStorage.removeItem("varietyPopupShown");
+  }, []);
+
   const [selectedProducts, setSelectedProducts] = useState(() => {
     try {
       const stored = sessionStorage.getItem(STORAGE_KEY);
