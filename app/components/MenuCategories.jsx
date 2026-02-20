@@ -1,5 +1,4 @@
 import React, { useMemo, useRef, useState, useEffect } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SelectionManager from "./SelectionManager";
 import { urlFor } from "@/sanity/lib/image";
 import SelectedSandwichesList from "./SelectedSandwichesList";
@@ -20,12 +19,9 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
   const [isManualScrolling, setIsManualScrolling] = useState(false);
   const scrollTriggersRef = useRef([]);
 
-  if (!Array.isArray(sandwichOptions) || !formData || !updateFormData) {
-    return <div className="p-4 text-red-600">Missing required props</div>;
-  }
-
   // Get categories dynamically from products (already ordered by orderRank from query)
   const uniqueCategories = useMemo(() => {
+    if (!Array.isArray(sandwichOptions)) return [];
     const categoryMap = new Map();
 
     sandwichOptions.forEach((item) => {
@@ -157,6 +153,10 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
       clearTimeout(resizeTimeout);
     };
   }, [activeCategory]);
+
+  if (!Array.isArray(sandwichOptions) || !formData || !updateFormData) {
+    return <div className="p-4 text-red-600">Missing required props</div>;
+  }
 
   const handleRemoveSelection = (sandwichId, indexToRemove) => {
     const currentSelections = formData.customSelection[sandwichId] || [];
