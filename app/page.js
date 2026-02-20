@@ -79,7 +79,13 @@ const Home = () => {
     // Add products to the upsellAddons field (NOT customSelection)
     const updatedUpsellAddons = [...(formData.upsellAddons || [])];
 
-    productsToAdd.forEach(({ product, quantity }) => {
+    productsToAdd.forEach(({ product, quantity, toppings = [] }) => {
+      const toppingCost = toppings.reduce((sum, toppingName) => {
+        const toppingOption = product.toppingOptions?.find((t) => t.name === toppingName);
+        return sum + (toppingOption?.price || 0);
+      }, 0);
+      const totalPrice = product.price + toppingCost;
+
       // Check if product already exists
       const existingIndex = updatedUpsellAddons.findIndex(
         (item) => item.id === product._id
@@ -89,15 +95,16 @@ const Home = () => {
         // Update existing product quantity
         updatedUpsellAddons[existingIndex].quantity += quantity;
         updatedUpsellAddons[existingIndex].subTotal =
-          updatedUpsellAddons[existingIndex].quantity * product.price;
+          updatedUpsellAddons[existingIndex].quantity * totalPrice;
       } else {
         // Add new product
         updatedUpsellAddons.push({
           id: product._id,
           name: product.name,
-          price: product.price,
+          price: totalPrice,
+          toppings,
           quantity: quantity,
-          subTotal: quantity * product.price,
+          subTotal: quantity * totalPrice,
         });
       }
     });

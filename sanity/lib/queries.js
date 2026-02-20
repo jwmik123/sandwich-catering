@@ -59,6 +59,12 @@ export const POPUP_CONFIG_QUERY = defineQuery(`*[_type == "popupConfig" && activ
     description,
     image,
     price,
+    hasToppings,
+    toppingOptions[] {
+      name,
+      price,
+      isDefault
+    },
     category->{
       _id,
       name,

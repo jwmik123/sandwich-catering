@@ -582,7 +582,9 @@ const InvoicePDF = ({
                         </Text>
                         <Text style={styles.tableCell}>-</Text>
                         <Text style={styles.tableCell}>-</Text>
-                        <Text style={styles.tableCell}>-</Text>
+                        <Text style={styles.tableCell}>
+                          {addon.toppings && addon.toppings.length > 0 ? addon.toppings.join(', ') : '-'}
+                        </Text>
                         <Text style={styles.tableCell}>
                           €{(addon.subTotal || 0).toFixed(2)}
                         </Text>
