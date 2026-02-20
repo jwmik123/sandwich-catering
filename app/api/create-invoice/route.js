@@ -96,6 +96,7 @@ export async function POST(request) {
             id: addon.id,
             name: addon.name,
             price: addon.price,
+            toppings: addon.toppings || [],
             quantity: addon.quantity,
             subTotal: addon.subTotal,
           }))
@@ -228,6 +229,7 @@ export async function POST(request) {
               id,
               name,
               price,
+              toppings,
               quantity,
               subTotal
             }
