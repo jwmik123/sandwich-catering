@@ -143,6 +143,7 @@ async function handlePaidStatus(quoteId) {
             id,
             name,
             price,
+            toppings,
             quantity,
             subTotal
           },
@@ -308,6 +309,7 @@ async function handlePaidStatus(quoteId) {
               id: addon.id,
               name: addon.name,
               price: addon.price,
+              toppings: addon.toppings || [],
               quantity: addon.quantity,
               subTotal: addon.subTotal,
             }))

@@ -210,6 +210,7 @@ export const quote = defineType({
                 defineField({ name: "id", title: "Product ID", type: "string" }),
                 defineField({ name: "name", title: "Product Name", type: "string" }),
                 defineField({ name: "price", title: "Price (per item)", type: "number" }),
+                defineField({ name: "toppings", title: "Toppings", type: "array", of: [{ type: "string" }] }),
                 defineField({ name: "quantity", title: "Quantity", type: "number" }),
                 defineField({ name: "subTotal", title: "Subtotal", type: "number" }),
               ],

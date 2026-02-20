@@ -91,6 +91,7 @@ export async function generateQuote(formData, sandwichOptions) {
               id: addon.id,
               name: addon.name,
               price: addon.price,
+              toppings: addon.toppings || [],
               quantity: addon.quantity,
               subTotal: addon.subTotal,
             }))

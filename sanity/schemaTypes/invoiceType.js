@@ -204,6 +204,7 @@ export const invoice = defineType({
                 { name: "id", type: "string", title: "Product ID" },
                 { name: "name", type: "string", title: "Product Name" },
                 { name: "price", type: "number", title: "Price (per item)" },
+                { name: "toppings", type: "array", title: "Toppings", of: [{ type: "string" }] },
                 { name: "quantity", type: "number", title: "Quantity" },
                 { name: "subTotal", type: "number", title: "Subtotal" },
               ],
