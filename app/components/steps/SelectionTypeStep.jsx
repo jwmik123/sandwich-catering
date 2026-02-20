@@ -1,11 +1,15 @@
 "use client";
 import React from "react";
+import { useEffect } from "react";
 import { Utensils } from "lucide-react";
 import MenuCategories from "@/app/components/MenuCategories";
 import VarietySelector from "@/app/components/VarietySelector";
 import { SANDWICH_PRICE_VARIETY, GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
 
 const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, drinks = [] }) => {
+  useEffect(() => {
+    localStorage.removeItem("varietyPopupShown");
+  }, []);
   return (
     <div className="space-y-6">
       <div className="flex gap-2 items-center text-lg font-medium text-custom-gray">
