@@ -16,9 +16,7 @@ import Image from "next/image";
 const STORAGE_KEY = "upsellSelectedProducts";
 
 const UpsellPopup = ({ isOpen, onClose, config, onAddProducts }) => {
-  useEffect(() => {
-    localStorage.removeItem("varietyPopupShown");
-  }, []);
+  
 
   const [selectedProducts, setSelectedProducts] = useState(() => {
     try {
