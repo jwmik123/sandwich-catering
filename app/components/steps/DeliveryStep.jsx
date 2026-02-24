@@ -12,6 +12,7 @@ const DeliveryStep = ({
   setDate,
   deliveryError,
   deliveryCost,
+  disabledDates,
 }) => {
   return (
     <>
@@ -20,6 +21,7 @@ const DeliveryStep = ({
         date={date}
         setDate={setDate}
         formData={formData}
+        disabledDates={disabledDates}
       />
 
       <div className="space-y-6">

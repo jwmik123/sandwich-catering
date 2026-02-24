@@ -4,7 +4,8 @@ import { invoice } from "./invoiceType";
 import { category } from "./categoryType";
 import { drink } from "./drinkType";
 import { popupConfig } from "./popupConfigType";
+import { siteSettings } from "./siteSettingsType";
 
 export const schema = {
-  types: [category, product, drink, quote, invoice, popupConfig],
+  types: [category, product, drink, quote, invoice, popupConfig, siteSettings],
 };

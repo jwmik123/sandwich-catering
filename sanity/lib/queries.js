@@ -48,6 +48,14 @@ export const DRINK_QUERY = defineQuery(`*[_type == "drink" && active == true] | 
   orderRank
 }`);
 
+export const SITE_SETTINGS_QUERY = defineQuery(`*[_type == "siteSettings" && _id == "siteSettings"][0] {
+  disabledDates[] {
+    label,
+    startDate,
+    endDate
+  }
+}`);
+
 export const POPUP_CONFIG_QUERY = defineQuery(`*[_type == "popupConfig" && active == true][0] {
   _id,
   active,

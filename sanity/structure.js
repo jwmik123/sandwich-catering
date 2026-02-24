@@ -56,8 +56,21 @@ export const structure = (S, context) =>
 
       S.divider(),
 
-      // All other document types
+      // All other document types (excluding singletons handled manually)
       ...S.documentTypeListItems().filter(
-        (listItem) => !['product', 'category'].includes(listItem.getId())
+        (listItem) => !['product', 'category', 'siteSettings'].includes(listItem.getId())
       ),
+
+      S.divider(),
+
+      // Site Settings singleton
+      S.listItem()
+        .title('Site Settings')
+        .id('siteSettings')
+        .child(
+          S.document()
+            .schemaType('siteSettings')
+            .documentId('siteSettings')
+            .title('Site Settings')
+        ),
     ])

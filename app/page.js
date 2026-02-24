@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { client } from "@/sanity/lib/client";
-import { PRODUCT_QUERY, DRINK_QUERY, POPUP_CONFIG_QUERY } from "@/sanity/lib/queries";
+import { PRODUCT_QUERY, DRINK_QUERY, POPUP_CONFIG_QUERY, SITE_SETTINGS_QUERY } from "@/sanity/lib/queries";
 import Wizard from "@/app/components/wizard/Wizard";
 import SandwichAmountStep from "@/app/components/steps/SandwichAmountStep";
 import SelectionTypeStep from "@/app/components/steps/SelectionTypeStep";
@@ -27,6 +27,7 @@ const Home = () => {
   const [sandwichOptions, setSandwichOptions] = useState([]);
   const [drinks, setDrinks] = useState([]);
   const [popupConfig, setPopupConfig] = useState(null);
+  const [disabledDates, setDisabledDates] = useState([]);
   const [showUpsellPopup, setShowUpsellPopup] = useState(false);
   const [date, setDate] = useState(null);
   const {
@@ -146,6 +147,14 @@ const Home = () => {
     fetchPopupConfig();
   }, []);
 
+  useEffect(() => {
+    const fetchSiteSettings = async () => {
+      const settings = await client.fetch(SITE_SETTINGS_QUERY);
+      setDisabledDates(settings?.disabledDates || []);
+    };
+    fetchSiteSettings();
+  }, []);
+
   const [currentStep, setCurrentStep] = useState(() => {
     // Check if we're restoring a quote (client-side only)
     if (typeof window !== "undefined") {
@@ -222,6 +231,7 @@ const Home = () => {
             setDate={setDate}
             deliveryError={deliveryError}
             deliveryCost={deliveryCost}
+            disabledDates={disabledDates}
           />
         );
       case 5:

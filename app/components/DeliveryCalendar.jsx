@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
+const DeliveryCalendar = ({ date, setDate, updateFormData, formData, disabledDates = [] }) => {
   const handleSelect = (selectedDate) => {
     if (!selectedDate) return;
 
@@ -31,13 +31,17 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
   const disabledDays = (date) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    // Disable today and past dates
     if (date <= today) return true;
 
-    // Check for specifically disabled dates (format: YYYY-MM-DD)
-    const disabledDates = process.env.NEXT_PUBLIC_DISABLED_DELIVERY_DATES?.split(',') || [];
     const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    if (disabledDates.includes(dateStr)) return true;
+
+    for (const period of disabledDates) {
+      if (period.endDate) {
+        if (dateStr >= period.startDate && dateStr <= period.endDate) return true;
+      } else {
+        if (dateStr === period.startDate) return true;
+      }
+    }
 
     return false;
   };
