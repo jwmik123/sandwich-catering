@@ -59,8 +59,10 @@ export async function POST(request) {
     }
 
     // Transform the incoming orderDetails to a structured format for Sanity
+    // Exclude referenceNumber — it is stored as a top-level field on the invoice document
+    const { referenceNumber: _excludedRef, ...orderDetailsWithoutRef } = orderDetails;
     const structuredOrderDetails = {
-      ...orderDetails,
+      ...orderDetailsWithoutRef,
       // Ensure critical customer contact fields are included
       name: orderDetails.name || orderDetails.fullName || "",
       email: orderDetails.email || "",
@@ -153,7 +155,6 @@ export async function POST(request) {
     const useInvoiceAddress = orderDetails.sameAsDelivery === false;
     const companyDetails = {
       name: orderDetails.companyName || orderDetails.name || "Customer",
-      referenceNumber: orderDetails.referenceNumber || null,
       address: useInvoiceAddress
         ? {
             street: orderDetails.invoiceStreet || "",
@@ -338,7 +339,10 @@ export async function POST(request) {
                   city: orderDetails.city || "",
                 },
           },
-          companyDetails,
+          companyDetails: {
+            ...companyDetails,
+            referenceNumber: orderDetails.referenceNumber || null,
+          },
           amount: amountData,
           dueDate,
           sandwichOptions,

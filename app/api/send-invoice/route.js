@@ -21,8 +21,8 @@ export async function POST(request) {
 
     console.log("Fetching invoice with ID:", invoiceId);
 
-    // Fetch the invoice from Sanity (matching cron job query)
-    const invoice = await client.fetch(
+    // Fetch the invoice from Sanity — bypass CDN to always get the latest published data
+    const invoice = await client.withConfig({ useCdn: false }).fetch(
       `*[_type == "invoice" && _id == $invoiceId][0]`,
       { invoiceId }
     );
@@ -107,7 +107,10 @@ export async function POST(request) {
       invoiceDetails: {
         address: invoice.companyDetails?.address || {},
       },
-      companyDetails: invoice.companyDetails,
+      companyDetails: {
+        ...invoice.companyDetails,
+        referenceNumber: invoice.referenceNumber || null,
+      },
       amount: invoice.amount, // Pass the entire amount object
       dueDate: invoice.dueDate,
       sandwichOptions,

@@ -75,7 +75,10 @@ export async function sendInvoiceEmail(quoteId) {
       invoiceDetails: {
         address: invoice.companyDetails?.address || {},
       },
-      companyDetails: invoice.companyDetails,
+      companyDetails: {
+        ...invoice.companyDetails,
+        referenceNumber: invoice.referenceNumber || null,
+      },
       amount: invoice.amount, // Pass the entire amount object
       dueDate: invoice.dueDate,
       sandwichOptions,
