@@ -4,7 +4,7 @@ export const useOrderValidation = (formData, deliveryError) => {
   const isStepValid = (step) => {
     switch (step) {
       case 1:
-        return formData.totalSandwiches >= 15; // Minimum order requirement
+        return formData.totalSandwiches >= 20; // Minimum order requirement
       case 2:
         if (formData.selectionType === "custom") {
           const totalSelected = Object.values(formData.customSelection)

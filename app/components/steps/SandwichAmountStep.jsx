@@ -32,7 +32,7 @@ const SandwichAmountStep = ({ formData, updateFormData }) => {
                     <SelectValue placeholder="Select number of sandwiches" />
                   </SelectTrigger>
                   <SelectContent>
-                    {[15, 20, 30, 50, 100, 200, 300, 500].map((num) => (
+                    {[20, 30, 50, 100, 200, 300, 500].map((num) => (
                       <SelectItem key={num} value={num.toString()}>
                         {num} sandwiches
                       </SelectItem>
@@ -61,7 +61,7 @@ const SandwichAmountStep = ({ formData, updateFormData }) => {
               <div className="space-y-6">
                 <div className="p-4 text-sm text-green-500 bg-green-50 rounded-md bg-beige-50">
                   <p>* We recommend 2 sandwiches per person</p>
-                  <p>* Minimum 15 sandwiches</p>
+                  <p>* Minimum 20 sandwiches</p>
                 </div>
               </div>
             </div>
@@ -77,10 +77,10 @@ const SandwichAmountStep = ({ formData, updateFormData }) => {
                 Total number of sandwiches
               </p>
               <p className="text-lg font-medium">{formData.totalSandwiches}</p>
-              {formData.totalSandwiches < 15 &&
+              {formData.totalSandwiches < 20 &&
                 formData.totalSandwiches > 0 && (
                   <p className="mt-1 text-sm text-red-600">
-                    * Minimum 15 sandwiches
+                    * Minimum 20 sandwiches
                   </p>
                 )}
             </div>
