@@ -8,7 +8,7 @@ import { round2 } from "@/lib/vat-calculations";
 export const useOrderForm = (drinks = []) => {
   const [formData, setFormData] = useState({
     // Stap 1
-    totalSandwiches: 15,
+    totalSandwiches: 20,
     // Stap 3
     selectionType: "",
     allergies: "",

@@ -60,7 +60,7 @@ const Home = () => {
           0
         );
 
-        if (currentTotal >= 15) {
+        if (currentTotal >= 20) {
           setShowUpsellPopup(true);
           return false; // Don't proceed yet
         }

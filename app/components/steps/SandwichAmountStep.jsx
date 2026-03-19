@@ -46,7 +46,7 @@ const SandwichAmountStep = ({ formData, updateFormData }) => {
                 <Input
                   id="peopleInput"
                   type="number"
-                  min="1"
+                  min="20"
                   value={formData.totalSandwiches}
                   onChange={(e) =>
                     updateFormData("totalSandwiches", e.target.value)

@@ -242,18 +242,18 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
 
       <div
         className={`p-4 rounded-md ${
-          currentTotal >= 15
+          currentTotal >= 20
             ? "bg-green-50"
             : "bg-blue-50"
         }`}
       >
-        {currentTotal >= 15 ? (
+        {currentTotal >= 20 ? (
           <p className="text-green-700">
-            Great! You have selected {currentTotal} sandwiches (minimum: 15)
+            Great! You have selected {currentTotal} sandwiches (minimum: 20)
           </p>
         ) : (
           <p className="text-blue-700">
-            Please select at least 15 sandwiches (currently: {currentTotal})
+            Please select at least 20 sandwiches (currently: {currentTotal})
           </p>
         )}
       </div>
