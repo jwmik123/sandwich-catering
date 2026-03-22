@@ -446,7 +446,7 @@ const InvoicePDF = ({
               <Text style={styles.sectionTitle}>Payment Information</Text>
               <View style={styles.row}>
                 <Text style={styles.label}>IBAN:</Text>
-                <Text style={styles.value}>NL05 INGB 0006 8499 73</Text>
+                <Text style={styles.value}>NL23 INGB 0006 2370 94</Text>
               </View>
               <View style={styles.row}>
                 <Text style={styles.label}>BIC:</Text>
@@ -454,16 +454,16 @@ const InvoicePDF = ({
               </View>
               <View style={styles.row}>
                 <Text style={styles.value}>
-                  The Sandwich Bar Nassaukade B.V.
+                  The Sandwich Bar B.V.
                 </Text>
               </View>
               <View style={styles.row}>
                 <Text style={styles.label}>KvK Number:</Text>
-                <Text style={styles.value}>81038739</Text>
+                <Text style={styles.value}>81038984</Text>
               </View>
               <View style={styles.row}>
                 <Text style={styles.label}>VAT Number:</Text>
-                <Text style={styles.value}>NL861900558B01</Text>
+                <Text style={styles.value}>NL861900637B01</Text>
               </View>
               <View style={styles.row}>
                 <Text style={styles.label}>Due Date:</Text>
@@ -650,9 +650,9 @@ const InvoicePDF = ({
         </View>
 
         <View style={styles.companyDetails}>
-          <Text>The Sandwich Bar Nassaukade B.V.</Text>
-          <Text>Nassaukade 378 H</Text>
-          <Text>1054 AD Amsterdam</Text>
+          <Text>The Sandwich Bar B.V.</Text>
+          <Text>Amstelveenseweg 156</Text>
+          <Text>1075 XN Amsterdam</Text>
           <Text>orders@thesandwichbar.nl</Text>
         </View>
       </Page>

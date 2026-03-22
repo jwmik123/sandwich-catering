@@ -180,7 +180,7 @@ export default function OrderConfirmation({
           <Text style={paragraph}>
             With kind regards,
             <br />
-            The Sandwich Bar Nassaukade B.V.
+            The Sandwich Bar B.V.
           </Text>
         </Container>
       </Body>

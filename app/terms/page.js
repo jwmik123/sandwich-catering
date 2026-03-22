@@ -18,9 +18,9 @@ export default function TermsPage() {
       <section className="mb-8">
         <h2 className="mb-4 text-2xl font-semibold">1. Company Information</h2>
         <p className="mb-4">
-          This website is operated by The Sandwich Bar Nassaukade B.V.,
-          registered with the Dutch Chamber of Commerce under number 81264782,
-          with VAT ID NL81264782B01.
+          This website is operated by The Sandwich Bar B.V.,
+          registered with the Dutch Chamber of Commerce under number 81038984,
+          with VAT ID NL861900637B01.
         </p>
       </section>
 
@@ -36,7 +36,7 @@ export default function TermsPage() {
         <h2 className="mb-4 text-2xl font-semibold">3. Orders and Payment</h2>
         <p className="mb-4">
           Orders must be placed at least 24 hours in advance. Payments can be
-          made via bank transfer (IBAN: NL05 INGB 0006 8499 73). All prices are
+          made via bank transfer (IBAN: NL23 INGB 0006 2370 94). All prices are
           listed in EUR, excluding VAT unless otherwise stated.
         </p>
       </section>

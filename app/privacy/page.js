@@ -72,15 +72,15 @@ export default function PrivacyPage() {
       <section className="mb-8">
         <h2 className="mb-4 text-2xl font-semibold">7. Contact Information</h2>
         <p className="mb-4">
-          The Sandwich Bar Nassaukade B.V.
+          The Sandwich Bar B.V.
           <br />
-          Nassaukade 378 H
+          Amstelveenseweg 156
           <br />
-          1054 AD Amsterdam
+          1075 XN Amsterdam
           <br />
-          KVK Number: 81264782
+          KVK Number: 81038984
           <br />
-          VAT Number: NL81264782B01
+          VAT Number: NL861900637B01
           <br />
           Email: orders@thesandwichbar.nl
         </p>

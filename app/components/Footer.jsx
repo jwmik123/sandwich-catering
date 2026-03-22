@@ -19,15 +19,15 @@ const Footer = () => {
           <div>
             <h3 className="mb-4 text-lg font-semibold">Company Details</h3>
             <p className="text-sm text-muted-foreground">
-              The Sandwich Bar Nassaukade B.V.
+              The Sandwich Bar B.V.
               <br />
-              Nassaukade 378 H
+              Amstelveenseweg 156
               <br />
-              1054 AD Amsterdam
+              1075 XN Amsterdam
               <br />
-              KVK Number: 81038739
+              KVK Number: 81038984
               <br />
-              VAT Number: NL861900558B01
+              VAT Number: NL861900637B01
             </p>
           </div>
 
@@ -86,7 +86,7 @@ const Footer = () => {
         {/* Copyright */}
         <div className="flex justify-between pt-4 mt-8 text-sm text-center border-t text-muted-foreground border-muted-foreground">
           <p>
-            &copy; {new Date().getFullYear()} The Sandwich Bar Nassaukade B.V.
+            &copy; {new Date().getFullYear()} The Sandwich Bar B.V.
             All rights reserved.
           </p>
           <p>
