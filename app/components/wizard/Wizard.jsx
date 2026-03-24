@@ -48,7 +48,7 @@ const Wizard = ({
           <div className="flex justify-between items-center">
             <Image
               src={"/tsb-logo-full.png"}
-              alt="The Sandwich Bar B.V. Logo"
+              alt="The Sandwich Bar Heisteeg B.V. Logo"
               className="w-16 md:w-20"
               width={250}
               height={250}

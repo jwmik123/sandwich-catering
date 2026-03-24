@@ -506,7 +506,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [], drinksWithD
         </View>
 
         <View style={styles.companyDetails}>
-          <Text>The Sandwich Bar B.V.</Text>
+          <Text>The Sandwich Bar Heisteeg B.V.</Text>
           <Text>Amstelveenseweg 156</Text>
           <Text>1075 XN Amsterdam</Text>
           <Text>orders@thesandwichbar.nl</Text>

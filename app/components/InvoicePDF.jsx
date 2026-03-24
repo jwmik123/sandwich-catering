@@ -454,7 +454,7 @@ const InvoicePDF = ({
               </View>
               <View style={styles.row}>
                 <Text style={styles.value}>
-                  The Sandwich Bar B.V.
+                  The Sandwich Bar Heisteeg B.V.
                 </Text>
               </View>
               <View style={styles.row}>
@@ -650,7 +650,7 @@ const InvoicePDF = ({
         </View>
 
         <View style={styles.companyDetails}>
-          <Text>The Sandwich Bar B.V.</Text>
+          <Text>The Sandwich Bar Heisteeg B.V.</Text>
           <Text>Amstelveenseweg 156</Text>
           <Text>1075 XN Amsterdam</Text>
           <Text>orders@thesandwichbar.nl</Text>

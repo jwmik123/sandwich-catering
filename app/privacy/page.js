@@ -72,7 +72,7 @@ export default function PrivacyPage() {
       <section className="mb-8">
         <h2 className="mb-4 text-2xl font-semibold">7. Contact Information</h2>
         <p className="mb-4">
-          The Sandwich Bar B.V.
+          The Sandwich Bar Heisteeg B.V.
           <br />
           Amstelveenseweg 156
           <br />

@@ -18,7 +18,7 @@ export default function TermsPage() {
       <section className="mb-8">
         <h2 className="mb-4 text-2xl font-semibold">1. Company Information</h2>
         <p className="mb-4">
-          This website is operated by The Sandwich Bar B.V.,
+          This website is operated by The Sandwich Bar Heisteeg B.V.,
           registered with the Dutch Chamber of Commerce under number 81038984,
           with VAT ID NL861900637B01.
         </p>
