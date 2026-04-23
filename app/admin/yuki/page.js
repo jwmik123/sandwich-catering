@@ -89,23 +89,6 @@ export default function YukiAdminPage() {
     setMessage("Status refreshed");
   };
 
-  // In je admin dashboard
-  const sendTestInvoice = async () => {
-    try {
-      const response = await fetch("/api/test/yuki-invoice", {
-        method: "POST",
-      });
-      const data = await response.json();
-      setMessage(
-        data.success
-          ? `✅ Test successful: ${data.testQuoteId}`
-          : `❌ ${data.error}`
-      );
-    } catch (error) {
-      setMessage(`❌ Test failed: ${error.message}`);
-    }
-  };
-
   return (
     <div className="max-w-6xl p-6 mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -239,7 +222,6 @@ export default function YukiAdminPage() {
               )}
             </Button>
           </CardContent>
-          <Button onClick={sendTestInvoice}>Send Test Invoice to Yuki</Button>
         </Card>
 
         {/* Send Single */}

@@ -1,6 +1,6 @@
 // app/api/admin/yuki/route.js - Admin endpoint for manual Yuki operations
 import { NextResponse } from "next/server";
-import { YukiApiClient, validateYukiConfig } from "@/lib/yuki-api";
+import { YukiApiClient, validateYukiConfig, createYukiInvoice } from "@/lib/yuki-api";
 import { client } from "@/sanity/lib/client";
 
 export async function POST(request) {
@@ -43,18 +43,19 @@ async function sendSingleInvoice(quoteId) {
   }
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/yuki/send-invoice`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ quoteId }),
-      }
+    const invoice = await client.fetch(
+      `*[_type == "invoice" && quoteId == $quoteId][0]`,
+      { quoteId }
     );
 
-    const result = await response.json();
+    if (!invoice) {
+      return NextResponse.json(
+        { error: `No invoice found for quoteId: ${quoteId}` },
+        { status: 404 }
+      );
+    }
+
+    const result = await createYukiInvoice(quoteId, invoice._id);
     return NextResponse.json(result);
   } catch (error) {
     return NextResponse.json(
