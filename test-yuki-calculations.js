@@ -118,28 +118,28 @@ function testVarietyOrderComplete() {
     lines.push({
       description: 'Chicken, Meat, Fish Sandwiches',
       quantity: orderData.varietySelection.nonVega,
-      unitPrice: 6.83
+      unitPrice: 7.30
     });
   }
   if (orderData.varietySelection.vega > 0) {
     lines.push({
       description: 'Vegetarian Sandwiches',
       quantity: orderData.varietySelection.vega,
-      unitPrice: 6.83
+      unitPrice: 7.30
     });
   }
   if (orderData.varietySelection.vegan > 0) {
     lines.push({
       description: 'Vegan Sandwiches',
       quantity: orderData.varietySelection.vegan,
-      unitPrice: 6.83
+      unitPrice: 7.30
     });
   }
   if (orderData.varietySelection.glutenFree > 0) {
     lines.push({
       description: 'Gluten Free Sandwiches',
       quantity: orderData.varietySelection.glutenFree,
-      unitPrice: 6.83 + GLUTEN_FREE_SURCHARGE
+      unitPrice: 7.30 + GLUTEN_FREE_SURCHARGE
     });
   }
 
@@ -162,15 +162,15 @@ function testVarietyOrderComplete() {
   const yukiCalculated = calculateYukiTotal(lines);
 
   // Manual calculation
-  const sandwichesSubtotal = (10 + 5 + 3) * 6.83 + 2 * (6.83 + GLUTEN_FREE_SURCHARGE);
+  const sandwichesSubtotal = (10 + 5 + 3) * 7.30 + 2 * (7.30 + GLUTEN_FREE_SURCHARGE);
   const drinksSubtotal = 5 * 3.62 + 8 * 2.71;
   const expectedSubtotal = sandwichesSubtotal + drinksSubtotal + 10.00;
   const expectedVAT = Math.ceil(expectedSubtotal * 0.09 * 100) / 100;
   const expectedTotal = expectedSubtotal + expectedVAT;
 
   console.log('Order breakdown:');
-  console.log(`  Sandwiches: ${orderData.varietySelection.nonVega + orderData.varietySelection.vega + orderData.varietySelection.vegan} regular @ €6.83`);
-  console.log(`  Gluten-free: ${orderData.varietySelection.glutenFree} @ €${(6.83 + GLUTEN_FREE_SURCHARGE).toFixed(2)}`);
+  console.log(`  Sandwiches: ${orderData.varietySelection.nonVega + orderData.varietySelection.vega + orderData.varietySelection.vegan} regular @ €7.30`);
+  console.log(`  Gluten-free: ${orderData.varietySelection.glutenFree} @ €${(7.30 + GLUTEN_FREE_SURCHARGE).toFixed(2)}`);
   console.log(`  Drinks: 5x OJ + 8x Sodas`);
   console.log(`  Delivery: €10.00`);
   console.log('');
@@ -219,7 +219,7 @@ function testVarietyOrderWithUpsellAddons() {
   lines.push({
     description: 'Chicken, Meat, Fish Sandwiches',
     quantity: 15,
-    unitPrice: 6.83
+    unitPrice: 7.30
   });
 
   // Upsell addons - convert from VAT-inclusive to VAT-exclusive
@@ -236,14 +236,14 @@ function testVarietyOrderWithUpsellAddons() {
   const yukiCalculated = calculateYukiTotal(lines);
 
   // Manual calculation
-  const sandwichesSubtotal = 15 * 6.83;
+  const sandwichesSubtotal = 15 * 7.30;
   const addonsExclVAT = 27.25 / 1.09;
   const expectedSubtotal = sandwichesSubtotal + addonsExclVAT;
   const expectedVAT = Math.ceil(expectedSubtotal * 0.09 * 100) / 100;
   const expectedTotal = expectedSubtotal + expectedVAT;
 
   console.log('Order breakdown:');
-  console.log(`  Sandwiches: 15 @ €6.83`);
+  console.log(`  Sandwiches: 15 @ €7.30`);
   console.log(`  Addon: 2x Cheese Platter (€27.25 incl VAT)`);
   console.log('');
   console.log('Yuki calculation:');

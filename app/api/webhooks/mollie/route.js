@@ -594,8 +594,8 @@ function calculateOrderTotal(orderDetails, drinksWithDetails = []) {
       total =
         ((orderDetails.varietySelection?.vega || 0) +
          (orderDetails.varietySelection?.nonVega || 0) +
-         (orderDetails.varietySelection?.vegan || 0)) * 6.83 +
-        (orderDetails.varietySelection?.glutenFree || 0) * (6.83 + GLUTEN_FREE_SURCHARGE);
+         (orderDetails.varietySelection?.vegan || 0)) * 7.30 +
+        (orderDetails.varietySelection?.glutenFree || 0) * (7.30 + GLUTEN_FREE_SURCHARGE);
     }
   }
 

@@ -34,5 +34,5 @@ export const DRINK_PRICES = {
 };
 
 // Sandwich pricing
-export const SANDWICH_PRICE_VARIETY = 6.83;
+export const SANDWICH_PRICE_VARIETY = 7.30;
 export const GLUTEN_FREE_SURCHARGE = 1.38;

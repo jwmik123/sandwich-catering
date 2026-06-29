@@ -381,7 +381,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [], drinksWithD
                     <Text style={styles.tableCell}>
                       €
                       {(
-                        (orderData.varietySelection?.nonVega || 0) * 6.83
+                        (orderData.varietySelection?.nonVega || 0) * 7.30
                       ).toFixed(2)}
                     </Text>
                   </View>
@@ -395,7 +395,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [], drinksWithD
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>
                       €
-                      {((orderData.varietySelection?.vega || 0) * 6.83).toFixed(
+                      {((orderData.varietySelection?.vega || 0) * 7.30).toFixed(
                         2
                       )}
                     </Text>
@@ -411,7 +411,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [], drinksWithD
                     <Text style={styles.tableCell}>
                       €
                       {(
-                        (orderData.varietySelection?.vegan || 0) * 6.83
+                        (orderData.varietySelection?.vegan || 0) * 7.30
                       ).toFixed(2)}
                     </Text>
                   </View>
@@ -421,9 +421,9 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [], drinksWithD
                       <Text style={styles.tableCell}>
                         {orderData.varietySelection.glutenFree}x
                       </Text>
-                      <Text style={styles.tableCell}>€{(6.83 + GLUTEN_FREE_SURCHARGE).toFixed(2)}</Text>
+                      <Text style={styles.tableCell}>€{(7.30 + GLUTEN_FREE_SURCHARGE).toFixed(2)}</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderData.varietySelection.glutenFree * (6.83 + GLUTEN_FREE_SURCHARGE)).toFixed(2)}
+                        €{(orderData.varietySelection.glutenFree * (7.30 + GLUTEN_FREE_SURCHARGE)).toFixed(2)}
                       </Text>
                     </View>
                   )}

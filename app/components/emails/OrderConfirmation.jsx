@@ -48,11 +48,11 @@ export default function OrderConfirmation({
         (orderDetails.varietySelection?.nonVega || 0) +
         (orderDetails.varietySelection?.vegan || 0);
 
-      subtotal = regularSandwiches * 6.83; // €6.83 per sandwich
+      subtotal = regularSandwiches * 7.30; // €7.30 per sandwich
 
       // Add gluten-free with full price (base + surcharge)
       if (orderDetails.varietySelection?.glutenFree > 0) {
-        subtotal += orderDetails.varietySelection.glutenFree * (6.83 + GLUTEN_FREE_SURCHARGE);
+        subtotal += orderDetails.varietySelection.glutenFree * (7.30 + GLUTEN_FREE_SURCHARGE);
       }
     }
 

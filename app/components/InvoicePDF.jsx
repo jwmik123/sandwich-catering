@@ -201,8 +201,8 @@ const InvoicePDF = ({
       subtotalAmount =
         ((orderDetails.varietySelection?.vega || 0) +
          (orderDetails.varietySelection?.nonVega || 0) +
-         (orderDetails.varietySelection?.vegan || 0)) * 6.83 +
-        (orderDetails.varietySelection?.glutenFree || 0) * (6.83 + GLUTEN_FREE_SURCHARGE); // VAT-exclusive
+         (orderDetails.varietySelection?.vegan || 0)) * 7.30 +
+        (orderDetails.varietySelection?.glutenFree || 0) * (7.30 + GLUTEN_FREE_SURCHARGE); // VAT-exclusive
 
       // Add any upsell addon products
       if (orderDetails.upsellAddons && orderDetails.upsellAddons.length > 0) {
@@ -531,7 +531,7 @@ const InvoicePDF = ({
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>
-                      €{(varietySelection.nonVega * 6.83).toFixed(2)}
+                      €{(varietySelection.nonVega * 7.30).toFixed(2)}
                     </Text>
                   </View>
                   <View style={styles.tableRow}>
@@ -543,7 +543,7 @@ const InvoicePDF = ({
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>
-                      €{(varietySelection.vega * 6.83).toFixed(2)}
+                      €{(varietySelection.vega * 7.30).toFixed(2)}
                     </Text>
                   </View>
                   <View style={styles.tableRow}>
@@ -555,7 +555,7 @@ const InvoicePDF = ({
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>-</Text>
                     <Text style={styles.tableCell}>
-                      €{(varietySelection.vegan * 6.83).toFixed(2)}
+                      €{(varietySelection.vegan * 7.30).toFixed(2)}
                     </Text>
                   </View>
                   {varietySelection.glutenFree > 0 && (
@@ -568,7 +568,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(varietySelection.glutenFree * (6.83 + GLUTEN_FREE_SURCHARGE)).toFixed(2)}
+                        €{(varietySelection.glutenFree * (7.30 + GLUTEN_FREE_SURCHARGE)).toFixed(2)}
                       </Text>
                     </View>
                   )}

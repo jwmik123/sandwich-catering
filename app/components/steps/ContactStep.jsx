@@ -46,7 +46,7 @@ const ContactStep = ({
           .flat()
           .reduce((total, selection) => total + selection.subTotal, 0);
       } else {
-        calculatedAmount = formData.totalSandwiches * 6.83;
+        calculatedAmount = formData.totalSandwiches * 7.30;
 
         // Add upsell addons for variety orders
         if (formData.upsellAddons && formData.upsellAddons.length > 0) {
