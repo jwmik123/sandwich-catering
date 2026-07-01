@@ -50,14 +50,11 @@ export const useOrderValidation = (formData, deliveryError) => {
         // Validate phone number (just check if not empty)
         const isPhoneValid = formData.phoneNumber.trim() !== "";
 
-        // Base validation
-        let isValid =
-          isEmailValid && isPhoneValid && formData.name.trim() !== "";
-
-        // Additional company validation if isCompany is checked
-        if (!formData.isCompany) {
-          isValid = isValid && formData.companyName.trim() !== "";
-        }
+        // Base validation: email, phone, and the single company/name field
+        const isValid =
+          isEmailValid &&
+          isPhoneValid &&
+          formData.companyName.trim() !== "";
 
         return isValid;
       default:

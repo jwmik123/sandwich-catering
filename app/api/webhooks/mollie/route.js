@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { sendOrderConfirmation } from "@/lib/email";
 import { PRODUCT_QUERY, DRINK_QUERY } from "@/sanity/lib/queries";
 import { createYukiInvoice } from "@/lib/yuki-api";
+import { assignInvoiceNumber } from "@/lib/invoice-number";
 import { GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
 import { getDrinksWithDetails, calculateDrinksTotal } from "@/lib/product-helpers";
 
@@ -259,6 +260,7 @@ async function handlePaidStatus(quoteId) {
     };
 
     // Create an invoice document in Sanity for consistency (matching create-invoice structure)
+    let invoiceNumber = null;
     try {
       const deliveryDate = new Date(
         order.deliveryDetails.deliveryDate || Date.now()
@@ -368,6 +370,10 @@ async function handlePaidStatus(quoteId) {
         `Invoice document created in Sanity with ID: ${newInvoice._id}`
       );
 
+      // Mint the gapless invoice number so it prints on the branded PDF.
+      // Idempotent — the Yuki booking below reuses the same number.
+      invoiceNumber = await assignInvoiceNumber(newInvoice);
+
       // Now, send this to Yuki
       if (process.env.YUKI_ENABLED === "true") {
         console.log(
@@ -415,6 +421,7 @@ async function handlePaidStatus(quoteId) {
     // Create a properly formatted order object expected by the email/PDF components
     const formattedOrder = {
       quoteId: order.quoteId,
+      invoiceNumber,
       email: order.email,
       phoneNumber: order.phoneNumber,
       fullName: order.name, // This will be used as fallback when no company name

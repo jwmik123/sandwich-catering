@@ -155,6 +155,12 @@ export const useOrderForm = (drinks = []) => {
     setFormData((prev) => {
       const newData = { ...prev, [field]: value };
 
+      // The single "Company name" field is the sole customer identifier now;
+      // keep `name` mirrored to it so downstream consumers keep working.
+      if (field === "companyName") {
+        newData.name = value;
+      }
+
       // Log company details when they change
       if (
         field === "isCompany" ||
@@ -244,7 +250,8 @@ export const useOrderForm = (drinks = []) => {
             postalCode: quote.deliveryDetails.address.postalCode,
             city: quote.deliveryDetails.address.city,
             // Step 6
-            isCompany: !!quote.companyDetails,
+            isCompany: false,
+            name: quote.name || quote.companyDetails?.companyName || "",
             companyName: quote.companyDetails?.companyName || "",
             companyVAT: quote.companyDetails?.companyVAT || "",
             referenceNumber: quote.companyDetails?.referenceNumber || "",

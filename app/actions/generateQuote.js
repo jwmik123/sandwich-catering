@@ -60,7 +60,7 @@ export async function generateQuote(formData, sandwichOptions) {
       quoteId,
       email: formData.email,
       phoneNumber: formData.phoneNumber,
-      name: formData.name,
+      name: formData.companyName,
       howDidYouFindUs: formData.howDidYouFindUs || [],
       howDidYouFindUsOther: formData.howDidYouFindUsOther || "",
       orderDetails: {
@@ -135,13 +135,11 @@ export async function generateQuote(formData, sandwichOptions) {
               city: formData.invoiceCity,
             },
       },
-      companyDetails: formData.isCompany
-        ? {
-            companyName: formData.companyName,
-            companyVAT: formData.companyVAT,
-            referenceNumber: formData.referenceNumber,
-          }
-        : null,
+      companyDetails: {
+        companyName: formData.companyName,
+        companyVAT: formData.companyVAT,
+        referenceNumber: formData.referenceNumber,
+      },
       status: "pending",
       pdfAsset: {
         _type: "file",

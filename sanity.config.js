@@ -3,11 +3,13 @@
 import {visionTool} from '@sanity/vision'
 import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
+import {BellIcon} from '@sanity/icons'
 
 import {apiVersion, dataset, projectId} from './sanity/env'
 import {schema} from './sanity/schemaTypes'
 import {structure} from './sanity/structure'
 import {SendInvoiceAction} from './sanity/actions/SendInvoiceAction'
+import {RemindersTool} from './sanity/tools/RemindersTool'
 
 export default defineConfig({
   basePath: '/studio',
@@ -17,6 +19,15 @@ export default defineConfig({
   plugins: [
     structureTool({structure}),
     visionTool({defaultApiVersion: apiVersion}),
+  ],
+  tools: (prev) => [
+    ...prev,
+    {
+      name: 'reminders',
+      title: 'Reminders',
+      icon: BellIcon,
+      component: RemindersTool,
+    },
   ],
   document: {
     actions: (prev, context) => {

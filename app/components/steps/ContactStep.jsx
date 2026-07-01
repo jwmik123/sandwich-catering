@@ -169,18 +169,6 @@ const ContactStep = ({
           <h3 className="font-medium text-gray-700 text-md">Contact details</h3>
 
           <div className="space-y-2">
-            <Label htmlFor="name">Full name*</Label>
-            <Input
-              id="name"
-              type="text"
-              value={formData.name}
-              onChange={(e) => updateFormData("name", e.target.value)}
-              placeholder="Your full name"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="email">E-mail address*</Label>
             <Input
               id="email"
@@ -227,65 +215,46 @@ const ContactStep = ({
         {/* How did you find us Section */}
         
 
-        {/* Company Details Section */}
+        {/* Company / Name Section */}
         <div className="pt-6 border-t">
-          <div className="flex gap-2 items-center">
-            <Checkbox
-              id="isCompany"
-              checked={formData.isCompany}
-              onCheckedChange={(checked) =>
-                updateFormData("isCompany", checked)
-              }
-            />
-            <Label
-              htmlFor="isCompany"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              This is NOT a business order
-            </Label>
-          </div>
-
-          {!formData.isCompany && (
-            <div className="mt-4 space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="companyName">Company name*</Label>
-                <Input
-                  id="companyName"
-                  type="text"
-                  value={formData.companyName}
-                  onChange={(e) =>
-                    updateFormData("companyName", e.target.value)
-                  }
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="referenceNumber">
-                  Reference number (optional)
-                </Label>
-                <Input
-                  id="referenceNumber"
-                  type="text"
-                  value={formData.referenceNumber}
-                  onChange={(e) =>
-                    updateFormData("referenceNumber", e.target.value)
-                  }
-                  placeholder="Your internal reference number"
-                />
-              </div>
-
-              {/* Download Invoice Button */}
-              <div className="pt-4">
-                <button
-                  onClick={handleDownloadInvoice}
-                  className="px-4 py-2 w-full text-sm font-medium text-white rounded-md transition-colors bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                >
-                  Download Invoice Preview
-                </button>
-              </div>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="companyName">Company name*</Label>
+              <Input
+                id="companyName"
+                type="text"
+                value={formData.companyName}
+                onChange={(e) => updateFormData("companyName", e.target.value)}
+                placeholder="Company name (or your own name)"
+                required
+              />
             </div>
-          )}
+
+            <div className="space-y-2">
+              <Label htmlFor="referenceNumber">
+                Reference number (optional)
+              </Label>
+              <Input
+                id="referenceNumber"
+                type="text"
+                value={formData.referenceNumber}
+                onChange={(e) =>
+                  updateFormData("referenceNumber", e.target.value)
+                }
+                placeholder="Your internal reference number"
+              />
+            </div>
+
+            {/* Download Invoice Button */}
+            <div className="pt-4">
+              <button
+                onClick={handleDownloadInvoice}
+                className="px-4 py-2 w-full text-sm font-medium text-white rounded-md transition-colors bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                Download Invoice Preview
+              </button>
+            </div>
+          </div>
         </div>
         <div className="pt-6 border-t">
           <div className="space-y-4">

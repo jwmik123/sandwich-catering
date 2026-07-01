@@ -56,9 +56,12 @@ export const structure = (S, context) =>
 
       S.divider(),
 
-      // All other document types (excluding singletons handled manually)
+      // All other document types (excluding singletons and the internal counter)
       ...S.documentTypeListItems().filter(
-        (listItem) => !['product', 'category', 'siteSettings'].includes(listItem.getId())
+        (listItem) =>
+          !['product', 'category', 'siteSettings', 'invoiceCounter'].includes(
+            listItem.getId()
+          )
       ),
 
       S.divider(),

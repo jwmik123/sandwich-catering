@@ -148,6 +148,7 @@ const DEFAULT_IMAGE_URL = "https://catering.thesandwichbar.nl/tsb.png";
 
 const InvoicePDF = ({
   quoteId = "UNKNOWN",
+  invoiceNumber = null,
   orderDetails = {},
   deliveryDetails = {},
   invoiceDetails = {},
@@ -365,7 +366,14 @@ const InvoicePDF = ({
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>Invoice</Text>
-            <Text style={styles.invoiceId}>Invoice ID: {quoteId}</Text>
+            {invoiceNumber ? (
+              <>
+                <Text style={styles.invoiceId}>Invoice Number: {invoiceNumber}</Text>
+                <Text style={styles.invoiceId}>Order ID: {quoteId}</Text>
+              </>
+            ) : (
+              <Text style={styles.invoiceId}>Invoice ID: {quoteId}</Text>
+            )}
             <Text style={styles.invoiceId}>
               Date: {today.toLocaleDateString("nl-NL")}
             </Text>

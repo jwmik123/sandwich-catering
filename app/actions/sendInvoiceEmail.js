@@ -4,6 +4,7 @@ import { client } from "@/sanity/lib/client";
 import { sendOrderConfirmation } from "@/lib/email";
 import { PRODUCT_QUERY } from "@/sanity/lib/queries";
 import { createYukiInvoice } from "@/lib/yuki-api";
+import { assignInvoiceNumber } from "@/lib/invoice-number";
 
 export async function sendInvoiceEmail(quoteId) {
   try {
@@ -40,9 +41,14 @@ export async function sendInvoiceEmail(quoteId) {
     // Fetch sandwich options for the email
     const sandwichOptions = await client.fetch(PRODUCT_QUERY);
 
+    // Mint the gapless invoice number now so it prints on the branded PDF.
+    // Idempotent — the background Yuki booking reuses the same number.
+    const invoiceNumber = await assignInvoiceNumber(invoice);
+
     // Prepare email data
     const emailData = {
       quoteId,
+      invoiceNumber,
       email: invoice.orderDetails.email,
       fullName: invoice.orderDetails.name,
       orderDetails: {

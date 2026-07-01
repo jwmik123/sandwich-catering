@@ -243,6 +243,14 @@ export const invoice = defineType({
       readOnly: true,
       fieldset: "yuki",
     }),
+    defineField({
+      name: "yukiPaidCheckedAt",
+      title: "Last Yuki Payment Check",
+      type: "datetime",
+      readOnly: true,
+      description: "Last time this invoice was reconciled against Yuki's open-debtor list.",
+      fieldset: "yuki",
+    }),
 
     // -- Email Tracking Fields --
     defineField({
@@ -257,6 +265,14 @@ export const invoice = defineType({
       title: "Invoice Email Sent At",
       type: "datetime",
       readOnly: true,
+      fieldset: "email",
+    }),
+    defineField({
+      name: "reminderSentAt",
+      title: "Reminder Sent At",
+      type: "datetime",
+      readOnly: true,
+      description: "When a payment reminder was last sent for this invoice.",
       fieldset: "email",
     }),
   ],
