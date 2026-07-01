@@ -219,7 +219,9 @@ const ContactStep = ({
         <div className="pt-6 border-t">
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="companyName">Company name*</Label>
+              <Label htmlFor="companyName">
+                Company name* (or full name if it&apos;s not a company order)
+              </Label>
               <Input
                 id="companyName"
                 type="text"
