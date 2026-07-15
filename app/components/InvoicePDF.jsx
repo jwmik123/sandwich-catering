@@ -8,7 +8,7 @@ import {
   Image,
 } from "@react-pdf/renderer";
 import { isDrink } from "@/lib/product-helpers";
-import { GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
+import { GLUTEN_FREE_SURCHARGE, PAYMENT_TERM_DAYS } from "@/app/assets/constants";
 import { parseDateString } from "@/lib/utils";
 
 const styles = StyleSheet.create({
@@ -237,16 +237,16 @@ const InvoicePDF = ({
   // Handle properly formatted dates or create defaults
   const formattedDueDate = dueDate
     ? new Date(dueDate)
-    : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+    : new Date(Date.now() + PAYMENT_TERM_DAYS * 24 * 60 * 60 * 1000);
 
   // Parse delivery date using helper to avoid timezone issues
   const deliveryDate = deliveryDetails?.deliveryDate
     ? parseDateString(deliveryDetails.deliveryDate)
     : new Date();
 
-  // If we have a delivery date, calculate due date as 14 days after delivery date
+  // If we have a delivery date, calculate due date as the payment term after delivery date
   const calculatedDueDate = new Date(deliveryDate);
-  calculatedDueDate.setDate(calculatedDueDate.getDate() + 14);
+  calculatedDueDate.setDate(calculatedDueDate.getDate() + PAYMENT_TERM_DAYS);
   const finalDueDate = dueDate ? formattedDueDate : calculatedDueDate;
 
   const today = new Date();

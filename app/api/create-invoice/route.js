@@ -6,6 +6,7 @@ import { PRODUCT_QUERY, DRINK_QUERY } from "@/sanity/lib/queries";
 import { createYukiInvoice } from "@/lib/yuki-api";
 import { getDrinksWithDetails } from "@/lib/product-helpers";
 import { round2 } from "@/lib/vat-calculations";
+import { PAYMENT_TERM_DAYS } from "@/app/assets/constants";
 
 export async function POST(request) {
   console.log("===== CREATE INVOICE API CALLED =====");
@@ -116,10 +117,10 @@ export async function POST(request) {
     };
     // --- End Data Transformation ---
 
-    // Calculate due date (14 days from delivery date)
+    // Calculate due date (payment term from delivery date)
     const deliveryDate = new Date(orderDetails.deliveryDate || Date.now());
     const dueDate = new Date(deliveryDate);
-    dueDate.setDate(deliveryDate.getDate() + 14);
+    dueDate.setDate(deliveryDate.getDate() + PAYMENT_TERM_DAYS);
     console.log(
       "Due date calculated:",
       dueDate.toISOString(),

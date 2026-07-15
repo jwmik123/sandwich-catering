@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "react-toastify";
+import { PAYMENT_TERM_DAYS } from "@/app/assets/constants";
 
 const ContactStep = ({
   formData,
@@ -124,7 +125,7 @@ const ContactStep = ({
             },
           },
           amount: finalAmount, // Use total including delivery
-          dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+          dueDate: new Date(Date.now() + PAYMENT_TERM_DAYS * 24 * 60 * 60 * 1000),
           sandwichOptions: sandwichOptions,
         }),
       });

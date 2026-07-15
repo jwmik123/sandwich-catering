@@ -6,14 +6,41 @@ import { NextResponse } from "next/server";
 import { sendOrderConfirmation } from "@/lib/email";
 import { PRODUCT_QUERY } from "@/sanity/lib/queries";
 
-async function sendOneReminder(invoiceId, sandwichOptions) {
+// Fill per-invoice tokens in the human-edited reminder message.
+function fillTokens(message, invoice) {
+  if (!message) return null;
+  const due = invoice.dueDate
+    ? new Date(invoice.dueDate).toLocaleDateString("nl-NL")
+    : "the due date";
+  return message
+    .replaceAll("{invoiceNumber}", invoice.invoiceNumber || invoice.quoteId || "")
+    .replaceAll("{dueDate}", due);
+}
+
+async function sendOneReminder(invoiceId, sandwichOptions, message) {
   const invoice = await client
     .withConfig({ useCdn: false })
-    .fetch(`*[_type == "invoice" && _id == $invoiceId][0]`, { invoiceId });
+    .fetch(
+      `*[_type == "invoice" && _id == $invoiceId][0]{
+        ...,
+        "molliePaymentId": *[_type == "quote" && quoteId == ^.quoteId][0].paymentId
+      }`,
+      { invoiceId }
+    );
 
   if (!invoice) return { invoiceId, success: false, error: "Invoice not found" };
   if (!invoice.orderDetails?.email) {
     return { invoiceId, success: false, error: "No email address" };
+  }
+  // Server-side guard: never send a payment reminder for an order that was
+  // already paid online via Mollie (Yuki may still show it open until the
+  // payout is matched, but the customer owes nothing).
+  if (invoice.molliePaymentId) {
+    return {
+      invoiceId,
+      success: false,
+      error: "Paid online via Mollie — reminder blocked",
+    };
   }
 
   // Normalise customSelection array -> object (matching the invoice email path).
@@ -69,6 +96,7 @@ async function sendOneReminder(invoiceId, sandwichOptions) {
     amount: invoice.amount,
     dueDate: invoice.dueDate,
     sandwichOptions,
+    reminderMessage: fillTokens(message, invoice),
   };
 
   const sent = await sendOrderConfirmation(emailData, true, true); // isInvoiceEmail, isReminder
@@ -84,7 +112,7 @@ async function sendOneReminder(invoiceId, sandwichOptions) {
 
 export async function POST(request) {
   try {
-    const { invoiceIds } = await request.json();
+    const { invoiceIds, message } = await request.json();
     if (!Array.isArray(invoiceIds) || invoiceIds.length === 0) {
       return NextResponse.json(
         { success: false, error: "invoiceIds (non-empty array) required" },
@@ -95,7 +123,9 @@ export async function POST(request) {
     const sandwichOptions = await client.fetch(PRODUCT_QUERY);
 
     const results = await Promise.allSettled(
-      invoiceIds.map((id) => sendOneReminder(id, sandwichOptions))
+      invoiceIds.map((id) =>
+        sendOneReminder(id, sandwichOptions, typeof message === "string" ? message.trim() || null : null)
+      )
     );
 
     const normalized = results.map((r, i) =>

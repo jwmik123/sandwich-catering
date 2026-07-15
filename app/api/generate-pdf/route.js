@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { client } from "@/sanity/lib/client";
 import { DRINK_QUERY } from "@/sanity/lib/queries";
 import { getDrinksWithDetails } from "@/lib/product-helpers";
+import { PAYMENT_TERM_DAYS } from "@/app/assets/constants";
 
 export async function POST(request) {
   try {
@@ -22,17 +23,17 @@ export async function POST(request) {
       data.orderDetails.drinksWithDetails = drinksWithDetails;
     }
 
-    // Calculate due date if not provided (14 days after delivery date)
+    // Calculate due date if not provided (payment term after delivery date)
     let dueDate = data.dueDate ? new Date(data.dueDate) : null;
 
     // If due date isn't provided, calculate it from delivery date
     if (!dueDate && data.deliveryDetails?.deliveryDate) {
       const deliveryDate = new Date(data.deliveryDetails.deliveryDate);
       dueDate = new Date(deliveryDate);
-      dueDate.setDate(deliveryDate.getDate() + 14);
+      dueDate.setDate(deliveryDate.getDate() + PAYMENT_TERM_DAYS);
     } else if (!dueDate) {
-      // Fallback to current date + 14 days if no delivery date
-      dueDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+      // Fallback to current date + payment term if no delivery date
+      dueDate = new Date(Date.now() + PAYMENT_TERM_DAYS * 24 * 60 * 60 * 1000);
     }
 
     const pdfBuffer = await renderToBuffer(

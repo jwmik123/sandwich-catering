@@ -1,4 +1,10 @@
 // constants.js
+
+// Payment term in days: invoice due date = delivery date + this many days.
+// Sent to Yuki as the <DueDate> field — Yuki has no separate due-date setting,
+// it uses whatever date we send.
+export const PAYMENT_TERM_DAYS = 30;
+
 export const breadTypes = [
   { id: "baguette", name: "Baguette", surcharge: 0 },
   { id: "spelt", name: "Spelt bread", surcharge: 0.46 },

@@ -6,7 +6,7 @@ import { sendOrderConfirmation } from "@/lib/email";
 import { PRODUCT_QUERY, DRINK_QUERY } from "@/sanity/lib/queries";
 import { createYukiInvoice } from "@/lib/yuki-api";
 import { assignInvoiceNumber } from "@/lib/invoice-number";
-import { GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
+import { GLUTEN_FREE_SURCHARGE, PAYMENT_TERM_DAYS } from "@/app/assets/constants";
 import { getDrinksWithDetails, calculateDrinksTotal } from "@/lib/product-helpers";
 
 const mollieClient = createMollieClient({
@@ -266,7 +266,7 @@ async function handlePaidStatus(quoteId) {
         order.deliveryDetails.deliveryDate || Date.now()
       );
       const dueDate = new Date(deliveryDate);
-      dueDate.setDate(deliveryDate.getDate() + 14);
+      dueDate.setDate(deliveryDate.getDate() + PAYMENT_TERM_DAYS);
 
       // Transform orderDetails to structured format (same as create-invoice route)
       const structuredOrderDetails = {
@@ -358,6 +358,7 @@ async function handlePaidStatus(quoteId) {
         referenceNumber: order.companyDetails?.referenceNumber || null,
         amount: amountData,
         status: "paid", // From Mollie
+        paidAt: new Date().toISOString(),
         dueDate: dueDate.toISOString(),
         emailSent: true,
         companyDetails,
@@ -374,18 +375,22 @@ async function handlePaidStatus(quoteId) {
       // Idempotent — the Yuki booking below reuses the same number.
       invoiceNumber = await assignInvoiceNumber(newInvoice);
 
-      // Now, send this to Yuki
+      // Now, send this to Yuki.
+      // IMPORTANT: must be awaited — on serverless, fire-and-forget work is
+      // killed once the response returns, which left yukiSent unset even
+      // though the Yuki booking itself had already succeeded.
       if (process.env.YUKI_ENABLED === "true") {
         console.log(
           `Triggering Yuki invoice creation for quote: ${order.quoteId}`
         );
-        // Run in the background, but log if it fails. No need to await.
-        createYukiInvoice(order.quoteId, newInvoice._id).catch((error) => {
+        try {
+          await createYukiInvoice(order.quoteId, newInvoice._id);
+        } catch (error) {
           console.error(
-            `Background Yuki invoice creation failed for ${order.quoteId}:`,
+            `Yuki invoice creation failed for ${order.quoteId}:`,
             error
           );
-        });
+        }
       } else {
         console.log("Yuki integration is disabled. Skipping invoice creation.");
       }

@@ -124,18 +124,21 @@ export async function POST(request) {
     if (emailSent) {
       console.log("Invoice email sent successfully");
 
-      // If email is sent successfully, also create the Yuki invoice (matching cron job)
+      // If email is sent successfully, also create the Yuki invoice (matching cron job).
+      // Awaited on purpose: unawaited work gets killed on serverless once the
+      // response returns, leaving yukiSent unset (breaks reconciliation).
       if (process.env.YUKI_ENABLED === "true") {
         console.log(
           `Creating Yuki invoice for quote: ${invoice.quoteId}`
         );
-        // We don't need to await this, it can run in the background
-        createYukiInvoice(invoice.quoteId, invoice._id).catch((error) => {
+        try {
+          await createYukiInvoice(invoice.quoteId, invoice._id);
+        } catch (error) {
           console.error(
-            `Background Yuki invoice creation failed for ${invoice.quoteId}:`,
+            `Yuki invoice creation failed for ${invoice.quoteId}:`,
             error
           );
-        });
+        }
       } else {
         console.log(
           "Yuki integration disabled, skipping invoice creation."

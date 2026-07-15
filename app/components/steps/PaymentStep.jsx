@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { CreditCard } from "lucide-react";
 import { generateQuote } from "@/app/actions/generateQuote";
 import { calculateVATBreakdown, calculateTotalWithVAT } from "@/lib/vat-calculations";
+import { PAYMENT_TERM_DAYS } from "@/app/assets/constants";
 
 const PaymentStep = ({
   formData,
@@ -171,7 +172,7 @@ const PaymentStep = ({
                 <div>
                   <p className="font-medium">Pay via invoice</p>
                   <p className="text-sm text-gray-500">
-                    Within 14 days of invoice date
+                    Within {PAYMENT_TERM_DAYS} days of invoice date
                   </p>
                 </div>
               </div>
