@@ -2,12 +2,20 @@
 import React, { useState } from "react";
 import { CreditCard } from "lucide-react";
 import { generateQuote } from "@/app/actions/generateQuote";
-import { calculateVATBreakdown, calculateTotalWithVAT } from "@/lib/vat-calculations";
+import { calculateVATBreakdown, calculateTotalWithVAT, round2 } from "@/lib/vat-calculations";
 import { PAYMENT_TERM_DAYS } from "@/app/assets/constants";
+import {
+  buildItems,
+  buildUserData,
+  storeOrderSnapshot,
+  trackFunnelStep,
+} from "@/lib/gtm";
 
 const PaymentStep = ({
   formData,
   // updateFormData,
+  sandwichOptions = [],
+  drinks = [],
   totalAmount,
   deliveryCost,
   deliveryError,
@@ -19,6 +27,17 @@ const PaymentStep = ({
   const vatBreakdown = calculateVATBreakdown(totalAmount, deliveryCost || 0);
 
   const handlePayment = async () => {
+    trackFunnelStep({
+      stepName: "payment",
+      stepNumber: 6,
+      formData,
+      sandwichOptions,
+      drinks,
+      totalAmount,
+      extra: { payment_method: paymentMethod },
+      userData: buildUserData(formData, { includeContact: true }),
+    });
+
     try {
       setIsProcessing(true);
 
@@ -29,6 +48,21 @@ const PaymentStep = ({
       });
 
       if (result.success) {
+        // The confirmation page only gets quoteId + type in the URL, so leave
+        // the purchase payload behind for it to pick up.
+        storeOrderSnapshot(result.quoteId, {
+          ecommerce: {
+            transaction_id: result.quoteId,
+            currency: "EUR",
+            value: round2(totalAmount),
+            tax: vatBreakdown.vat,
+            shipping: round2(deliveryCost || 0),
+            payment_type: paymentMethod,
+            items: buildItems(formData, { sandwichOptions, drinks }),
+          },
+          user_data: buildUserData(formData, { includeContact: true }),
+        });
+
         if (paymentMethod === "invoice") {
           // Handle invoice payment
           const invoiceResponse = await fetch("/api/create-invoice", {

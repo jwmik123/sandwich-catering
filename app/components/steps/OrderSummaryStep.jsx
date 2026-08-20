@@ -202,6 +202,8 @@ const OrderSummaryStep = ({
             <QuoteButton
               formData={formData}
               sandwichOptions={sandwichOptions}
+              drinks={drinks}
+              totalAmount={totalAmount}
               buttonClasses={secondaryButtonClasses}
             />
           </div>

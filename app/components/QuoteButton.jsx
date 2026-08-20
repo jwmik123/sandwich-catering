@@ -2,15 +2,20 @@
 
 import { useState } from "react";
 import { generateQuote } from "@/app/actions/generateQuote";
+import { trackDownloadQuote } from "@/lib/gtm";
 
 export default function QuoteButton({
   formData,
   buttonClasses,
   sandwichOptions,
+  drinks = [],
+  totalAmount = 0,
 }) {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleDownloadQuote = async () => {
+    trackDownloadQuote({ formData, sandwichOptions, drinks, totalAmount });
+
     try {
       setIsGenerating(true);
 

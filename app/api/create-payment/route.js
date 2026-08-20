@@ -7,7 +7,7 @@ const mollieClient = createMollieClient({
 
 export async function POST(request) {
   try {
-    const { quoteId, amount, orderDetails } = await request.json();
+    const { quoteId, amount } = await request.json();
 
     // Create payment
     const payment = await mollieClient.payments.create({
@@ -16,7 +16,7 @@ export async function POST(request) {
         value: amount.toFixed(2), // Format as string with 2 decimals
       },
       description: `Order ${quoteId}`,
-      redirectUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success?quoteId=${quoteId}&formData=${orderDetails}`,
+      redirectUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success?quoteId=${quoteId}&type=online`,
       webhookUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhooks/mollie`,
       cancelUrl: `${process.env.NEXT_PUBLIC_BASE_URL}`,
       metadata: {

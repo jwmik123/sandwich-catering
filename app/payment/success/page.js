@@ -5,12 +5,13 @@ import { CheckCircle } from "lucide-react";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { trackPurchase } from "@/lib/gtm";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const quoteId = searchParams.get("quoteId");
-  const formData = searchParams.get("formData");
+  const paymentType = searchParams.get("type");
   const commonButtonClasses =
     "px-4 py-2 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2";
   const secondaryButtonClasses = `${commonButtonClasses} bg-muted text-muted-foreground hover:bg-muted/90 focus:ring-muted`;
@@ -18,6 +19,11 @@ function SuccessContent() {
   useEffect(() => {
     setLoading(false);
   }, [quoteId]);
+
+  useEffect(() => {
+    // Guarded inside trackPurchase so it stays at one push per quoteId.
+    trackPurchase(quoteId, paymentType);
+  }, [quoteId, paymentType]);
 
   if (loading) {
     return (

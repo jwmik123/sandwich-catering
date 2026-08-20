@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Users,
   Utensils,
@@ -22,6 +22,11 @@ import PaymentStep from "@/app/components/steps/PaymentStep";
 import UpsellPopup from "@/app/components/UpsellPopup";
 import { useOrderForm } from "@/app/hooks/useOrderForm";
 import { useOrderValidation } from "@/app/hooks/useOrderValidation";
+import {
+  buildUserData,
+  trackAmountStep,
+  trackFunnelStep,
+} from "@/lib/gtm";
 
 const Home = () => {
   const [sandwichOptions, setSandwichOptions] = useState([]);
@@ -30,18 +35,40 @@ const Home = () => {
   const [disabledDates, setDisabledDates] = useState([]);
   const [showUpsellPopup, setShowUpsellPopup] = useState(false);
   const [date, setDate] = useState(null);
+  // Addons picked in the upsell popup, held until the popup closes so the
+  // step 2 event can be built from the selection including them.
+  const pendingUpsellAddons = useRef(null);
   const {
     formData,
     updateFormData,
     deliveryCost,
     deliveryError,
     totalAmount,
+    calculateTotal,
     restoreQuote,
   } = useOrderForm(drinks);
 
   const { isStepValid, getValidationMessage } = useOrderValidation(formData, deliveryError);
 
+  // The upsell popup can add addons after the user clicks next, so the step 2
+  // event is built from the selection as it stands when we actually advance.
+  const trackChooseSandwiches = (overrides = {}) => {
+    const selection = { ...formData, ...overrides };
+    trackFunnelStep({
+      stepName: "choose_sandwiches",
+      stepNumber: 2,
+      formData: selection,
+      sandwichOptions,
+      drinks,
+      totalAmount: calculateTotal(selection),
+    });
+  };
+
   const handleBeforeNext = (step) => {
+    if (step === 1) {
+      trackAmountStep(formData.totalSandwiches);
+    }
+
     // Step 2 is the Selection Type step
     if (step === 2) {
       // Check if we should show the upsell popup
@@ -65,7 +92,58 @@ const Home = () => {
           return false; // Don't proceed yet
         }
       }
+
+      trackChooseSandwiches();
     }
+
+    if (step === 3) {
+      trackFunnelStep({
+        stepName: "order_summary",
+        stepNumber: 3,
+        formData,
+        sandwichOptions,
+        drinks,
+        totalAmount,
+      });
+    }
+
+    if (step === 4) {
+      trackFunnelStep({
+        stepName: "delivery",
+        stepNumber: 4,
+        formData,
+        sandwichOptions,
+        drinks,
+        totalAmount,
+        extra: {
+          delivery_date: formData.deliveryDate,
+          delivery_time: formData.deliveryTime,
+        },
+        userData: buildUserData(formData),
+      });
+    }
+
+    if (step === 5) {
+      const extra = {};
+      if (formData.howDidYouFindUs?.length > 0) {
+        extra.how_found = formData.howDidYouFindUs;
+      }
+      if (formData.referenceNumber) {
+        extra.reference_number = formData.referenceNumber;
+      }
+
+      trackFunnelStep({
+        stepName: "company_details",
+        stepNumber: 5,
+        formData,
+        sandwichOptions,
+        drinks,
+        totalAmount,
+        extra,
+        userData: buildUserData(formData, { includeContact: true }),
+      });
+    }
+
     return true; // Proceed normally
   };
 
@@ -113,12 +191,21 @@ const Home = () => {
     updateFormData("upsellAddons", updatedUpsellAddons);
     setShowUpsellPopup(false);
 
+    // UpsellPopup always calls onClose right after this, and that is where the
+    // step 2 event is sent — otherwise it would fire twice.
+    pendingUpsellAddons.current = updatedUpsellAddons;
+
     // Proceed to next step
     setCurrentStep(3);
   };
 
   const handleClosePopup = () => {
     setShowUpsellPopup(false);
+
+    const addons = pendingUpsellAddons.current;
+    pendingUpsellAddons.current = null;
+    trackChooseSandwiches(addons ? { upsellAddons: addons } : {});
+
     // Proceed to next step
     setCurrentStep(3);
   };
@@ -249,6 +336,8 @@ const Home = () => {
           <PaymentStep
             formData={formData}
             updateFormData={updateFormData}
+            sandwichOptions={sandwichOptions}
+            drinks={drinks}
             totalAmount={totalAmount}
             deliveryCost={deliveryCost}
             deliveryError={deliveryError}
