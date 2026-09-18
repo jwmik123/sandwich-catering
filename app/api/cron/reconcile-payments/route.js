@@ -1,6 +1,9 @@
 // Nightly payment reconciliation for bank-transfer invoices (see ADR 0002).
 // Compares booked Sanity invoices against Yuki's open-debtor list:
-//   - absent (or residual <= tolerance) -> paid
+//   - absent (or residual <= tolerance) -> paid, but ONLY when the booking was
+//     verified in Yuki (yukiVerifiedAt). An invoice Yuki never booked is also
+//     absent from the open list — reading that as "paid" hid missing invoices.
+//   - absent and unverified             -> flagged, status untouched
 //   - present and past due date         -> overdue
 // Mollie (prepaid) invoices are already status "paid" and excluded by the query.
 export const dynamic = "force-dynamic";
@@ -43,7 +46,7 @@ export async function GET(request) {
     // 2. Candidate invoices: booked into Yuki, numbered, not yet paid/cancelled.
     const invoices = await client.fetch(
       `*[_type == "invoice" && yukiSent == true && defined(invoiceNumber) && status in ["pending","overdue"]]{
-        _id, invoiceNumber, dueDate, status, paidAt
+        _id, invoiceNumber, dueDate, status, paidAt, yukiVerifiedAt
       }`
     );
     console.log(`🔍 ${invoices.length} open invoice(s) to reconcile`);
@@ -53,15 +56,30 @@ export async function GET(request) {
     let paid = 0;
     let overdue = 0;
     let stillOpen = 0;
+    let missing = 0;
 
     for (const inv of invoices) {
       const ref = String(inv.invoiceNumber || "").trim();
       const openItem = openMap.get(ref);
       const patch = client.patch(inv._id).set({ yukiPaidCheckedAt: nowIso });
 
+      if (!openItem && !inv.yukiVerifiedAt) {
+        // Never proven to exist in Yuki, and not on the open list: this is a
+        // missing invoice, not a paid one. Leave the status alone and flag it.
+        patch.set({
+          yukiMissing: true,
+          yukiError:
+            "Not present in Yuki's open-debtor list and never verified as booked — check whether this invoice exists in Yuki.",
+        });
+        missing++;
+        console.warn(`🚨 ${ref} unverified and absent from Yuki — flagged`);
+        await patch.commit();
+        continue;
+      }
+
       if (!openItem || openItem.openAmount <= PAID_TOLERANCE) {
         // Absent from Yuki's open list, or only a rounding residual left => paid.
-        patch.set({ status: "paid" });
+        patch.set({ status: "paid", yukiMissing: false });
         if (!inv.paidAt) patch.set({ paidAt: nowIso });
         paid++;
         if (openItem) {
@@ -73,6 +91,7 @@ export async function GET(request) {
         }
       } else {
         // Still open. Log partial payment (binary model: not modelled, only logged).
+        patch.set({ yukiMissing: false });
         if (openItem.openAmount < openItem.originalAmount) {
           console.log(
             `➗ ${ref} partially paid: €${openItem.openAmount.toFixed(2)} open of €${openItem.originalAmount.toFixed(2)}`
@@ -92,7 +111,7 @@ export async function GET(request) {
     }
 
     console.log(
-      `🏁 reconcile-payments done. paid=${paid} overdue=${overdue} stillOpen=${stillOpen}`
+      `🏁 reconcile-payments done. paid=${paid} overdue=${overdue} stillOpen=${stillOpen} missingInYuki=${missing}`
     );
     return NextResponse.json({
       success: true,
@@ -100,6 +119,7 @@ export async function GET(request) {
       paid,
       overdue,
       stillOpen,
+      missingInYuki: missing,
       openItemsFromYuki: openItems.length,
     });
   } catch (error) {

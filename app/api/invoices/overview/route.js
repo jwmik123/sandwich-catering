@@ -31,9 +31,11 @@ export async function GET() {
     // 2. All CAT- invoices in Sanity.
     const invoices = await client.withConfig({ useCdn: false }).fetch(
       `*[_type == "invoice" && defined(invoiceNumber) && invoiceNumber match "CAT-*"]{
-        _id, invoiceNumber, quoteId, status, yukiSent, paidAt, dueDate, reminderSentAt, createdAt,
+        _id, invoiceNumber, quoteId, status, yukiSent, yukiVerifiedAt, yukiMissing, yukiError,
+        paidAt, dueDate, reminderSentAt, createdAt,
         "customer": coalesce(companyDetails.name, orderDetails.name),
         "email": orderDetails.email,
+        "billingEmail": orderDetails.invoiceEmail,
         "deliveryDate": orderDetails.deliveryDate,
         "total": amount.total,
         "molliePaymentId": *[_type == "quote" && quoteId == ^.quoteId][0].paymentId
@@ -56,14 +58,30 @@ export async function GET() {
         openInYuki && dateStr
           ? Math.floor((now - new Date(dateStr).getTime()) / 86400000)
           : null;
+      // Absence from Yuki's open list only means "settled" when we know the
+      // invoice was booked there in the first place. Otherwise it is missing.
+      const verifiedInYuki = !!inv.yukiVerifiedAt;
+      // `yukiMissing` is set by reconciliation and by scripts/audit-yuki-bookings.js,
+      // which also checks the revenue ledger — trust it over the live merge alone
+      // (it catches online-paid invoices Yuki never booked, too).
+      const missingInYuki =
+        !openInYuki &&
+        !verifiedInYuki &&
+        (!!inv.yukiMissing || (!!inv.yukiSent && !paidOnline));
+
       return {
         _id: inv._id,
         invoiceNumber: inv.invoiceNumber,
         customer: inv.customer || null,
         email: inv.email || null,
+        // Where invoices and reminders actually go for this customer.
+        billingEmail: inv.billingEmail || null,
         total: inv.total ?? null,
         status: inv.status || null,
         yukiSent: !!inv.yukiSent,
+        verifiedInYuki,
+        missingInYuki,
+        yukiError: inv.yukiError || null,
         openInYuki,
         openAmount: openInYuki ? y.openAmount : null,
         daysOpen,
@@ -91,6 +109,7 @@ export async function GET() {
       yukiError,
       count: rows.length,
       openInYukiCount: rows.filter((r) => r.openInYuki).length,
+      missingInYukiCount: rows.filter((r) => r.missingInYuki).length,
       invoices: rows,
       orphans,
     });

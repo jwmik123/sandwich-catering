@@ -38,6 +38,22 @@ const ContactStep = ({
   };
 
   const emailValidation = validateEmailFormat(formData.email);
+
+  // The invoice address must be exactly one address: it becomes the contact in
+  // our bookkeeping, which accepts a single e-mail only.
+  const validateSingleEmail = (value) => {
+    if (!value || value.trim() === "") return { isValid: true, message: "" };
+    if (value.includes(",") || value.includes(";")) {
+      return {
+        isValid: false,
+        message: "Please enter one invoice address only",
+      };
+    }
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
+      ? { isValid: true, message: "" }
+      : { isValid: false, message: `Invalid email format: ${value.trim()}` };
+  };
+  const invoiceEmailValidation = validateSingleEmail(formData.invoiceEmail);
   const handleDownloadInvoice = async () => {
     try {
       // Calculate total amount including delivery costs
@@ -193,6 +209,36 @@ const ContactStep = ({
               {formData.email && emailValidation.message && (
                 <p className={emailValidation.isValid ? "text-green-600" : "text-red-600"}>
                   {emailValidation.message}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="invoiceEmail">
+              Invoice e-mail address (optional)
+            </Label>
+            <Input
+              id="invoiceEmail"
+              type="text"
+              value={formData.invoiceEmail}
+              onChange={(e) => updateFormData("invoiceEmail", e.target.value)}
+              placeholder="finance@company.com"
+              className={
+                formData.invoiceEmail && !invoiceEmailValidation.isValid
+                  ? "border-red-500"
+                  : ""
+              }
+            />
+            <div className="text-sm">
+              <p className="text-gray-500">
+                Leave empty to send invoices to the address above. One address
+                only — this is also the contact we register with our
+                bookkeeping.
+              </p>
+              {formData.invoiceEmail && invoiceEmailValidation.message && (
+                <p className="text-red-600">
+                  {invoiceEmailValidation.message}
                 </p>
               )}
             </div>

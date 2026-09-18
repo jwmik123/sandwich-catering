@@ -67,6 +67,7 @@ export async function POST(request) {
       // Ensure critical customer contact fields are included
       name: orderDetails.name || orderDetails.fullName || "",
       email: orderDetails.email || "",
+      invoiceEmail: (orderDetails.invoiceEmail || "").trim(),
       phoneNumber: orderDetails.phoneNumber || "",
       // Ensure delivery address fields are included (they might be at the top level of orderDetails)
       street: orderDetails.street || "",

@@ -47,12 +47,22 @@ export const useOrderValidation = (formData, deliveryError) => {
         };
         const isEmailValid = validateMultipleEmails(formData.email);
 
+        // Optional invoice address, but when filled it must be one valid address
+        // (it becomes the bookkeeping contact, which takes a single e-mail).
+        const invoiceEmail = (formData.invoiceEmail || "").trim();
+        const isInvoiceEmailValid =
+          invoiceEmail === "" ||
+          (!invoiceEmail.includes(",") &&
+            !invoiceEmail.includes(";") &&
+            emailRegex.test(invoiceEmail));
+
         // Validate phone number (just check if not empty)
         const isPhoneValid = formData.phoneNumber.trim() !== "";
 
         // Base validation: email, phone, and the single company/name field
         const isValid =
           isEmailValid &&
+          isInvoiceEmailValid &&
           isPhoneValid &&
           formData.companyName.trim() !== "";
 

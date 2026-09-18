@@ -273,6 +273,7 @@ async function handlePaidStatus(quoteId) {
         // Customer info (needed for cron job)
         name: order.name || "",
         email: order.email || "",
+        invoiceEmail: order.invoiceEmail || "",
         phoneNumber: order.phoneNumber || "",
         // Delivery info (needed for cron job)
         deliveryDate: order.deliveryDetails?.deliveryDate || "",
@@ -428,6 +429,7 @@ async function handlePaidStatus(quoteId) {
       quoteId: order.quoteId,
       invoiceNumber,
       email: order.email,
+      invoiceEmail: order.invoiceEmail || "",
       phoneNumber: order.phoneNumber,
       fullName: order.name, // This will be used as fallback when no company name
       amount: amountData, // Pass the calculated amount data

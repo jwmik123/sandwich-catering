@@ -157,6 +157,12 @@ export function RemindersTool() {
     () => invoices.filter((i) => i.mismatch),
     [invoices]
   );
+  // Sent to Yuki, absent from its open list and never verified as booked:
+  // these are not settled, they are missing. See ADR on Yuki verification.
+  const missingInYuki = useMemo(
+    () => invoices.filter((i) => i.missingInYuki),
+    [invoices]
+  );
   const totalOpenAmount = useMemo(
     () => needsPayment.reduce((s, i) => s + (i.openAmount || 0), 0),
     [needsPayment]
@@ -172,12 +178,14 @@ export function RemindersTool() {
     let rows = invoices;
     if (filter === "open") rows = rows.filter((i) => isRemindable(i));
     if (filter === "payout") rows = rows.filter((i) => i.awaitingPayout);
-    if (filter === "paid") rows = rows.filter((i) => !i.openInYuki);
+    if (filter === "paid")
+      rows = rows.filter((i) => !i.openInYuki && !i.missingInYuki);
+    if (filter === "missing") rows = rows.filter((i) => i.missingInYuki);
     if (filter === "mismatch") rows = rows.filter((i) => i.mismatch);
     const q = query.trim().toLowerCase();
     if (q) {
       rows = rows.filter((i) =>
-        [i.invoiceNumber, i.customer, i.email]
+        [i.invoiceNumber, i.customer, i.email, i.billingEmail]
           .filter(Boolean)
           .some((v) => v.toLowerCase().includes(q))
       );
@@ -253,8 +261,11 @@ export function RemindersTool() {
       : []),
     {
       key: "paid",
-      label: `Settled (${invoices.filter((i) => !i.openInYuki).length})`,
+      label: `Settled (${invoices.filter((i) => !i.openInYuki && !i.missingInYuki).length})`,
     },
+    ...(missingInYuki.length
+      ? [{ key: "missing", label: `🚨 Not in Yuki (${missingInYuki.length})` }]
+      : []),
     ...(mismatches.length
       ? [{ key: "mismatch", label: `⚠ Mismatch (${mismatches.length})` }]
       : []),
@@ -304,6 +315,16 @@ export function RemindersTool() {
                   value={awaitingPayout.length}
                   detail="paid online, not yet matched in Yuki"
                   tone="default"
+                />
+                <StatCard
+                  label="Not in Yuki"
+                  value={missingInYuki.length}
+                  detail={
+                    missingInYuki.length
+                      ? "sent but never booked — check Yuki"
+                      : "every sent invoice accounted for"
+                  }
+                  tone={missingInYuki.length ? "critical" : "positive"}
                 />
                 <StatCard
                   label="Mismatches"
@@ -443,9 +464,10 @@ export function RemindersTool() {
                           <Text size={1} textOverflow="ellipsis">
                             {inv.customer || "—"}
                           </Text>
-                          {inv.email ? (
+                          {inv.billingEmail || inv.email ? (
                             <Text size={0} muted textOverflow="ellipsis">
-                              {inv.email}
+                              {inv.billingEmail || inv.email}
+                              {inv.billingEmail ? " (invoice)" : ""}
                             </Text>
                           ) : null}
                         </Stack>
@@ -465,6 +487,10 @@ export function RemindersTool() {
                         ) : inv.openInYuki ? (
                           <Badge tone="caution" fontSize={0} style={NUM_STYLE}>
                             open · {euro(inv.openAmount)}
+                          </Badge>
+                        ) : inv.missingInYuki ? (
+                          <Badge tone="critical" fontSize={0}>
+                            not in Yuki
                           </Badge>
                         ) : (
                           <Badge tone="positive" fontSize={0}>
@@ -511,6 +537,9 @@ export function RemindersTool() {
                 bookkeeper.
                 {mismatches.length
                   ? " ⚠ = bank-transfer invoice marked paid in Sanity while Yuki still reports it open — check in Yuki."
+                  : ""}
+                {missingInYuki.length
+                  ? " 🚨 \u201cnot in Yuki\u201d = marked as sent, but Yuki never booked it — the invoice does not exist in the bookkeeping."
                   : ""}
               </Text>
             )}

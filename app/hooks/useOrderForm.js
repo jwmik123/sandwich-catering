@@ -36,6 +36,9 @@ export const useOrderForm = (drinks = []) => {
     // Stap 6
     name: "",
     email: "",
+    // Optional: where invoices and reminders go when that is not the contact
+    // person (e.g. a finance department). Single address.
+    invoiceEmail: "",
     phoneNumber: "",
     isCompany: false,
     companyName: "",

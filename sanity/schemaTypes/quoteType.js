@@ -31,6 +31,23 @@ export const quote = defineType({
       }),
     }),
     defineField({
+      name: "invoiceEmail",
+      title: "Invoice Email",
+      type: "string",
+      description:
+        "Optional single address for invoices and reminders (e.g. a finance department). Empty means the contact address is used.",
+      validation: (Rule) =>
+        Rule.custom((email) => {
+          if (!email) return true;
+          if (email.includes(",") || email.includes(";")) {
+            return "Enter one invoice address only";
+          }
+          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+            ? true
+            : `Invalid email format: ${email}`;
+        }),
+    }),
+    defineField({
       name: "phoneNumber",
       title: "Phone Number",
       type: "string",

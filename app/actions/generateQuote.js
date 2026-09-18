@@ -59,6 +59,7 @@ export async function generateQuote(formData, sandwichOptions) {
       _type: "quote",
       quoteId,
       email: formData.email,
+      invoiceEmail: (formData.invoiceEmail || "").trim(),
       phoneNumber: formData.phoneNumber,
       name: formData.companyName,
       howDidYouFindUs: formData.howDidYouFindUs || [],

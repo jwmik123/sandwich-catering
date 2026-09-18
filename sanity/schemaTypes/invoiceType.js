@@ -122,6 +122,13 @@ export const invoice = defineType({
       fields: [
         { name: "name", title: "Customer Name", type: "string" },
         { name: "email", title: "Email", type: "string" },
+        {
+          name: "invoiceEmail",
+          title: "Invoice Email",
+          type: "string",
+          description:
+            "Where invoices and reminders go, if not the contact address. Also the e-mail registered on the Yuki contact.",
+        },
         { name: "phoneNumber", title: "Phone Number", type: "string" },
         { name: "deliveryDate", title: "Delivery Date", type: "string" },
         { name: "deliveryTime", title: "Delivery Time", type: "string" },
@@ -240,6 +247,41 @@ export const invoice = defineType({
       name: "yukiInvoiceReference",
       title: "Yuki Invoice Reference",
       type: "string",
+      readOnly: true,
+      fieldset: "yuki",
+    }),
+    defineField({
+      name: "yukiVerifiedAt",
+      title: "Verified in Yuki At",
+      type: "datetime",
+      readOnly: true,
+      description:
+        "Moment the invoice was confirmed present in Yuki as an outstanding item. Without this, absence from Yuki must never be read as 'paid'.",
+      fieldset: "yuki",
+    }),
+    defineField({
+      name: "yukiMissing",
+      title: "Missing in Yuki",
+      type: "boolean",
+      initialValue: false,
+      readOnly: true,
+      description:
+        "Set by reconciliation when the invoice is neither open in Yuki nor ever verified as booked.",
+      fieldset: "yuki",
+    }),
+    defineField({
+      name: "yukiError",
+      title: "Yuki Error",
+      type: "text",
+      rows: 3,
+      readOnly: true,
+      description: "Reason the last Yuki booking attempt failed (empty when OK).",
+      fieldset: "yuki",
+    }),
+    defineField({
+      name: "yukiLastAttemptAt",
+      title: "Last Yuki Attempt",
+      type: "datetime",
       readOnly: true,
       fieldset: "yuki",
     }),
