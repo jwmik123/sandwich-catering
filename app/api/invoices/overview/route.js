@@ -61,13 +61,11 @@ export async function GET() {
       // Absence from Yuki's open list only means "settled" when we know the
       // invoice was booked there in the first place. Otherwise it is missing.
       const verifiedInYuki = !!inv.yukiVerifiedAt;
-      // `yukiMissing` is set by reconciliation and by scripts/audit-yuki-bookings.js,
-      // which also checks the revenue ledger — trust it over the live merge alone
-      // (it catches online-paid invoices Yuki never booked, too).
-      const missingInYuki =
-        !openInYuki &&
-        !verifiedInYuki &&
-        (!!inv.yukiMissing || (!!inv.yukiSent && !paidOnline));
+      // Only `yukiMissing` decides this, never absence alone: an invoice booked
+      // before yukiVerifiedAt existed, paid and settled, is absent from the open
+      // list for an entirely innocent reason. The flag is set by reconciliation
+      // and by scripts/audit-yuki-bookings.js, which check the revenue ledger too.
+      const missingInYuki = !openInYuki && !!inv.yukiMissing;
 
       return {
         _id: inv._id,
