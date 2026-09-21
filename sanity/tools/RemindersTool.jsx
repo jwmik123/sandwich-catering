@@ -13,6 +13,7 @@ import {
   Text,
   TextArea,
   TextInput,
+  Tooltip,
   useToast,
 } from "@sanity/ui";
 
@@ -81,7 +82,7 @@ function AgeBadge({ inv }) {
   }
   // Online-paid invoices are only waiting on payout matching — age is
   // informational, never urgent.
-  if (inv.paidOnline) {
+  if (inv.paidOnline || inv.paymentReceived) {
     return (
       <Badge tone="default" fontSize={0} style={NUM_STYLE}>
         {inv.daysOpen}d
@@ -99,8 +100,21 @@ function AgeBadge({ inv }) {
 
 // An invoice a human may send a payment reminder for: still open in Yuki AND
 // not paid online (online payers already paid — Yuki just hasn't matched the
-// Mollie payout yet).
-const isRemindable = (inv) => inv.openInYuki && !inv.paidOnline;
+// Mollie payout yet) AND no bank receipt in Yuki that pays it (the money is
+// there, the bookkeeper just has not linked it).
+// Also excluded: invoices only "open" because Yuki booked more than we invoiced
+// (settledPerInvoice), and part-paid ones — a standard reminder would quote the
+// wrong amount, so those need a human.
+const isRemindable = (inv) =>
+  inv.openInYuki &&
+  !inv.paidOnline &&
+  !inv.paymentReceived &&
+  !inv.settledPerInvoice;
+
+const PAYMENT_METHOD_LABEL = {
+  reference: "payer quoted the invoice",
+  "amount+name": "same amount and payer",
+};
 
 export function RemindersTool() {
   const toast = useToast();
@@ -163,6 +177,16 @@ export function RemindersTool() {
     () => invoices.filter((i) => i.missingInYuki),
     [invoices]
   );
+  // Money is in Yuki but not linked to the invoice yet: tell the bookkeeper,
+  // never the customer.
+  const paidUnmatched = useMemo(
+    () => invoices.filter((i) => i.paymentReceived && !i.paymentReceived.partial),
+    [invoices]
+  );
+  const amountMismatches = useMemo(
+    () => invoices.filter((i) => i.amountMismatch),
+    [invoices]
+  );
   const totalOpenAmount = useMemo(
     () => needsPayment.reduce((s, i) => s + (i.openAmount || 0), 0),
     [needsPayment]
@@ -181,6 +205,8 @@ export function RemindersTool() {
     if (filter === "paid")
       rows = rows.filter((i) => !i.openInYuki && !i.missingInYuki);
     if (filter === "missing") rows = rows.filter((i) => i.missingInYuki);
+    if (filter === "unmatched") rows = rows.filter((i) => i.paymentReceived);
+    if (filter === "amount") rows = rows.filter((i) => i.amountMismatch);
     if (filter === "mismatch") rows = rows.filter((i) => i.mismatch);
     const q = query.trim().toLowerCase();
     if (q) {
@@ -266,6 +292,12 @@ export function RemindersTool() {
     ...(missingInYuki.length
       ? [{ key: "missing", label: `🚨 Not in Yuki (${missingInYuki.length})` }]
       : []),
+    ...(paidUnmatched.length
+      ? [{ key: "unmatched", label: `Paid, not linked (${paidUnmatched.length})` }]
+      : []),
+    ...(amountMismatches.length
+      ? [{ key: "amount", label: `≠ Amount (${amountMismatches.length})` }]
+      : []),
     ...(mismatches.length
       ? [{ key: "mismatch", label: `⚠ Mismatch (${mismatches.length})` }]
       : []),
@@ -315,6 +347,16 @@ export function RemindersTool() {
                   value={awaitingPayout.length}
                   detail="paid online, not yet matched in Yuki"
                   tone="default"
+                />
+                <StatCard
+                  label="Paid, not linked"
+                  value={paidUnmatched.length}
+                  detail={
+                    paidUnmatched.length
+                      ? `${euro(paidUnmatched.reduce((s, i) => s + (i.paymentReceived?.amount || 0), 0))} received — bookkeeper to link in Yuki`
+                      : "every payment linked"
+                  }
+                  tone={paidUnmatched.length ? "primary" : "positive"}
                 />
                 <StatCard
                   label="Not in Yuki"
@@ -484,6 +526,62 @@ export function RemindersTool() {
                           <Badge tone="primary" fontSize={0} style={NUM_STYLE}>
                             online · awaiting payout
                           </Badge>
+                        ) : inv.settledPerInvoice ? (
+                          <Tooltip
+                            content={
+                              <Box padding={2}>
+                                <Text size={1}>
+                                  Customer paid the invoice. Yuki shows{" "}
+                                  {euro(inv.openAmount)} open only because it booked{" "}
+                                  {euro(inv.yukiAmount)} instead of {euro(inv.total)}.
+                                </Text>
+                              </Box>
+                            }
+                            placement="top"
+                            portal
+                          >
+                            <Badge tone="positive" fontSize={0} style={NUM_STYLE}>
+                              paid · Yuki over-booked
+                            </Badge>
+                          </Tooltip>
+                        ) : inv.paymentReceived?.partial ? (
+                          <Tooltip
+                            content={
+                              <Box padding={2}>
+                                <Text size={1}>
+                                  {euro(inv.paymentReceived.amount)} from{" "}
+                                  {inv.paymentReceived.contact} on{" "}
+                                  {inv.paymentReceived.date} quotes this invoice, but{" "}
+                                  {euro(inv.owed)} is owed — check in Yuki before reminding.
+                                </Text>
+                              </Box>
+                            }
+                            placement="top"
+                            portal
+                          >
+                            <Badge tone="caution" fontSize={0} style={NUM_STYLE}>
+                              part-paid {euro(inv.paymentReceived.amount)} · check
+                            </Badge>
+                          </Tooltip>
+                        ) : inv.paymentReceived ? (
+                          <Tooltip
+                            content={
+                              <Box padding={2}>
+                                <Text size={1}>
+                                  {euro(inv.paymentReceived.amount)} from{" "}
+                                  {inv.paymentReceived.contact} on{" "}
+                                  {inv.paymentReceived.date} —{" "}
+                                  {PAYMENT_METHOD_LABEL[inv.paymentReceived.method]}
+                                </Text>
+                              </Box>
+                            }
+                            placement="top"
+                            portal
+                          >
+                            <Badge tone="positive" fontSize={0} style={NUM_STYLE}>
+                              paid {inv.paymentReceived.date} · not linked
+                            </Badge>
+                          </Tooltip>
                         ) : inv.openInYuki ? (
                           <Badge tone="caution" fontSize={0} style={NUM_STYLE}>
                             open · {euro(inv.openAmount)}
@@ -513,6 +611,24 @@ export function RemindersTool() {
                               ⚠
                             </Badge>
                           ) : null}
+                          {inv.amountMismatch ? (
+                            <Tooltip
+                              content={
+                                <Box padding={2}>
+                                  <Text size={1}>
+                                    Yuki booked {euro(inv.yukiAmount)}, invoice
+                                    is {euro(inv.total)}
+                                  </Text>
+                                </Box>
+                              }
+                              placement="top"
+                              portal
+                            >
+                              <Badge tone="caution" fontSize={0}>
+                                ≠ €
+                              </Badge>
+                            </Tooltip>
+                          ) : null}
                         </Flex>
                       </Box>
 
@@ -540,6 +656,12 @@ export function RemindersTool() {
                   : ""}
                 {missingInYuki.length
                   ? " 🚨 \u201cnot in Yuki\u201d = marked as sent, but Yuki never booked it — the invoice does not exist in the bookkeeping."
+                  : ""}
+                {paidUnmatched.length
+                  ? " \u201cNot linked\u201d = the payment is in Yuki but not yet matched to the invoice; excluded from reminders."
+                  : ""}
+                {amountMismatches.length
+                  ? " \u2260 \u20ac = Yuki booked a different amount than the invoice — needs a correction in Yuki."
                   : ""}
               </Text>
             )}

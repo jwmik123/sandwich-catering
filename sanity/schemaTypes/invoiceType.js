@@ -270,6 +270,15 @@ export const invoice = defineType({
       fieldset: "yuki",
     }),
     defineField({
+      name: "yukiAmountCorrection",
+      title: "Yuki Amount Adjustment",
+      type: "number",
+      readOnly: true,
+      description:
+        "Net amount of the adjustment line added so Yuki books exactly the invoice total. Non-zero means the order's line items did not add up to the PDF — worth a look.",
+      fieldset: "yuki",
+    }),
+    defineField({
       name: "yukiError",
       title: "Yuki Error",
       type: "text",

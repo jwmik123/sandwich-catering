@@ -12,14 +12,13 @@ export const dynamic = "force-dynamic";
 // stragglers left in Yuki (real ones seen in production, e.g. €0.01 of €196.23).
 const PAID_TOLERANCE = 0.05;
 
-// Invoices booked before verification existed carry no yukiVerifiedAt, so their
-// absence from the open list cannot be judged — for those, absence still means
-// paid (the old rule). Only invoices booked from this moment on are held to the
-// stricter "must have been verified" standard.
-const VERIFICATION_ROLLOUT_AT = new Date("2026-09-18T00:00:00.000Z");
 
 import { client } from "@/sanity/lib/client";
-import { YukiApiClient, validateYukiConfig } from "@/lib/yuki-api";
+import {
+  YukiApiClient,
+  validateYukiConfig,
+  VERIFICATION_ROLLOUT_AT,
+} from "@/lib/yuki-api";
 import { NextResponse } from "next/server";
 
 export async function GET(request) {

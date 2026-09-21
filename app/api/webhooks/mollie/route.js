@@ -283,6 +283,10 @@ async function handlePaidStatus(quoteId) {
         houseNumberAddition: order.deliveryDetails?.address?.houseNumberAddition || "",
         postalCode: order.deliveryDetails?.address?.postalCode || "",
         city: order.deliveryDetails?.address?.city || "",
+        // Delivery cost lives on the quote's deliveryDetails. The invoice-route
+        // snapshot carries it; this one silently dropped it, so every online
+        // order with delivery reached Yuki without it.
+        deliveryCost: order.deliveryDetails?.deliveryCost || 0,
         // Order info
         totalSandwiches: order.orderDetails?.totalSandwiches || 0,
         selectionType: order.orderDetails?.selectionType || "variety",
