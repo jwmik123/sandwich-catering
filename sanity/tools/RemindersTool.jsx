@@ -114,6 +114,7 @@ const isRemindable = (inv) =>
 const PAYMENT_METHOD_LABEL = {
   reference: "payer quoted the invoice",
   "amount+name": "same amount and payer",
+  batch: "one combined payment for several invoices",
 };
 
 export function RemindersTool() {
@@ -360,7 +361,7 @@ export function RemindersTool() {
                   value={paidUnmatched.length}
                   detail={
                     paidUnmatched.length
-                      ? `${euro(paidUnmatched.reduce((s, i) => s + (i.paymentReceived?.amount || 0), 0))} received — bookkeeper to link in Yuki`
+                      ? `${euro(paidUnmatched.reduce((s, i) => s + (i.paymentReceived?.method === "batch" ? i.owed || 0 : i.paymentReceived?.amount || 0), 0))} received — bookkeeper to link in Yuki`
                       : "every payment linked"
                   }
                   tone={paidUnmatched.length ? "primary" : "positive"}
@@ -579,6 +580,9 @@ export function RemindersTool() {
                                   {inv.paymentReceived.contact} on{" "}
                                   {inv.paymentReceived.date} —{" "}
                                   {PAYMENT_METHOD_LABEL[inv.paymentReceived.method]}
+                                  {inv.paymentReceived.batchWith
+                                    ? `: ${inv.paymentReceived.batchWith.join(" + ")}`
+                                    : ""}
                                 </Text>
                               </Box>
                             }
