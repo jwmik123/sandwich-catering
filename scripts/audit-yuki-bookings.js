@@ -6,8 +6,9 @@
  *
  * A booked invoice is proven by either:
  *   - being an outstanding debtor item now (unpaid), or
- *   - having a revenue (80001) transaction for the same contact on the invoice
- *     date (paid and already settled).
+ *   - yukiVerifiedAt (proven at booking time), or
+ *   - the revenue ledger (80001) showing its exact net amount on its exact
+ *     invoice date — see lib/ledger-audit.js for why nothing looser will do.
  *
  * Read-only by default:   node scripts/audit-yuki-bookings.js
  * Flag suspects in Sanity: node scripts/audit-yuki-bookings.js --fix
@@ -18,6 +19,7 @@ import { config } from "dotenv";
 import { parseStringPromise } from "xml2js";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import { auditAgainstLedger } from "../lib/ledger-audit.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 config({ path: join(__dirname, "..", ".env.local") });
@@ -93,65 +95,39 @@ const run = async () => {
     glRes["soap:Envelope"]["soap:Body"][0].GLAccountTransactionsResponse[0]
       .GLAccountTransactionsResult[0].GLAccountTransactions[0]
       .GLAccountTransaction || [];
-  // Ledger rows carry no invoice reference, so a booking is matched on its
-  // contact name and/or its net amount within a window around the invoice date.
-  const normalizeName = (name) =>
-    String(name || "")
-      .toLowerCase()
-      .replace(/\b(b\.?v\.?|n\.?v\.?|stichting|holding|group|bank)\b/g, "")
-      .replace(/[^a-z0-9]/g, "");
-
-  // Sum the per-line revenue rows into one net amount per contact per date.
-  const bookings = new Map(); // "contact|date" -> { name, date, net }
-  for (const t of txs) {
-    const name = t.Contact?.[0] || "";
-    const date = t.Date[0];
-    const key = `${normalizeName(name)}|${date}`;
-    const entry = bookings.get(key) || { name: normalizeName(name), date, net: 0 };
-    // Revenue is booked as a credit (negative) on 80001.
-    entry.net += Math.abs(parseFloat(t.Amount?.[0] || "0"));
-    bookings.set(key, entry);
-  }
-  const bookingList = [...bookings.values()];
-
-  const DAY = 86400000;
-  const WINDOW_DAYS = 7;
-  const isBookedInLedger = (inv) => {
-    const invDate = inv.invoiceDate ? new Date(inv.invoiceDate).getTime() : null;
-    const wanted = inv.customer ? normalizeName(inv.customer) : "";
-    // Net of 9% VAT — what lands on the revenue account.
-    const net = inv.total ? inv.total / 1.09 : null;
-    return bookingList.some((b) => {
-      if (invDate !== null) {
-        const gap = Math.abs(new Date(b.date).getTime() - invDate);
-        if (gap > WINDOW_DAYS * DAY) return false;
-      }
-      const nameHit =
-        wanted &&
-        b.name &&
-        (b.name.includes(wanted) || wanted.includes(b.name));
-      const amountHit = net !== null && Math.abs(b.net - net) < 0.5;
-      return nameHit || amountHit;
-    });
-  };
+  const ledger = txs.map((t) => ({
+    contact: t.Contact?.[0] || "",
+    date: t.Date[0],
+    amount: parseFloat(t.Amount?.[0] || "0"),
+  }));
 
   const invoices = await sanity.fetch(
     `*[_type == "invoice" && yukiSent == true && defined(invoiceNumber)]{
       _id, invoiceNumber, status, yukiVerifiedAt, yukiMissing,
       "customer": coalesce(companyDetails.name, orderDetails.name),
       "email": orderDetails.email,
-      "invoiceDate": orderDetails.deliveryDate,
+      "date": orderDetails.deliveryDate,
+      "altDates": select(defined(yukiSentAt) => [string::split(yukiSentAt, "T")[0]], []),
+      "subtotal": amount.subtotal,
+      "delivery": amount.delivery,
       "total": amount.total
     } | order(invoiceNumber asc)`
   );
 
-  const suspects = [];
-  for (const inv of invoices) {
-    const ref = String(inv.invoiceNumber).trim();
-    if (openRefs.has(ref) || inv.yukiVerifiedAt) continue;
-    if (isBookedInLedger(inv)) continue;
-    suspects.push(inv);
-  }
+  // Open in Yuki or verified at booking time = proven. Everything else has to
+  // be found in the revenue ledger on its exact date for its exact net amount.
+  const unproven = invoices.filter(
+    (inv) => !openRefs.has(String(inv.invoiceNumber).trim()) && !inv.yukiVerifiedAt
+  );
+  const verdicts = new Map(
+    auditAgainstLedger(unproven, ledger).map((v) => [v.invoiceNumber, v])
+  );
+  const suspects = unproven.filter(
+    (inv) => verdicts.get(inv.invoiceNumber)?.verdict === "missing"
+  );
+  const differing = unproven.filter(
+    (inv) => verdicts.get(inv.invoiceNumber)?.verdict === "amount_differs"
+  );
 
   console.log(
     `Checked ${invoices.length} invoices marked as sent to Yuki. ${openRefs.size} open in Yuki, ${txs.length} revenue lines.`
@@ -165,6 +141,13 @@ const run = async () => {
     );
   }
   console.log(`\nTotal at risk: €${sum.toFixed(2)}`);
+
+  if (differing.length) {
+    console.log(`\n≠ ${differing.length} invoice(s) booked for a different amount:\n`);
+    for (const d of differing) {
+      console.log(`${d.invoiceNumber}  ${d.customer || "—"}  —  ${verdicts.get(d.invoiceNumber).detail}`);
+    }
+  }
 
   if (!FIX) {
     console.log("\nRun with --fix to flag these in Sanity (status untouched).");

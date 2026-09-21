@@ -15,6 +15,11 @@ import {
   KIND_LABELS,
 } from "@/lib/consistency-check";
 import { sendAdminReport } from "@/lib/email";
+import { auditAgainstLedger } from "@/lib/ledger-audit";
+import { YukiApiClient, validateYukiConfig } from "@/lib/yuki-api";
+
+// Only recent invoices get the ledger proof; older history was audited by hand.
+const LEDGER_AUDIT_DAYS = 90;
 import { NextResponse } from "next/server";
 
 const escapeHtml = (s) =>
@@ -55,6 +60,55 @@ export async function GET(request) {
   try {
     const overview = await buildInvoiceOverview();
     const findings = findInconsistencies(overview);
+
+    // Sent, not open in Yuki, never verified: paid and settled — or never
+    // booked. Only the revenue ledger can tell (see lib/ledger-audit.js).
+    if (!overview.yukiError) {
+      const since = new Date(Date.now() - LEDGER_AUDIT_DAYS * 86400000)
+        .toISOString()
+        .slice(0, 10);
+      const unproven = overview.rows.filter(
+        (r) =>
+          r.yukiSent &&
+          !r.verifiedInYuki &&
+          !r.openInYuki &&
+          r.status !== "cancelled" &&
+          r.deliveryDate &&
+          r.deliveryDate >= since
+      );
+      if (unproven.length) {
+        try {
+          const { apiKey, adminId } = validateYukiConfig();
+          const ledger = await new YukiApiClient(apiKey, adminId).getRevenueTransactions(
+            since,
+            new Date().toISOString().slice(0, 10)
+          );
+          const verdicts = auditAgainstLedger(
+            unproven.map((r) => ({
+              invoiceNumber: r.invoiceNumber,
+              customer: r.customer,
+              date: r.deliveryDate,
+              altDates: r.yukiSentAt ? [r.yukiSentAt.slice(0, 10)] : [],
+              subtotal: r.subtotal,
+              delivery: r.delivery,
+            })),
+            ledger
+          );
+          for (const v of verdicts.filter((v) => v.verdict === "missing")) {
+            const row = unproven.find((r) => r.invoiceNumber === v.invoiceNumber);
+            findings.push({
+              kind: "missing_in_yuki",
+              severity: ACTION,
+              invoiceNumber: v.invoiceNumber,
+              customer: row?.customer || null,
+              detail: `Marked as sent, but not in Yuki's revenue ledger. ${v.detail}`,
+            });
+          }
+        } catch (e) {
+          console.error("Ledger audit failed:", e.message);
+        }
+      }
+    }
     const action = findings.filter((f) => f.severity === ACTION);
     const bookkeeping = findings.filter((f) => f.severity === BOOKKEEPING);
 

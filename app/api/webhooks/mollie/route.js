@@ -113,6 +113,20 @@ async function handlePaidStatus(quoteId, paidAmount) {
   try {
     console.log(`Handling paid status for quote ${quoteId}`);
 
+    // Mollie calls the webhook more than once for the same payment (retries,
+    // status re-notifications). Without this guard each call created another
+    // invoice, burned another invoice number and mailed the customer again
+    // (CAT-2026-0126 and -0127 are the same payment).
+    const existingInvoiceId = await client
+      .withConfig({ useCdn: false })
+      .fetch(`*[_type == "invoice" && quoteId == $quoteId][0]._id`, { quoteId });
+    if (existingInvoiceId) {
+      console.log(
+        `Quote ${quoteId} already has invoice ${existingInvoiceId} — ignoring repeated paid notification.`
+      );
+      return;
+    }
+
     // Fetch order details from Sanity using a more comprehensive query
     const order = await client.fetch(
       `*[_type == "quote" && quoteId == $quoteId][0]{
@@ -376,6 +390,9 @@ async function handlePaidStatus(quoteId, paidAmount) {
       };
 
       const invoicePayload = {
+        // Deterministic id: if two notifications race past the check above,
+        // the second create fails instead of producing a duplicate invoice.
+        _id: `invoice-${order.quoteId}`,
         _type: "invoice",
         quoteId: order.quoteId,
         referenceNumber: order.companyDetails?.referenceNumber || null,
@@ -390,7 +407,18 @@ async function handlePaidStatus(quoteId, paidAmount) {
         createdAt: new Date().toISOString(),
       };
 
-      const newInvoice = await client.create(invoicePayload);
+      let newInvoice;
+      try {
+        newInvoice = await client.create(invoicePayload);
+      } catch (createError) {
+        if (createError?.statusCode === 409) {
+          console.log(
+            `Invoice for quote ${order.quoteId} was created by a concurrent notification — stopping.`
+          );
+          return;
+        }
+        throw createError;
+      }
       console.log(
         `Invoice document created in Sanity with ID: ${newInvoice._id}`
       );
