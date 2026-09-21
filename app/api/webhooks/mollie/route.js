@@ -8,6 +8,7 @@ import { createYukiInvoice } from "@/lib/yuki-api";
 import { assignInvoiceNumber } from "@/lib/invoice-number";
 import { GLUTEN_FREE_SURCHARGE, PAYMENT_TERM_DAYS } from "@/app/assets/constants";
 import { getDrinksWithDetails, calculateDrinksTotal } from "@/lib/product-helpers";
+import { round2 } from "@/lib/vat-calculations";
 
 const mollieClient = createMollieClient({
   apiKey: process.env.MOLLIE_LIVE_API_KEY,
@@ -73,7 +74,8 @@ export async function POST(request) {
           console.log(
             "Payment paid - sending confirmation and processing Yuki"
           );
-          await handlePaidStatus(quoteId);
+          // What the customer actually paid — the invoice must say the same.
+          await handlePaidStatus(quoteId, parseFloat(payment.amount?.value));
           break;
         case "failed":
           console.log("Payment failed - sending notification");
@@ -107,7 +109,7 @@ export async function POST(request) {
 }
 
 // Helper functions for different payment statuses
-async function handlePaidStatus(quoteId) {
+async function handlePaidStatus(quoteId, paidAmount) {
   try {
     console.log(`Handling paid status for quote ${quoteId}`);
 
@@ -244,7 +246,19 @@ async function handlePaidStatus(quoteId) {
     const subtotalAmount = calculateOrderTotal(order.orderDetails, drinksWithDetails); // Items only, VAT-exclusive
     const deliveryCost = order.deliveryDetails.deliveryCost || 0; // VAT-exclusive
     const vatAmount = Math.ceil((subtotalAmount + deliveryCost) * 0.09 * 100) / 100;
-    const totalAmount = subtotalAmount + deliveryCost + vatAmount; // Consistent with InvoicePDF calculation
+    const totalAmount = round2(subtotalAmount + deliveryCost + vatAmount); // Consistent with InvoicePDF calculation
+
+    // This total is recomputed here, apart from the checkout that charged the
+    // customer — the two have drifted before (upsells were left out). Record
+    // what Mollie actually collected so any difference is caught.
+    if (
+      Number.isFinite(paidAmount) &&
+      Math.abs(paidAmount - totalAmount) > 0.01
+    ) {
+      console.error(
+        `❌ Invoice total €${totalAmount.toFixed(2)} for quote ${quoteId} differs from the €${paidAmount.toFixed(2)} paid via Mollie`
+      );
+    }
     
     console.log(`Amount calculation for quote ${quoteId}:`);
     console.log(`- Subtotal (items): €${subtotalAmount.toFixed(2)}`);
@@ -362,6 +376,7 @@ async function handlePaidStatus(quoteId) {
         quoteId: order.quoteId,
         referenceNumber: order.companyDetails?.referenceNumber || null,
         amount: amountData,
+        paidAmount: Number.isFinite(paidAmount) ? paidAmount : null,
         status: "paid", // From Mollie
         paidAt: new Date().toISOString(),
         dueDate: dueDate.toISOString(),
@@ -615,6 +630,16 @@ function calculateOrderTotal(orderDetails, drinksWithDetails = []) {
          (orderDetails.varietySelection?.vegan || 0)) * 7.30 +
         (orderDetails.varietySelection?.glutenFree || 0) * (7.30 + GLUTEN_FREE_SURCHARGE);
     }
+
+    // Upsell products from the popup. The checkout charges them
+    // (useOrderForm.calculateTotal); leaving them out here put a lower total on
+    // the invoice than the customer paid.
+    if (orderDetails.upsellAddons && orderDetails.upsellAddons.length > 0) {
+      total += orderDetails.upsellAddons.reduce(
+        (sum, addon) => round2(sum + (addon.subTotal || 0)),
+        0
+      );
+    }
   }
 
   // Add drinks pricing from drinksWithDetails
@@ -623,5 +648,5 @@ function calculateOrderTotal(orderDetails, drinksWithDetails = []) {
     total += drinksTotal;
   }
 
-  return total;
+  return round2(total);
 }

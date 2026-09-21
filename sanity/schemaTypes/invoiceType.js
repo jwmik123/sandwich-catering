@@ -221,6 +221,15 @@ export const invoice = defineType({
       ],
     }),
 
+    defineField({
+      name: "paidAmount",
+      title: "Amount Paid Online",
+      type: "number",
+      readOnly: true,
+      description:
+        "What Mollie collected at checkout. Must equal the invoice total; the nightly check reports any difference.",
+    }),
+
     // -- Yuki Integration Fields --
     defineField({
       name: "yukiSent",
