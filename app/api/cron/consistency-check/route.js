@@ -1,5 +1,6 @@
 // Nightly Sanity <-> Yuki consistency check (see lib/consistency-check.js).
-// Runs after reconcile-payments. Mails a report when anything needs action;
+// Runs after reconcile-payments. Mails a report (see sendAdminReport for the
+// recipient) when anything needs action;
 // a clean night sends nothing.
 //
 //   ?send=0   return the report without mailing (for testing)
