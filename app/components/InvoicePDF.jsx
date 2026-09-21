@@ -10,6 +10,7 @@ import {
 import { isDrink } from "@/lib/product-helpers";
 import { GLUTEN_FREE_SURCHARGE, PAYMENT_TERM_DAYS } from "@/app/assets/constants";
 import { parseDateString } from "@/lib/utils";
+import { calculateVATBreakdown } from "@/lib/vat-calculations";
 
 const styles = StyleSheet.create({
   page: {
@@ -222,15 +223,14 @@ const InvoicePDF = ({
     // Delivery cost (VAT-exclusive) - from amount object or deliveryDetails
     const deliveryCost = amount?.delivery || deliveryDetails?.deliveryCost || 0;
     
-    // Calculate VAT and total using PaymentStep pattern
-    const vatAmount = Math.ceil((subtotalAmount + deliveryCost) * 0.09 * 100) / 100;
-    const totalAmount = subtotalAmount + deliveryCost + vatAmount; // Always calculate total correctly
+    // Same VAT rounding as the checkout (PaymentStep -> calculateVATBreakdown).
+    const breakdown = calculateVATBreakdown(subtotalAmount, deliveryCost);
 
     return {
-      subtotal: subtotalAmount,
-      delivery: deliveryCost,
-      vat: vatAmount,
-      total: totalAmount,
+      subtotal: breakdown.subtotal,
+      delivery: breakdown.delivery,
+      vat: breakdown.vat,
+      total: breakdown.total,
     };
   })();
 

@@ -200,6 +200,10 @@ export function RemindersTool() {
 
   const visible = useMemo(() => {
     let rows = invoices;
+    // Online (Mollie) payments need nothing from you — they only wait for the
+    // bookkeeper to match the payout — so they stay out of the main list and
+    // live under their own filter.
+    if (filter === "all") rows = rows.filter((i) => !i.awaitingPayout);
     if (filter === "open") rows = rows.filter((i) => isRemindable(i));
     if (filter === "payout") rows = rows.filter((i) => i.awaitingPayout);
     if (filter === "paid")
@@ -280,7 +284,10 @@ export function RemindersTool() {
   };
 
   const filters = [
-    { key: "all", label: `All (${invoices.length})` },
+    {
+      key: "all",
+      label: `All (${invoices.filter((i) => !i.awaitingPayout).length})`,
+    },
     { key: "open", label: `Needs payment (${needsPayment.length})` },
     ...(awaitingPayout.length
       ? [{ key: "payout", label: `Awaiting payout (${awaitingPayout.length})` }]

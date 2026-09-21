@@ -8,7 +8,7 @@ import { createYukiInvoice } from "@/lib/yuki-api";
 import { assignInvoiceNumber } from "@/lib/invoice-number";
 import { GLUTEN_FREE_SURCHARGE, PAYMENT_TERM_DAYS } from "@/app/assets/constants";
 import { getDrinksWithDetails, calculateDrinksTotal } from "@/lib/product-helpers";
-import { round2 } from "@/lib/vat-calculations";
+import { round2, calculateVATBreakdown } from "@/lib/vat-calculations";
 
 const mollieClient = createMollieClient({
   apiKey: process.env.MOLLIE_LIVE_API_KEY,
@@ -245,8 +245,12 @@ async function handlePaidStatus(quoteId, paidAmount) {
     // Calculate amounts using PaymentStep.jsx pattern
     const subtotalAmount = calculateOrderTotal(order.orderDetails, drinksWithDetails); // Items only, VAT-exclusive
     const deliveryCost = order.deliveryDetails.deliveryCost || 0; // VAT-exclusive
-    const vatAmount = Math.ceil((subtotalAmount + deliveryCost) * 0.09 * 100) / 100;
-    const totalAmount = round2(subtotalAmount + deliveryCost + vatAmount); // Consistent with InvoicePDF calculation
+    // Same VAT rounding as the checkout that charged the customer
+    // (PaymentStep -> calculateVATBreakdown). This used Math.ceil, which put
+    // one cent more on some invoices than Mollie collected.
+    const breakdown = calculateVATBreakdown(subtotalAmount, deliveryCost);
+    const vatAmount = breakdown.vat;
+    const totalAmount = breakdown.total;
 
     // This total is recomputed here, apart from the checkout that charged the
     // customer — the two have drifted before (upsells were left out). Record
