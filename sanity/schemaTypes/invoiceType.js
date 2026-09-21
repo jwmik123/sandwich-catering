@@ -253,6 +253,15 @@ export const invoice = defineType({
       fieldset: "yuki",
     }),
     defineField({
+      name: "yukiContactName",
+      title: "Yuki Contact Name",
+      type: "string",
+      readOnly: true,
+      description:
+        "Name of the Yuki contact this invoice was booked on. With an empty contact code, the invoice was matched onto the bookkeeper's existing contact by this exact name.",
+      fieldset: "yuki",
+    }),
+    defineField({
       name: "yukiInvoiceReference",
       title: "Yuki Invoice Reference",
       type: "string",
