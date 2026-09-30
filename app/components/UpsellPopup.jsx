@@ -1,18 +1,11 @@
 "use client";
 import React, { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { urlFor } from "@/sanity/lib/image";
 import Image from "next/image";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { X } from "lucide-react";
+import { urlFor } from "@/sanity/lib/image";
+import { formatEuro } from "@/lib/selection-pricing";
+import { Chip, PrimaryButton, QuantityStepper } from "@/app/components/order/ui";
 
 const STORAGE_KEY = "upsellSelectedProducts";
 
@@ -86,127 +79,134 @@ const UpsellPopup = ({ isOpen, onClose, config, onAddProducts }) => {
     0
   );
 
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-xl">
-            {config.popupTitle || "Would you like to add some extras?"}
-          </DialogTitle>
-          {config.popupDescription && (
-            <DialogDescription className="text-base">
-              {config.popupDescription}
-            </DialogDescription>
-          )}
-        </DialogHeader>
+  // Shown on the button only; the order is priced the same way as before.
+  const totalPrice = config.products.reduce((sum, product) => {
+    const state = getProductState(product._id);
+    const toppingCost = (state.toppings || []).reduce(
+      (t, name) => t + (product.toppingOptions?.find((o) => o.name === name)?.price || 0),
+      0
+    );
+    return sum + (state.quantity || 0) * (product.price + toppingCost);
+  }, 0);
 
-        <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2">
-          {config.products.map((product) => {
-            const productState = getProductState(product._id);
-            return (
-              <div
-                key={product._id}
-                className="flex flex-col p-3 rounded-lg shadow-md transition-shadow"
-              >
-                {product.image && (
-                  <div className="relative w-full h-32 mb-3 overflow-hidden rounded-md">
-                    <Image
-                      src={urlFor(product.image).width(400).height(300).url()}
-                      alt={product.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                )}
-                <h4 className="font-medium text-gray-900">{product.name}</h4>
-                {product.description && (
-                  <p className="mt-1 text-xs text-gray-500 line-clamp-2">
-                    {product.description}
+  return (
+    <DialogPrimitive.Root open={isOpen} onOpenChange={(open) => !open && handleNoThanks()}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 flex items-end justify-center bg-ink/60 data-[state=open]:animate-in data-[state=open]:fade-in-0 sm:items-center sm:p-6">
+          <DialogPrimitive.Content
+            aria-describedby={config.popupDescription ? "upsell-description" : undefined}
+            className="flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-[28px] bg-cream text-ink shadow-[0_30px_60px_-30px_rgba(56,38,40,0.6)] outline-none data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-10 sm:max-h-[88vh] sm:w-[560px] sm:rounded-[28px] sm:data-[state=open]:slide-in-from-bottom-4"
+          >
+            <div className="flex items-start justify-between gap-4 px-5 pb-4 pt-8 sm:px-7">
+              <div className="flex flex-col gap-1.5">
+                <span className="font-tomatoes text-3xl lowercase leading-[1.15] text-plum">
+                  make it complete
+                </span>
+                <DialogPrimitive.Title className="m-0 text-2xl font-extrabold uppercase leading-[1] tracking-[-0.03em]">
+                  {config.popupTitle || "Would you like to add some extras?"}
+                </DialogPrimitive.Title>
+                {config.popupDescription && (
+                  <p id="upsell-description" className="m-0 text-[13px] leading-[1.45] text-taupe">
+                    {config.popupDescription}
                   </p>
                 )}
-
-                {product.hasToppings && product.toppingOptions?.length > 0 && (
-                  <div className="mt-2 space-y-1">
-                    <p className="text-xs font-medium text-gray-700">Toppings:</p>
-                    <div className="space-y-1">
-                      {product.toppingOptions.map((topping) => (
-                        <div key={topping.name} className="flex items-center gap-2">
-                          <Checkbox
-                            id={`${product._id}-${topping.name}`}
-                            checked={productState.toppings.includes(topping.name)}
-                            onCheckedChange={(checked) =>
-                              handleToppingChange(product._id, topping.name, checked)
-                            }
-                          />
-                          <label
-                            htmlFor={`${product._id}-${topping.name}`}
-                            className="text-xs text-gray-600 cursor-pointer"
-                          >
-                            {topping.name}
-                            {topping.price > 0 && (
-                              <span className="ml-1 text-gray-400">
-                                (+€{topping.price.toFixed(2)})
-                              </span>
-                            )}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between mt-3">
-                  <span className="text-sm font-semibold text-gray-700">
-                    €{product.price.toFixed(2)}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <label htmlFor={`quantity-${product._id}`} className="text-xs text-gray-600">
-                      Qty:
-                    </label>
-                    <Input
-                      id={`quantity-${product._id}`}
-                      type="number"
-                      min="0"
-                      value={productState.quantity || ""}
-                      onChange={(e) =>
-                        handleQuantityChange(product._id, e.target.value)
-                      }
-                      className="w-16 h-8 text-center"
-                      placeholder="0"
-                    />
-                  </div>
-                </div>
               </div>
-            );
-          })}
-        </div>
+              <DialogPrimitive.Close
+                aria-label="Close"
+                className="-mr-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-taupe hover:bg-sand hover:text-ink"
+              >
+                <X className="h-5 w-5" />
+              </DialogPrimitive.Close>
+            </div>
 
-        {totalItems > 0 && (
-          <div className="p-3 rounded-md bg-blue-50">
-            <p className="text-sm font-medium text-blue-900">
-              Selected {totalItems} item{totalItems !== 1 ? "s" : ""}
-            </p>
-          </div>
-        )}
+            <ul className="m-0 flex list-none flex-col gap-3 overflow-y-auto px-5 pb-4 sm:px-7">
+              {config.products.map((product) => {
+                const productState = getProductState(product._id);
+                const selected = productState.quantity > 0;
+                return (
+                  <li
+                    key={product._id}
+                    className={`flex flex-col gap-3 rounded-[22px] border-2 bg-paper p-3 transition-colors ${
+                      selected ? "border-plum" : "border-plum/10"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <div className="relative h-[76px] w-[96px] shrink-0 overflow-hidden rounded-2xl bg-[#EEEBE6]">
+                        {product.image && (
+                          <Image
+                            src={urlFor(product.image).width(240).height(190).fit("crop").url()}
+                            alt={product.name}
+                            fill
+                            sizes="96px"
+                            className="object-cover"
+                          />
+                        )}
+                      </div>
+                      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                        <span className="text-[15px] font-semibold">{product.name}</span>
+                        {product.description && (
+                          <span className="line-clamp-2 text-xs leading-[1.4] text-taupe">
+                            {product.description}
+                          </span>
+                        )}
+                        <span className="mt-1 text-sm font-semibold">{formatEuro(product.price)}</span>
+                      </div>
+                      <QuantityStepper
+                        label={product.name}
+                        value={productState.quantity || 0}
+                        onChange={(value) => {
+                          if (value === "") return;
+                          handleQuantityChange(product._id, value);
+                        }}
+                        variant={selected ? "solid" : "outline"}
+                        size="sm"
+                      />
+                    </div>
 
-        <DialogFooter className="flex flex-col gap-2 sm:flex-row">
-          <Button
-            variant="outline"
-            onClick={handleNoThanks}
-            className="w-full sm:w-auto"
-          >
-            No thanks
-          </Button>
-          <Button
-            onClick={handleAddToOrder}
-            disabled={totalItems === 0}
-            className="w-full sm:w-auto"
-          >
-            {totalItems > 0 ? `Add ${totalItems} item${totalItems !== 1 ? "s" : ""} to order` : "Add to order"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+                    {product.hasToppings && product.toppingOptions?.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-2 border-t border-plum/10 pt-3">
+                        <span className="text-xs font-semibold text-taupe">Toppings</span>
+                        {product.toppingOptions.map((topping) => {
+                          const active = productState.toppings.includes(topping.name);
+                          return (
+                            <Chip
+                              key={topping.name}
+                              active={active}
+                              className="h-8 px-3 text-xs"
+                              onClick={() => handleToppingChange(product._id, topping.name, !active)}
+                            >
+                              {topping.name}
+                              {topping.price > 0 && (
+                                <span className="ml-1 opacity-70">+{formatEuro(topping.price)}</span>
+                              )}
+                            </Chip>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+
+            <div className="flex flex-col-reverse gap-2 border-t border-plum/10 bg-cream px-5 py-4 sm:flex-row sm:items-center sm:px-7">
+              <button
+                type="button"
+                onClick={handleNoThanks}
+                className="h-12 rounded-full px-5 text-sm font-semibold text-plum underline-offset-[3px] hover:underline"
+              >
+                No thanks
+              </button>
+              <PrimaryButton onClick={handleAddToOrder} disabled={totalItems === 0} className="sm:flex-1">
+                {totalItems > 0
+                  ? `Add ${totalItems} item${totalItems !== 1 ? "s" : ""} · ${formatEuro(totalPrice)}`
+                  : "Add to order"}
+              </PrimaryButton>
+            </div>
+          </DialogPrimitive.Content>
+        </DialogPrimitive.Overlay>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 };
 

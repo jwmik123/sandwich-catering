@@ -24,6 +24,8 @@ import { buildReorderFormData, forgetLastOrder, getLastOrder } from "@/lib/last-
 const START = 1;
 const COMPOSE = 2;
 const CHECKOUT = 3;
+const STEP_PARAMS = { [COMPOSE]: "choose", [CHECKOUT]: "checkout" };
+const STEP_BY_PARAM = { choose: COMPOSE, checkout: CHECKOUT };
 
 const Home = () => {
   const [sandwichOptions, setSandwichOptions] = useState([]);
@@ -71,6 +73,49 @@ const Home = () => {
     return START;
   });
 
+  // Every screen gets its own browser history entry, so the browser's back
+  // and forward buttons move between the steps instead of leaving the site.
+  // Native pushState keeps this page mounted (Next.js patches it to stay in
+  // sync); the step is always read back from the URL.
+  const stepFromUrl = () => {
+    const param = new URLSearchParams(window.location.search).get("step");
+    return STEP_BY_PARAM[param] || START;
+  };
+  const writeStepToHistory = (step, replace) => {
+    const url = step === START ? "/" : `/?step=${STEP_PARAMS[step]}`;
+    // Already on this step (e.g. the upsell popup closing): no extra entry.
+    const same = stepFromUrl() === step && !window.location.search.includes("restore");
+    // Next.js fills in its own router state for the new entry.
+    window.history[replace || same ? "replaceState" : "pushState"](null, "", url);
+  };
+  const goToStep = (step, { replace = false } = {}) => {
+    setCurrentStep(step);
+    if (typeof window === "undefined") return;
+    // Next.js hooks into history after this page's first effects have run.
+    window.setTimeout(() => writeStepToHistory(step, replace), 0);
+  };
+
+  const formDataRef = useRef(formData);
+  formDataRef.current = formData;
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    // After a refresh the order is gone, so always start at the beginning.
+    // (A restored quote rewrites the URL itself once it is loaded.)
+    if (params.get("step") && !params.get("restore")) goToStep(START, { replace: true });
+
+    const onPopState = () => {
+      let step = stepFromUrl();
+      // Nothing to show on a later step without an order in progress.
+      if (step !== START && !formDataRef.current.selectionType) step = START;
+      setShowUpsellPopup(false);
+      setCurrentStep(step);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+    // Once, on mount.
+  }, []);
+
   const handleChooseType = (selectionType) => {
     if (!isStepValid(1)) {
       toast.error("The minimum order is 20 sandwiches", { toastId: "start-validation" });
@@ -78,7 +123,7 @@ const Home = () => {
     }
     trackAmountStep(formData.totalSandwiches);
     updateFormData("selectionType", selectionType);
-    setCurrentStep(COMPOSE);
+    goToStep(COMPOSE);
   };
 
   const handleComposeContinue = () => {
@@ -108,7 +153,7 @@ const Home = () => {
       }
     }
     trackChooseSandwiches();
-    setCurrentStep(CHECKOUT);
+    goToStep(CHECKOUT);
   };
 
   const handleRemoveAddon = (addonId) => {
@@ -157,7 +202,7 @@ const Home = () => {
     // UpsellPopup always calls onClose right after this, and that is where the
     // step 2 event is sent — otherwise it would fire twice.
     pendingUpsellAddons.current = updatedUpsellAddons;
-    setCurrentStep(CHECKOUT);
+    goToStep(CHECKOUT);
   };
 
   const handleClosePopup = () => {
@@ -165,7 +210,7 @@ const Home = () => {
     const addons = pendingUpsellAddons.current;
     pendingUpsellAddons.current = null;
     trackChooseSandwiches(addons ? { upsellAddons: addons } : {});
-    setCurrentStep(CHECKOUT);
+    goToStep(CHECKOUT);
   };
 
   const handleReorder = () => {
@@ -179,7 +224,7 @@ const Home = () => {
     setFormData(restored);
     // Recalculate the delivery cost for the restored postcode.
     if (restored.postalCode) updateFormData("postalCode", restored.postalCode);
-    setCurrentStep(CHECKOUT);
+    goToStep(CHECKOUT);
   };
 
   useEffect(() => {
@@ -222,7 +267,7 @@ const Home = () => {
     // Handle quote restoration
     const wasRestored = restoreQuote();
     if (wasRestored) {
-      setCurrentStep(CHECKOUT);
+      goToStep(CHECKOUT, { replace: true });
     }
   }, [restoreQuote]);
 
@@ -272,7 +317,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-cream text-ink">
-      <OrderHeader phase={currentStep} onHome={() => setCurrentStep(START)} />
+      <OrderHeader phase={currentStep} onHome={() => goToStep(START)} />
 
       {currentStep === COMPOSE && formData.selectionType === "custom" && (
         <ComposeCustom
@@ -311,7 +356,7 @@ const Home = () => {
           disabledDates={disabledDates}
           isStepValid={isStepValid}
           getValidationMessage={getValidationMessage}
-          onEdit={() => setCurrentStep(COMPOSE)}
+          onEdit={() => goToStep(COMPOSE)}
           onRemoveAddon={handleRemoveAddon}
         />
       )}
