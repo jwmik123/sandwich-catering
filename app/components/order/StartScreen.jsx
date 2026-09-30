@@ -282,12 +282,12 @@ export default function StartScreen({
 
       <div className="relative hidden flex-1 lg:block">
         <Image
-          src="/images/hero.webp"
-          alt="Sandwiches, coffee and juice from The Sandwich Bar"
+          src="/images/hero-sandwiches.webp"
+          alt="Two sandwiches on a board at The Sandwich Bar"
           fill
           priority
           sizes="46vw"
-          className="object-cover object-[center_45%]"
+          className="object-cover object-[center_28%]"
         />
         <Image
           src="/images/logo-catering.png"
