@@ -112,23 +112,15 @@ export default function StartScreen({
   return (
     <div className="flex min-h-[calc(100vh-0px)] bg-cream">
       <div className="flex w-full flex-col lg:w-[54%] lg:shrink-0">
-        <header className="flex h-20 items-center justify-between gap-4 px-4 md:h-24 md:px-14">
+        <header className="flex h-24 items-center justify-between gap-4 px-4 md:h-28 md:px-14">
           <div className="flex items-center gap-3">
-            <Image
-              src="/images/logo-catering.png"
-              alt="The Sandwich Bar Catering"
-              width={56}
-              height={56}
-              className="h-12 w-12 lg:hidden"
-              priority
-            />
             <span className="flex items-center gap-2 rounded-full bg-sun px-4 py-1.5 text-[13px] font-semibold text-ink">
               <span className="h-2 w-2 rounded-full bg-plum" aria-hidden />
               New design
               <span className="hidden font-normal sm:inline">· same easy ordering</span>
             </span>
           </div>
-          <nav className="flex items-center gap-2 text-sm font-medium md:gap-6 md:text-[15px] lg:ml-0">
+          <nav className="ml-auto flex items-center gap-2 text-sm font-medium md:gap-6 md:text-[15px]">
             <Link href="/quote/lookup" className="flex items-center gap-2 text-plum hover:text-ink lg:hidden">
               <FileSearch className="h-4 w-4" />
               Load quote
@@ -144,6 +136,14 @@ export default function StartScreen({
               </button>
             )}
           </nav>
+          <Image
+            src="/images/logo-catering.png"
+            alt="The Sandwich Bar Catering"
+            width={88}
+            height={88}
+            className="h-16 w-16 shrink-0 md:h-[88px] md:w-[88px]"
+            priority
+          />
         </header>
 
         <main className="flex flex-1 flex-col justify-center px-4 pb-10 md:px-14 md:pb-14">
@@ -282,19 +282,12 @@ export default function StartScreen({
 
       <div className="relative hidden flex-1 lg:block">
         <Image
-          src="/images/hero-sandwiches.webp"
-          alt="Two sandwiches on a board at The Sandwich Bar"
+          src="/images/hero-storefront.webp"
+          alt="Walking past The Sandwich Bar storefront"
           fill
           priority
           sizes="46vw"
-          className="object-cover object-[center_28%]"
-        />
-        <Image
-          src="/images/logo-catering.png"
-          alt="The Sandwich Bar Catering"
-          width={220}
-          height={220}
-          className="absolute left-1/2 top-1/2 h-[220px] w-[220px] -translate-x-1/2 -translate-y-1/2 drop-shadow-[0_20px_40px_rgba(56,38,40,0.4)]"
+          className="object-cover object-[center_50%]"
         />
         <div className="absolute right-6 top-6 flex items-center gap-2 text-sm font-medium">
           <Link
