@@ -22,6 +22,9 @@ const dayLabel = (date, index) => {
   return date.toLocaleDateString("en-GB", { weekday: "long" });
 };
 
+// The "New design" banner disappears by itself eight weeks after launch.
+const NEW_DESIGN_BANNER_UNTIL = new Date("2026-11-25T00:00:00+01:00");
+
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -71,6 +74,11 @@ export default function StartScreen({
   onReorder,
 }) {
   const [calendarOpen, setCalendarOpen] = useState(false);
+  // Checked after mount: this page is prerendered, so the build date is no guide.
+  const [showNewDesignBanner, setShowNewDesignBanner] = useState(true);
+  useEffect(() => {
+    if (Date.now() >= NEW_DESIGN_BANNER_UNTIL.getTime()) setShowNewDesignBanner(false);
+  }, []);
   const datesRef = useRef(null);
   const carRef = useRef(null);
   const leaving = useRef(false);
@@ -129,11 +137,13 @@ export default function StartScreen({
       <div className="flex w-full flex-col lg:w-[54%] lg:shrink-0">
         <header className="flex h-24 items-center justify-between gap-4 px-4 md:h-28 md:px-14">
           <div className="flex items-center gap-3">
-            <span className="flex items-center gap-2 rounded-full bg-sun px-4 py-1.5 text-[13px] font-semibold text-ink">
-              <span className="h-2 w-2 rounded-full bg-plum" aria-hidden />
-              New design
-              <span className="hidden font-normal sm:inline">· same easy ordering</span>
-            </span>
+            {showNewDesignBanner && (
+              <span className="flex items-center gap-2 rounded-full bg-sun px-4 py-1.5 text-[13px] font-semibold text-ink">
+                <span className="h-2 w-2 rounded-full bg-plum" aria-hidden />
+                New design
+                <span className="hidden font-normal sm:inline">· same easy ordering</span>
+              </span>
+            )}
           </div>
           <nav className="ml-auto flex items-center gap-2 text-sm font-medium md:gap-6 md:text-[15px]">
             <Link href="/quote/lookup" className="flex items-center gap-2 text-plum hover:text-ink lg:hidden">
