@@ -128,3 +128,28 @@ body[data-hide-footer="true"] .site-footer {
     margin-bottom: 8px;
   }
 }
+
+/* The sandwich car from the logo drives around the start card (DrivingCar) */
+.driving-car {
+  offset-anchor: 50% 86%;
+  offset-rotate: auto;
+  offset-distance: 4%;
+  /* The drawing is a light line; darken it towards the plum ink */
+  filter: brightness(0.45) sepia(0.4) saturate(1.4);
+  animation: drive-around 32s linear infinite;
+}
+
+@keyframes drive-around {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .driving-car {
+    animation: none;
+  }
+}

@@ -11,6 +11,7 @@ import {
 } from "@/lib/delivery-dates";
 import { cn } from "@/lib/utils";
 import DeliveryDatePicker from "./DeliveryDatePicker";
+import DrivingCar from "./DrivingCar";
 import { CheckItem, QuantityStepper } from "./ui";
 
 const dayLabel = (date, index) => {
@@ -148,6 +149,7 @@ export default function StartScreen({
 
         <main className="flex flex-1 flex-col justify-center px-4 pb-10 md:px-14 md:pb-14">
           <div className="mx-auto flex w-full max-w-[668px] flex-col gap-5 lg:mx-0">
+            <DrivingCar radius={28}>
             <div className="flex flex-col gap-[22px] rounded-[24px] border border-plum/[0.14] bg-paper p-5 shadow-[0_24px_60px_-30px_rgba(56,38,40,0.35)] md:rounded-[28px] md:p-7">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex flex-col gap-1">
@@ -257,6 +259,7 @@ export default function StartScreen({
                 />
               </div>
             </div>
+            </DrivingCar>
 
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-[13px] text-taupe">
               <CheckItem>Free delivery above €150*</CheckItem>
