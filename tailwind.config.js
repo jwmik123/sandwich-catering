@@ -53,6 +53,18 @@ module.exports = {
         custom: {
           gray: "hsl(var(--custom-gray))",
         },
+        // Brand palette shared with thesandwichbar.nl
+        cream: "#FDF4E5",
+        paper: "#FFFBF4",
+        sand: "#F3EADB",
+        plum: "#4D343F",
+        ink: "#382628",
+        taupe: "#685D5E",
+        sun: "#F2C894",
+        leaf: {
+          DEFAULT: "#2F4A33",
+          light: "#DDE7CF",
+        },
       },
       backgroundColor: {
         DEFAULT: "hsl(var(--background))",
@@ -67,6 +79,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ["Poppins", "sans-serif"],
+        tomatoes: ["Tomatoes", "cursive"],
       },
       keyframes: {
         "accordion-down": {

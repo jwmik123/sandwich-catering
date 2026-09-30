@@ -70,7 +70,13 @@ export default function RootLayout({ children }) {
         </noscript>
         <main className="flex-grow">{children}</main>
         <Footer />
-        <ToastContainer />
+        <ToastContainer
+          position="top-center"
+          autoClose={4500}
+          hideProgressBar
+          newestOnTop
+          closeOnClick
+        />
       </body>
     </html>
   );

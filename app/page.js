@@ -1,32 +1,29 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import {
-  Users,
-  Utensils,
-  FileText,
-  Calendar,
-  Building2,
-  CreditCard,
-  FileSearch,
-} from "lucide-react";
-import Link from "next/link";
+import { toast } from "react-toastify";
 import { client } from "@/sanity/lib/client";
 import { PRODUCT_QUERY, DRINK_QUERY, POPUP_CONFIG_QUERY, SITE_SETTINGS_QUERY } from "@/sanity/lib/queries";
-import Wizard from "@/app/components/wizard/Wizard";
-import SandwichAmountStep from "@/app/components/steps/SandwichAmountStep";
-import SelectionTypeStep from "@/app/components/steps/SelectionTypeStep";
-import OrderSummaryStep from "@/app/components/steps/OrderSummaryStep";
-import DeliveryStep from "@/app/components/steps/DeliveryStep";
-import ContactStep from "@/app/components/steps/ContactStep";
-import PaymentStep from "@/app/components/steps/PaymentStep";
 import UpsellPopup from "@/app/components/UpsellPopup";
+import StartScreen from "@/app/components/order/StartScreen";
+import ComposeCustom from "@/app/components/order/ComposeCustom";
+import ComposeVariety from "@/app/components/order/ComposeVariety";
+import Checkout from "@/app/components/order/Checkout";
+import { OrderHeader } from "@/app/components/order/ui";
 import { useOrderForm } from "@/app/hooks/useOrderForm";
 import { useOrderValidation } from "@/app/hooks/useOrderValidation";
 import {
-  buildUserData,
   trackAmountStep,
   trackFunnelStep,
 } from "@/lib/gtm";
+import { buildReorderFormData, forgetLastOrder, getLastOrder } from "@/lib/last-order";
+
+// The order flow has three screens:
+//   1. start   – number of sandwiches, delivery date, variety or custom
+//   2. compose – the menu (custom) or the mix (variety)
+//   3. checkout – delivery, contact details and payment on one page
+const START = 1;
+const COMPOSE = 2;
+const CHECKOUT = 3;
 
 const Home = () => {
   const [sandwichOptions, setSandwichOptions] = useState([]);
@@ -34,12 +31,13 @@ const Home = () => {
   const [popupConfig, setPopupConfig] = useState(null);
   const [disabledDates, setDisabledDates] = useState([]);
   const [showUpsellPopup, setShowUpsellPopup] = useState(false);
-  const [date, setDate] = useState(null);
+  const [lastOrder, setLastOrder] = useState(null);
   // Addons picked in the upsell popup, held until the popup closes so the
   // step 2 event can be built from the selection including them.
   const pendingUpsellAddons = useRef(null);
   const {
     formData,
+    setFormData,
     updateFormData,
     deliveryCost,
     deliveryError,
@@ -64,87 +62,53 @@ const Home = () => {
     });
   };
 
-  const handleBeforeNext = (step) => {
-    if (step === 1) {
-      trackAmountStep(formData.totalSandwiches);
+  const [currentStep, setCurrentStep] = useState(() => {
+    // Check if we're restoring a quote (client-side only)
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      return searchParams.get("restore") ? CHECKOUT : START;
+    }
+    return START;
+  });
+
+  const handleChooseType = (selectionType) => {
+    if (!isStepValid(1)) {
+      toast.error("The minimum order is 20 sandwiches", { toastId: "start-validation" });
+      return;
+    }
+    trackAmountStep(formData.totalSandwiches);
+    updateFormData("selectionType", selectionType);
+    setCurrentStep(COMPOSE);
+  };
+
+  const handleComposeContinue = () => {
+    if (!isStepValid(2)) {
+      const message = getValidationMessage(2);
+      if (message) toast.error(message, { toastId: "compose-validation" });
+      return;
     }
 
-    // Step 2 is the Selection Type step
-    if (step === 2) {
-      // Check if we should show the upsell popup
-      const hasShown = typeof window !== "undefined" && localStorage.getItem("varietyPopupShown");
-
-      if (
-        formData.selectionType === "variety" &&
-        popupConfig &&
-        popupConfig.active &&
-        !hasShown &&
-        popupConfig.products &&
-        popupConfig.products.length > 0
-      ) {
-        const currentTotal = Object.values(formData.varietySelection).reduce(
-          (sum, val) => sum + (val || 0),
-          0
-        );
-
-        if (currentTotal >= 20) {
-          setShowUpsellPopup(true);
-          return false; // Don't proceed yet
-        }
+    // Check if we should show the upsell popup
+    const hasShown = typeof window !== "undefined" && localStorage.getItem("varietyPopupShown");
+    if (
+      formData.selectionType === "variety" &&
+      popupConfig &&
+      popupConfig.active &&
+      !hasShown &&
+      popupConfig.products &&
+      popupConfig.products.length > 0
+    ) {
+      const currentTotal = Object.values(formData.varietySelection).reduce(
+        (sum, val) => sum + (val || 0),
+        0
+      );
+      if (currentTotal >= 20) {
+        setShowUpsellPopup(true);
+        return; // The popup moves on to checkout when it closes
       }
-
-      trackChooseSandwiches();
     }
-
-    if (step === 3) {
-      trackFunnelStep({
-        stepName: "order_summary",
-        stepNumber: 3,
-        formData,
-        sandwichOptions,
-        drinks,
-        totalAmount,
-      });
-    }
-
-    if (step === 4) {
-      trackFunnelStep({
-        stepName: "delivery",
-        stepNumber: 4,
-        formData,
-        sandwichOptions,
-        drinks,
-        totalAmount,
-        extra: {
-          delivery_date: formData.deliveryDate,
-          delivery_time: formData.deliveryTime,
-        },
-        userData: buildUserData(formData),
-      });
-    }
-
-    if (step === 5) {
-      const extra = {};
-      if (formData.howDidYouFindUs?.length > 0) {
-        extra.how_found = formData.howDidYouFindUs;
-      }
-      if (formData.referenceNumber) {
-        extra.reference_number = formData.referenceNumber;
-      }
-
-      trackFunnelStep({
-        stepName: "company_details",
-        stepNumber: 5,
-        formData,
-        sandwichOptions,
-        drinks,
-        totalAmount,
-        extra,
-        userData: buildUserData(formData, { includeContact: true }),
-      });
-    }
-
-    return true; // Proceed normally
+    trackChooseSandwiches();
+    setCurrentStep(CHECKOUT);
   };
 
   const handleRemoveAddon = (addonId) => {
@@ -190,24 +154,32 @@ const Home = () => {
 
     updateFormData("upsellAddons", updatedUpsellAddons);
     setShowUpsellPopup(false);
-
     // UpsellPopup always calls onClose right after this, and that is where the
     // step 2 event is sent — otherwise it would fire twice.
     pendingUpsellAddons.current = updatedUpsellAddons;
-
-    // Proceed to next step
-    setCurrentStep(3);
+    setCurrentStep(CHECKOUT);
   };
 
   const handleClosePopup = () => {
     setShowUpsellPopup(false);
-
     const addons = pendingUpsellAddons.current;
     pendingUpsellAddons.current = null;
     trackChooseSandwiches(addons ? { upsellAddons: addons } : {});
+    setCurrentStep(CHECKOUT);
+  };
 
-    // Proceed to next step
-    setCurrentStep(3);
+  const handleReorder = () => {
+    const restored = buildReorderFormData(lastOrder, formData, sandwichOptions);
+    if (!restored) {
+      toast.info("Your previous order is no longer on the menu. Please start a new one.");
+      forgetLastOrder();
+      setLastOrder(null);
+      return;
+    }
+    setFormData(restored);
+    // Recalculate the delivery cost for the restored postcode.
+    if (restored.postalCode) updateFormData("postalCode", restored.postalCode);
+    setCurrentStep(CHECKOUT);
   };
 
   useEffect(() => {
@@ -242,126 +214,107 @@ const Home = () => {
     fetchSiteSettings();
   }, []);
 
-  const [currentStep, setCurrentStep] = useState(() => {
-    // Check if we're restoring a quote (client-side only)
-    if (typeof window !== "undefined") {
-      const searchParams = new URLSearchParams(window.location.search);
-      return searchParams.get("restore") ? 3 : 1; // Step 3 is the overview step
-    }
-    return 1;
-  });
+  useEffect(() => {
+    setLastOrder(getLastOrder());
+  }, []);
 
   useEffect(() => {
     // Handle quote restoration
     const wasRestored = restoreQuote();
     if (wasRestored) {
-      setCurrentStep(3);
+      setCurrentStep(CHECKOUT);
     }
   }, [restoreQuote]);
 
-  // Add useEffect to handle scrolling to top on step change
+  // The old wizard allowed one upsell popup per visit to the selection step.
+  useEffect(() => {
+    if (currentStep === COMPOSE) localStorage.removeItem("varietyPopupShown");
+  }, [currentStep]);
+
+  // The overview used to be its own step; it is now part of checkout, so the
+  // order_summary event is sent each time checkout opens (once the order is
+  // known, which matters for a restored quote).
+  const summaryTracked = useRef(false);
+  useEffect(() => {
+    if (currentStep !== CHECKOUT) {
+      summaryTracked.current = false;
+      return;
+    }
+    if (summaryTracked.current || !formData.selectionType) return;
+    summaryTracked.current = true;
+    trackFunnelStep({
+      stepName: "order_summary",
+      stepNumber: 3,
+      formData,
+      sandwichOptions,
+      drinks,
+      totalAmount,
+    });
+    // Only when the screen opens, not on every edit.
+  }, [currentStep, formData.selectionType]);
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentStep]);
 
-  const commonButtonClasses =
-    "px-4 py-2 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2";
-  const primaryButtonClasses = `${commonButtonClasses} bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary`;
-  const secondaryButtonClasses = `${commonButtonClasses} bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary`;
-
-  const steps = [
-    { icon: Users, title: "Amount of sandwiches" },
-    { icon: Utensils, title: "Offer" },
-    { icon: FileText, title: "Summary" },
-    { icon: Calendar, title: "Delivery" },
-    { icon: Building2, title: "Company details" },
-    { icon: CreditCard, title: "Payment" },
-  ];
-
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <SandwichAmountStep
-            formData={formData}
-            updateFormData={updateFormData}
-          />
-        );
-      case 2:
-        return (
-          <SelectionTypeStep
-            formData={formData}
-            updateFormData={updateFormData}
-            sandwichOptions={sandwichOptions}
-            drinks={drinks}
-          />
-        );
-      case 3:
-        return (
-          <OrderSummaryStep
-            formData={formData}
-            updateFormData={updateFormData}
-            setCurrentStep={setCurrentStep}
-            sandwichOptions={sandwichOptions}
-            drinks={drinks}
-            secondaryButtonClasses={secondaryButtonClasses}
-            totalAmount={totalAmount}
-            onRemoveAddon={handleRemoveAddon}
-          />
-        );
-      case 4:
-        return (
-          <DeliveryStep
-            formData={formData}
-            updateFormData={updateFormData}
-            date={date}
-            setDate={setDate}
-            deliveryError={deliveryError}
-            deliveryCost={deliveryCost}
-            disabledDates={disabledDates}
-          />
-        );
-      case 5:
-        return (
-          <ContactStep
-            formData={formData}
-            updateFormData={updateFormData}
-            sandwichOptions={sandwichOptions}
-            deliveryCost={deliveryCost}
-            totalAmount={totalAmount}
-          />
-        );
-      case 6:
-        return (
-          <PaymentStep
-            formData={formData}
-            updateFormData={updateFormData}
-            sandwichOptions={sandwichOptions}
-            drinks={drinks}
-            totalAmount={totalAmount}
-            deliveryCost={deliveryCost}
-            deliveryError={deliveryError}
-          />
-        );
-      default:
-        return null;
-    }
-  };
+  if (currentStep === START) {
+    return (
+      <StartScreen
+        formData={formData}
+        updateFormData={updateFormData}
+        disabledDates={disabledDates}
+        onChoose={handleChooseType}
+        lastOrder={lastOrder}
+        onReorder={handleReorder}
+      />
+    );
+  }
 
   return (
-    <>
-      <Wizard
-        currentStep={currentStep}
-        setCurrentStep={setCurrentStep}
-        steps={steps}
-        isStepValid={isStepValid}
-        getValidationMessage={getValidationMessage}
-        secondaryButtonClasses={secondaryButtonClasses}
-        primaryButtonClasses={primaryButtonClasses}
-        onBeforeNext={handleBeforeNext}
-      >
-        {renderStepContent()}
-      </Wizard>
+    <div className="min-h-screen bg-cream text-ink">
+      <OrderHeader phase={currentStep} onHome={() => setCurrentStep(START)} />
+
+      {currentStep === COMPOSE && formData.selectionType === "custom" && (
+        <ComposeCustom
+          formData={formData}
+          updateFormData={updateFormData}
+          sandwichOptions={sandwichOptions}
+          drinks={drinks}
+          totalAmount={totalAmount}
+          onContinue={handleComposeContinue}
+          onSwitchType={(type) => updateFormData("selectionType", type)}
+        />
+      )}
+
+      {currentStep === COMPOSE && formData.selectionType !== "custom" && (
+        <ComposeVariety
+          formData={formData}
+          updateFormData={updateFormData}
+          sandwichOptions={sandwichOptions}
+          drinks={drinks}
+          totalAmount={totalAmount}
+          onContinue={handleComposeContinue}
+          onSwitchType={(type) => updateFormData("selectionType", type)}
+          onRemoveAddon={handleRemoveAddon}
+        />
+      )}
+
+      {currentStep === CHECKOUT && (
+        <Checkout
+          formData={formData}
+          updateFormData={updateFormData}
+          sandwichOptions={sandwichOptions}
+          drinks={drinks}
+          totalAmount={totalAmount}
+          deliveryCost={deliveryCost}
+          deliveryError={deliveryError}
+          disabledDates={disabledDates}
+          isStepValid={isStepValid}
+          getValidationMessage={getValidationMessage}
+          onEdit={() => setCurrentStep(COMPOSE)}
+          onRemoveAddon={handleRemoveAddon}
+        />
+      )}
 
       {/* Upsell Popup */}
       {showUpsellPopup && popupConfig && (
@@ -372,18 +325,7 @@ const Home = () => {
           onAddProducts={handleAddProducts}
         />
       )}
-
-      {/* Quote Lookup Link */}
-      <div className="flex justify-between items-center mt-6 container mx-auto px-4">
-        <Link
-          href="/quote/lookup"
-          className="flex gap-2 items-center px-4 py-2 text-gray-400 rounded-md"
-        >
-          <FileSearch className="w-4 h-4" />
-          Load quote
-        </Link>
-      </div>
-    </>
+    </div>
   );
 };
 
