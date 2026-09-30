@@ -72,6 +72,20 @@ export default function StartScreen({
 }) {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const datesRef = useRef(null);
+  const carRef = useRef(null);
+  const leaving = useRef(false);
+
+  // The car drives off before the next screen opens. Below the minimum the
+  // page shows its validation message instead, so the car stays.
+  const choose = async (type) => {
+    if (leaving.current) return;
+    if ((Number(formData.totalSandwiches) || 0) >= 20 && carRef.current) {
+      leaving.current = true;
+      await carRef.current.driveOff();
+      leaving.current = false;
+    }
+    onChoose(type);
+  };
 
   // The start screen has its own "powered by" line instead of the site footer.
   useEffect(() => {
@@ -111,7 +125,7 @@ export default function StartScreen({
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-0px)] bg-cream">
+    <div className="flex min-h-[calc(100vh-0px)] overflow-x-clip bg-cream">
       <div className="flex w-full flex-col lg:w-[54%] lg:shrink-0">
         <header className="flex h-24 items-center justify-between gap-4 px-4 md:h-28 md:px-14">
           <div className="flex items-center gap-3">
@@ -149,7 +163,7 @@ export default function StartScreen({
 
         <main className="flex flex-1 flex-col justify-center px-4 pb-10 md:px-14 md:pb-14">
           <div className="mx-auto flex w-full max-w-[668px] flex-col gap-5 lg:mx-0">
-            <DrivingCar radius={28}>
+            <DrivingCar ref={carRef} radius={28}>
             <div className="flex flex-col gap-[22px] rounded-[24px] border border-plum/[0.14] bg-paper p-5 shadow-[0_24px_60px_-30px_rgba(56,38,40,0.35)] md:rounded-[28px] md:p-7">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex flex-col gap-1">
@@ -249,13 +263,13 @@ export default function StartScreen({
                   badge="Fastest"
                   title="Let us choose"
                   subtitle={`A varied mix · €${SANDWICH_PRICE_VARIETY.toFixed(2)} per sandwich`}
-                  onClick={() => onChoose("variety")}
+                  onClick={() => choose("variety")}
                 />
                 <ChoiceCard
                   badge="20+ sandwiches"
                   title="Build your own"
                   subtitle="Pick every sandwich from the menu"
-                  onClick={() => onChoose("custom")}
+                  onClick={() => choose("custom")}
                 />
               </div>
             </div>
