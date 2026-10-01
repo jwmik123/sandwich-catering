@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
-import { urlFor } from "@/sanity/lib/image";
+import { productImageKey, productImageLoader } from "@/lib/sanity-image";
 import { formatEuro } from "@/lib/selection-pricing";
 import { Chip, PrimaryButton, QuantityStepper } from "@/app/components/order/ui";
 
@@ -134,7 +134,8 @@ const UpsellPopup = ({ isOpen, onClose, config, onAddProducts }) => {
                       <div className="relative h-[76px] w-[96px] shrink-0 overflow-hidden rounded-2xl bg-[#EEEBE6]">
                         {product.image && (
                           <Image
-                            src={urlFor(product.image).width(240).height(190).fit("crop").url()}
+                            loader={productImageLoader(product.image, { aspect: 96 / 76, zoom: 1.6 })}
+                            src={productImageKey(product.image)}
                             alt={product.name}
                             fill
                             sizes="96px"

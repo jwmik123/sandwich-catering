@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 import { breadTypes } from "@/app/assets/constants";
 import { isDrink } from "@/lib/product-helpers";
 import { defaultBreadType, formatEuro } from "@/lib/selection-pricing";
-import { urlFor } from "@/sanity/lib/image";
+import { productImageKey, productImageLoader } from "@/lib/sanity-image";
 
 const VARIETY_LABELS = [
   { key: "nonVega", label: "Chicken, meat & fish" },
@@ -30,7 +30,8 @@ function Thumb({ product }) {
   }
   return (
     <Image
-      src={urlFor(product.image).width(120).height(90).fit("crop").url()}
+      loader={productImageLoader(product.image, { aspect: 4 / 3, zoom: 1.7 })}
+      src={productImageKey(product.image)}
       alt=""
       width={44}
       height={34}

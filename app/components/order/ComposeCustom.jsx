@@ -11,7 +11,7 @@ import {
   productQuantity,
   setProductQuantity,
 } from "@/lib/selection-pricing";
-import { urlFor } from "@/sanity/lib/image";
+import { productImageKey, productImageLoader } from "@/lib/sanity-image";
 import { cn } from "@/lib/utils";
 import OrderLines from "./OrderLines";
 import OrderPanel, { DeliveryDateNote, FreeDeliveryMeter, Totals } from "./OrderPanel";
@@ -36,24 +36,27 @@ function ProductCard({ product, quantity, onQuantity, onCustomize }) {
   return (
     <article
       className={cn(
-        "flex overflow-hidden rounded-[22px] border-2 bg-paper transition-shadow sm:flex-col hover:shadow-[0_18px_40px_-24px_rgba(56,38,40,0.45)]",
+        "flex items-center overflow-hidden rounded-[22px] border-2 bg-paper transition-shadow sm:flex-col sm:items-stretch hover:shadow-[0_18px_40px_-24px_rgba(56,38,40,0.45)]",
         selected ? "border-plum" : "border-plum/10"
       )}
     >
-      <div className="relative w-28 shrink-0 overflow-hidden bg-[#EEEBE6] sm:aspect-[4/3] sm:w-auto">
+      {/* Mobile: a fixed square thumbnail, so every product is cropped the same.
+          Desktop: a 4:3 photo across the top of the card. */}
+      <div className="relative ml-3 h-[104px] w-[104px] shrink-0 overflow-hidden rounded-2xl bg-[#EEEBE6] sm:m-0 sm:aspect-[4/3] sm:h-auto sm:w-auto sm:rounded-none">
         {product.image && (
           <Image
-            src={urlFor(product.image).width(640).height(480).fit("crop").url()}
+            loader={productImageLoader(product.image, { aspect: 4 / 3, zoom: 1.55 })}
+            src={productImageKey(product.image)}
             alt={product.name}
             fill
-            sizes="(min-width: 1280px) 300px, (min-width: 640px) 45vw, 112px"
-            className="scale-[1.3] object-cover"
+            sizes="(min-width: 1280px) 320px, (min-width: 640px) 45vw, 104px"
+            className="object-cover"
           />
         )}
         {badge && (
           <span
             className={cn(
-              "absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.06em] sm:left-3 sm:top-3 sm:px-2.5 sm:py-1 sm:text-[11px]",
+              "absolute left-3 top-3 hidden rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.06em] sm:inline-block",
               badge.className
             )}
           >
@@ -63,6 +66,16 @@ function ProductCard({ product, quantity, onQuantity, onCustomize }) {
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-1.5 px-3.5 pb-3.5 pt-3 sm:px-[18px] sm:pb-[18px] sm:pt-4">
         <h3 className="m-0 text-[15px] font-semibold tracking-[-0.01em] sm:text-[17px]">{product.name}</h3>
+        {badge && (
+          <span
+            className={cn(
+              "self-start rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.06em] sm:hidden",
+              badge.className
+            )}
+          >
+            {badge.label}
+          </span>
+        )}
         {product.description && (
           <p className="m-0 line-clamp-2 text-[13px] leading-[1.45] text-taupe">
             {product.description}

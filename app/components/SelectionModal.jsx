@@ -7,7 +7,7 @@ import { shouldHaveBreadType } from "@/lib/product-helpers";
 import { formatEuro } from "@/lib/selection-pricing";
 import { round2 } from "@/lib/vat-calculations";
 import { cn } from "@/lib/utils";
-import { urlFor } from "@/sanity/lib/image";
+import { productImageKey, productImageLoader } from "@/lib/sanity-image";
 import { Chip, PrimaryButton, QuantityStepper } from "@/app/components/order/ui";
 
 const SelectionModal = ({
@@ -150,11 +150,12 @@ const SelectionModal = ({
               <div className="relative h-44 shrink-0 overflow-hidden bg-[#EEEBE6] sm:h-48">
                 {sandwich?.image && (
                   <Image
-                    src={urlFor(sandwich.image).width(960).height(480).fit("crop").url()}
+                    loader={productImageLoader(sandwich.image, { aspect: 2, zoom: 1.5 })}
+                    src={productImageKey(sandwich.image)}
                     alt={sandwich.name}
                     fill
-                    sizes="480px"
-                    className="scale-[1.3] object-cover"
+                    sizes="(min-width: 640px) 480px, 100vw"
+                    className="object-cover"
                   />
                 )}
                 <DialogPrimitive.Close
