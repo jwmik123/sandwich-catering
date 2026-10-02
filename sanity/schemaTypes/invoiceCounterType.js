@@ -15,15 +15,22 @@ export const invoiceCounter = defineType({
       type: "number",
     }),
     defineField({
+      name: "series",
+      title: "Series",
+      type: "string",
+      description: "invoice (CAT-) or creditNote (CR-). Missing on the original invoice counters.",
+    }),
+    defineField({
       name: "seq",
       title: "Last issued sequence",
       type: "number",
     }),
   ],
   preview: {
-    select: { year: "year", seq: "seq" },
-    prepare({ year, seq }) {
-      return { title: `Invoice counter ${year}`, subtitle: `last: ${seq}` };
+    select: { year: "year", seq: "seq", series: "series" },
+    prepare({ year, seq, series }) {
+      const label = series === "creditNote" ? "Credit note" : "Invoice";
+      return { title: `${label} counter ${year}`, subtitle: `last: ${seq}` };
     },
   },
 });

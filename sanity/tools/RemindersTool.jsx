@@ -107,6 +107,8 @@ function AgeBadge({ inv }) {
 // wrong amount, so those need a human.
 const isRemindable = (inv) =>
   inv.openInYuki &&
+  // Credited: open in Yuki only until it is matched against its credit note.
+  inv.status !== "cancelled" &&
   !inv.paidOnline &&
   !inv.paymentReceived &&
   !inv.settledPerInvoice;

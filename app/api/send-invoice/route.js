@@ -4,6 +4,8 @@ import { NextResponse } from "next/server";
 import { sendOrderConfirmation } from "@/lib/email";
 import { PRODUCT_QUERY } from "@/sanity/lib/queries";
 import { createYukiInvoice } from "@/lib/yuki-api";
+import { invoiceToEmailData } from "@/lib/invoice-email-data";
+import { sendReplacementInvoice } from "@/lib/amend-invoice";
 
 export async function POST(request) {
   console.log("===== SEND INVOICE API CALLED =====");
@@ -48,73 +50,17 @@ export async function POST(request) {
 
     console.log("Email found:", invoice.orderDetails.email);
 
-    // Convert customSelection from Sanity array format to object format (matching cron job logic)
-    if (
-      invoice.orderDetails &&
-      invoice.orderDetails.selectionType === "custom" &&
-      Array.isArray(invoice.orderDetails.customSelection)
-    ) {
-      const customSelectionObject = invoice.orderDetails.customSelection.reduce(
-        (acc, item) => {
-          // Use sandwichId._ref as the key (the actual product ID), not _key
-          if (item.sandwichId && item.sandwichId._ref) {
-            acc[item.sandwichId._ref] = item.selections;
-          }
-          return acc;
-        },
-        {}
-      );
-      // Replace the array with the reconstructed object.
-      invoice.orderDetails.customSelection = customSelectionObject;
-    }
-
     // Fetch sandwich options for the email (matching cron job)
     const sandwichOptions = await client.fetch(PRODUCT_QUERY);
     console.log(`Retrieved ${sandwichOptions.length} sandwich options`);
 
-    // Prepare email data (matching cron job format exactly)
-    const emailData = {
-      quoteId: invoice.quoteId,
-      email: invoice.orderDetails.email,
-      fullName: invoice.orderDetails.name,
-      orderDetails: {
-        ...invoice.orderDetails,
-        selectionType: invoice.orderDetails.selectionType || "custom",
-        allergies: invoice.orderDetails.allergies || "",
-        customSelection: invoice.orderDetails.customSelection || {},
-        varietySelection: invoice.orderDetails.varietySelection || {
-          vega: 0,
-          nonVega: 0,
-          vegan: 0,
-        },
-        addDrinks: invoice.orderDetails.addDrinks || false,
-        drinks: invoice.orderDetails.drinks || null,
-        paymentMethod: "invoice",
-      },
-      deliveryDetails: {
-        deliveryDate: invoice.orderDetails.deliveryDate,
-        deliveryTime: invoice.orderDetails.deliveryTime || "12:00",
-        phoneNumber: invoice.orderDetails.phoneNumber || "",
-        address: {
-          street: invoice.orderDetails.street || "",
-          houseNumber: invoice.orderDetails.houseNumber || "",
-          houseNumberAddition: invoice.orderDetails.houseNumberAddition || "",
-          postalCode: invoice.orderDetails.postalCode || "",
-          city: invoice.orderDetails.city || "",
-        },
-      },
-      // Use companyDetails.address for invoice address (already correctly set during invoice creation)
-      invoiceDetails: {
-        address: invoice.companyDetails?.address || {},
-      },
-      companyDetails: {
-        ...invoice.companyDetails,
-        referenceNumber: invoice.referenceNumber || null,
-      },
-      amount: invoice.amount, // Pass the entire amount object
-      dueDate: invoice.dueDate,
-      sandwichOptions,
-    };
+    // A changed order: credit the old invoice, book this one, mail both (ADR 0004).
+    if (invoice.replaces?._ref) {
+      const result = await sendReplacementInvoice(invoice._id);
+      return NextResponse.json(result, { status: result.success ? 200 : 500 });
+    }
+
+    const emailData = invoiceToEmailData(invoice, sandwichOptions);
 
     console.log("Sending invoice email to:", invoice.orderDetails.email);
 

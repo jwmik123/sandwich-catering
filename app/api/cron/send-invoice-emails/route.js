@@ -29,8 +29,12 @@ export async function GET(request) {
     // 2. Haven't had their invoice email sent yet (emailSent is false or undefined)
     console.log("🔍 Querying Sanity database...");
     const invoices = await client.fetch(
+      // Replacement invoices (a changed order) are sent with their credit note
+      // from the Studio, never by this cron (ADR 0004).
       `*[_type == "invoice" && 
         orderDetails.deliveryDate == $today && 
+        status != "cancelled" &&
+        !defined(replaces) &&
         (!defined(emailSent) || emailSent != true)]`,
       { today }
     );

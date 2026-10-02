@@ -14,6 +14,11 @@ export function SendInvoiceAction(props) {
     return null;
   }
 
+  // A credited invoice is finished; its replacement is the one to send.
+  if (published.status === "cancelled") {
+    return null;
+  }
+
   return {
     label: "Send Invoice",
     icon: EnvelopeIcon,
@@ -33,7 +38,9 @@ export function SendInvoiceAction(props) {
 
       // Confirm before sending
       const confirmed = window.confirm(
-        `Send invoice ${quoteId} to ${email}?`
+        published.replaces?._ref
+          ? `Send this new invoice to ${email}?\n\nThe invoice it replaces is credited in Yuki first, and the customer gets the new invoice together with the credit note.`
+          : `Send invoice ${quoteId} to ${email}?`
       );
 
       if (!confirmed) {

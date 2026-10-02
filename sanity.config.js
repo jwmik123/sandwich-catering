@@ -9,6 +9,8 @@ import {apiVersion, dataset, projectId} from './sanity/env'
 import {schema} from './sanity/schemaTypes'
 import {structure} from './sanity/structure'
 import {SendInvoiceAction} from './sanity/actions/SendInvoiceAction'
+import {AmendInvoiceAction} from './sanity/actions/AmendInvoiceAction'
+import {BookReplacementAction} from './sanity/actions/BookReplacementAction'
 import {RemindersTool} from './sanity/tools/RemindersTool'
 
 export default defineConfig({
@@ -33,7 +35,7 @@ export default defineConfig({
     actions: (prev, context) => {
       // Add the SendInvoiceAction for invoice documents
       if (context.schemaType === 'invoice') {
-        return [...prev, SendInvoiceAction]
+        return [...prev, SendInvoiceAction, BookReplacementAction, AmendInvoiceAction]
       }
       return prev
     },

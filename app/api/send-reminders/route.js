@@ -32,6 +32,10 @@ async function sendOneReminder(invoiceId, sandwichOptions, message) {
   if (!invoice.orderDetails?.email) {
     return { invoiceId, success: false, error: "No email address" };
   }
+  // A credited invoice is owed by nobody (ADR 0004).
+  if (invoice.status === "cancelled") {
+    return { invoiceId, success: false, error: "Invoice is cancelled — reminder blocked" };
+  }
   // Server-side guard: never send a payment reminder for an order that was
   // already paid online via Mollie (Yuki may still show it open until the
   // payout is matched, but the customer owes nothing).

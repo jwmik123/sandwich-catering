@@ -44,7 +44,7 @@ async function sendSingleInvoice(quoteId) {
 
   try {
     const invoice = await client.fetch(
-      `*[_type == "invoice" && quoteId == $quoteId][0]`,
+      `*[_type == "invoice" && quoteId == $quoteId && status != "cancelled"][0]`,
       { quoteId }
     );
 

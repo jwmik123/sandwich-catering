@@ -1,6 +1,12 @@
 // schemas/invoice.js
 import { defineField, defineType } from "sanity";
 
+// Once booked in Yuki the invoice has been issued: what it bills is fixed.
+// A changed order is handled by crediting it and issuing a new invoice (ADR 0004).
+const lockedOnceBooked = ({ document }) => Boolean(document?.yukiSent);
+const LOCKED_NOTE =
+  "Locked: this invoice is booked in Yuki. To change the order, credit it and issue a new invoice.";
+
 export const invoice = defineType({
   name: "invoice",
   title: "Invoices",
@@ -28,12 +34,45 @@ export const invoice = defineType({
       name: "amount",
       title: "Amount",
       type: "object",
+      readOnly: lockedOnceBooked,
       fields: [
         defineField({ name: "total", type: "number", title: "Total" }),
         defineField({ name: "subtotal", type: "number", title: "Subtotal" }),
         defineField({ name: "delivery", type: "number", title: "Delivery Cost" }),
         defineField({ name: "vat", type: "number", title: "VAT" }),
       ],
+    }),
+    defineField({
+      name: "replaces",
+      title: "Replaces invoice",
+      description: "This invoice replaces that one after the order changed; the old one is credited when this one is sent.",
+      type: "reference",
+      to: [{ type: "invoice" }],
+      weak: true,
+      readOnly: true,
+    }),
+    defineField({
+      name: "replacedBy",
+      title: "Replaced by invoice",
+      type: "reference",
+      to: [{ type: "invoice" }],
+      weak: true,
+      readOnly: true,
+    }),
+    defineField({
+      name: "emailSkippedAt",
+      title: "Booked without e-mail at",
+      description: "Booked in Yuki with \"Book in Yuki (no e-mail)\": the customer got this invoice by hand.",
+      type: "datetime",
+      readOnly: true,
+    }),
+    defineField({
+      name: "creditNote",
+      title: "Credited by",
+      type: "reference",
+      to: [{ type: "creditNote" }],
+      weak: true,
+      readOnly: true,
     }),
     defineField({
       name: "status",
@@ -57,6 +96,7 @@ export const invoice = defineType({
       name: "companyDetails",
       title: "Company Details",
       type: "object",
+      readOnly: lockedOnceBooked,
       fields: [
         defineField({ name: "name", type: "string" }),
         defineField({
@@ -117,8 +157,9 @@ export const invoice = defineType({
       name: "orderDetails",
       title: "Order Details",
       type: "object",
+      readOnly: lockedOnceBooked,
       description:
-        "A snapshot of the order details at the time of invoice creation.",
+        "A snapshot of the order details at the time of invoice creation. " + LOCKED_NOTE,
       fields: [
         { name: "name", title: "Customer Name", type: "string" },
         { name: "email", title: "Email", type: "string" },

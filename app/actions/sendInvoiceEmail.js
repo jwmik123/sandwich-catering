@@ -10,7 +10,7 @@ export async function sendInvoiceEmail(quoteId) {
   try {
     // Fetch the invoice from Sanity
     const invoice = await client.fetch(
-      `*[_type == "invoice" && quoteId == $quoteId][0]`,
+      `*[_type == "invoice" && quoteId == $quoteId && status != "cancelled"][0]`,
       { quoteId }
     );
 
