@@ -65,12 +65,12 @@ export const structure = (S, context) =>
             )
         )
         .map((listItem) =>
-          // Invoices: newest invoice number first, not alphabetical by quote id.
+          // Invoices: most recently placed order first, not alphabetical by quote id.
           listItem.getId() === 'invoice'
             ? listItem.child(
                 S.documentTypeList('invoice')
                   .title('Invoices')
-                  .defaultOrdering([{ field: 'invoiceNumber', direction: 'desc' }])
+                  .defaultOrdering([{ field: 'createdAt', direction: 'desc' }])
               )
             : listItem
         ),

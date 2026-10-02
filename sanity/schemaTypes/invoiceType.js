@@ -401,9 +401,9 @@ export const invoice = defineType({
   ],
   orderings: [
     {
-      title: "Invoice number, newest first",
-      name: "invoiceNumberDesc",
-      by: [{ field: "invoiceNumber", direction: "desc" }],
+      title: "Order date, newest first",
+      name: "createdAtDesc",
+      by: [{ field: "createdAt", direction: "desc" }],
     },
     {
       title: "Delivery date, newest first",
@@ -419,22 +419,22 @@ export const invoice = defineType({
       name: "orderDetails.name",
       total: "amount.total",
       status: "status",
-      deliveryDate: "orderDetails.deliveryDate",
+      createdAt: "createdAt",
       creditNote: "creditNote._ref",
       replaces: "replaces._ref",
     },
-    prepare({ invoiceNumber, quoteId, company, name, total, status, deliveryDate, creditNote, replaces }) {
+    prepare({ invoiceNumber, quoteId, company, name, total, status, createdAt, creditNote, replaces }) {
       const customer = company || name || "Unknown customer";
       const statusLabel =
         status === "cancelled" && creditNote ? "credited" : status || "pending";
       return {
-        // Unbooked invoices have no number yet; the quote id still tells them apart.
-        title: `${invoiceNumber || `No number yet (${quoteId || "—"})`} · ${customer}`,
+        // Invoices from before the CAT- series were booked in Yuki under their quote id.
+        title: `${invoiceNumber || quoteId || "—"} · ${customer}`,
         subtitle: [
+          createdAt ? new Date(createdAt).toLocaleDateString("nl-NL") : null,
           typeof total === "number" ? `€${total.toFixed(2).replace(".", ",")}` : null,
           statusLabel,
           replaces ? "replacement" : null,
-          deliveryDate ? `delivery ${deliveryDate}` : null,
         ]
           .filter(Boolean)
           .join(" · "),
