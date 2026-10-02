@@ -399,6 +399,48 @@ export const invoice = defineType({
       options: { collapsible: true, collapsed: true },
     },
   ],
+  orderings: [
+    {
+      title: "Invoice number, newest first",
+      name: "invoiceNumberDesc",
+      by: [{ field: "invoiceNumber", direction: "desc" }],
+    },
+    {
+      title: "Delivery date, newest first",
+      name: "deliveryDateDesc",
+      by: [{ field: "orderDetails.deliveryDate", direction: "desc" }],
+    },
+  ],
+  preview: {
+    select: {
+      invoiceNumber: "invoiceNumber",
+      quoteId: "quoteId",
+      company: "companyDetails.name",
+      name: "orderDetails.name",
+      total: "amount.total",
+      status: "status",
+      deliveryDate: "orderDetails.deliveryDate",
+      creditNote: "creditNote._ref",
+      replaces: "replaces._ref",
+    },
+    prepare({ invoiceNumber, quoteId, company, name, total, status, deliveryDate, creditNote, replaces }) {
+      const customer = company || name || "Unknown customer";
+      const statusLabel =
+        status === "cancelled" && creditNote ? "credited" : status || "pending";
+      return {
+        // Unbooked invoices have no number yet; the quote id still tells them apart.
+        title: `${invoiceNumber || `No number yet (${quoteId || "—"})`} · ${customer}`,
+        subtitle: [
+          typeof total === "number" ? `€${total.toFixed(2).replace(".", ",")}` : null,
+          statusLabel,
+          replaces ? "replacement" : null,
+          deliveryDate ? `delivery ${deliveryDate}` : null,
+        ]
+          .filter(Boolean)
+          .join(" · "),
+      };
+    },
+  },
 });
 
 export default invoice;

@@ -57,12 +57,23 @@ export const structure = (S, context) =>
       S.divider(),
 
       // All other document types (excluding singletons and the internal counter)
-      ...S.documentTypeListItems().filter(
-        (listItem) =>
-          !['product', 'category', 'siteSettings', 'invoiceCounter'].includes(
-            listItem.getId()
-          )
-      ),
+      ...S.documentTypeListItems()
+        .filter(
+          (listItem) =>
+            !['product', 'category', 'siteSettings', 'invoiceCounter'].includes(
+              listItem.getId()
+            )
+        )
+        .map((listItem) =>
+          // Invoices: newest invoice number first, not alphabetical by quote id.
+          listItem.getId() === 'invoice'
+            ? listItem.child(
+                S.documentTypeList('invoice')
+                  .title('Invoices')
+                  .defaultOrdering([{ field: 'invoiceNumber', direction: 'desc' }])
+              )
+            : listItem
+        ),
 
       S.divider(),
 
