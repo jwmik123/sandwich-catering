@@ -414,7 +414,6 @@ export const invoice = defineType({
   preview: {
     select: {
       invoiceNumber: "invoiceNumber",
-      quoteId: "quoteId",
       company: "companyDetails.name",
       name: "orderDetails.name",
       total: "amount.total",
@@ -422,16 +421,18 @@ export const invoice = defineType({
       createdAt: "createdAt",
       creditNote: "creditNote._ref",
       replaces: "replaces._ref",
+      yukiSent: "yukiSent",
     },
-    prepare({ invoiceNumber, quoteId, company, name, total, status, createdAt, creditNote, replaces }) {
+    prepare({ invoiceNumber, company, name, total, status, createdAt, creditNote, replaces, yukiSent }) {
       const customer = company || name || "Unknown customer";
       const statusLabel =
         status === "cancelled" && creditNote ? "credited" : status || "pending";
       return {
-        // Invoices from before the CAT- series were booked in Yuki under their quote id.
-        title: `${invoiceNumber || quoteId || "—"} · ${customer}`,
+        // No number: an order not booked yet, or an invoice from before the CAT- series.
+        title: invoiceNumber ? `${invoiceNumber} · ${customer}` : customer,
         subtitle: [
           createdAt ? new Date(createdAt).toLocaleDateString("nl-NL") : null,
+          yukiSent ? null : "not booked yet",
           typeof total === "number" ? `€${total.toFixed(2).replace(".", ",")}` : null,
           statusLabel,
           replaces ? "replacement" : null,
