@@ -1,10 +1,10 @@
-// Nightly Sanity <-> Yuki consistency check (see lib/consistency-check.js).
-// Runs after reconcile-payments. Mails a report (see sendAdminReport for the
-// recipient) when anything needs action;
-// a clean night sends nothing.
+// Weekly Sanity <-> Yuki consistency check (see lib/consistency-check.js).
+// Runs Monday morning after reconcile-payments. Mails a report to the shop
+// (see sendAdminReport for the recipients) when anything needs action or
+// bookkeeping; a clean week sends nothing.
 //
 //   ?send=0   return the report without mailing (for testing)
-//   ?send=1   mail even when there is nothing to act on
+//   ?send=1   mail even when the list is empty
 export const dynamic = "force-dynamic";
 
 import { buildInvoiceOverview } from "@/lib/invoice-overview";
@@ -120,7 +120,8 @@ export async function GET(request) {
     );
 
     const shouldSend =
-      sendParam === "1" || (sendParam !== "0" && action.length > 0);
+      sendParam === "1" ||
+      (sendParam !== "0" && action.length + bookkeeping.length > 0);
 
     let mailedTo = null;
     if (shouldSend) {
@@ -130,7 +131,7 @@ export async function GET(request) {
         ? `${action.length} invoice issue(s) need attention.`
         : "Nothing needs action.";
       mailedTo = await sendAdminReport({
-        subject: `Catering invoices: ${action.length} issue(s) to check`,
+        subject: `Catering invoices, weekly check: ${action.length} to act on, ${bookkeeping.length} for the bookkeeper`,
         html: `<div style="font-family:system-ui,sans-serif;font-size:14px;color:#111">
           <p>${escapeHtml(intro)} Details per invoice are also in the Studio <em>Reminders</em> tab.</p>
           ${a.html}${b.html}

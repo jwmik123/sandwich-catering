@@ -2,7 +2,7 @@
 // Powers the Studio "Reminders" tab so you can see, for every issued invoice,
 // whether Yuki still considers it open, the open amount, and how many days it
 // has been outstanding. Read-only. The merge itself lives in
-// lib/invoice-overview.js, shared with the nightly consistency check.
+// lib/invoice-overview.js, shared with the weekly consistency check.
 export const dynamic = "force-dynamic";
 
 import { buildInvoiceOverview } from "@/lib/invoice-overview";

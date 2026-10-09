@@ -268,7 +268,7 @@ export const invoice = defineType({
       type: "number",
       readOnly: true,
       description:
-        "What Mollie collected at checkout. Must equal the invoice total; the nightly check reports any difference.",
+        "What Mollie collected at checkout. Must equal the invoice total; the weekly check reports any difference.",
     }),
 
     // -- Yuki Integration Fields --

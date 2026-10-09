@@ -27,5 +27,5 @@ Credit notes have their own gapless series `CR-<year>-NNNN` (counter `creditNote
 Tested on 2 Oct 2026 with CR-2026-0001 (crediting CAT-2026-0167). Yuki does **not** net the credit note against the invoice. Both stay open on the same contact (−€155,64 and +€155,64) until the bookkeeper matches them. Consequences:
 
 - A `CR-` open item is negative like an unlinked bank receipt, but it is never money received. The invoice overview keeps those items out of `receipts` (payment matching) and out of contact resolution.
-- Once matched, the old invoice drops off Yuki's open list. Reconciliation reads such an absence as "paid" (ADR 0002). Status `cancelled` keeps it out of reconciliation, reminders and the nightly check.
-- The nightly check lists each open credit note as a bookkeeping to-do ("match the two in Yuki"), and lists a `CR-` item without a Sanity credit note as an action.
+- Once matched, the old invoice drops off Yuki's open list. Reconciliation reads such an absence as "paid" (ADR 0002). Status `cancelled` keeps it out of reconciliation, reminders and the weekly check.
+- The weekly check (Monday morning) lists each open credit note as a bookkeeping to-do ("match the two in Yuki"), and lists a `CR-` item without a Sanity credit note as an action.

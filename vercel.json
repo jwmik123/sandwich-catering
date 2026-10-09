@@ -10,7 +10,7 @@
     },
     {
       "path": "/api/cron/consistency-check",
-      "schedule": "30 6 * * *"
+      "schedule": "30 6 * * 1"
     }
   ]
 }
