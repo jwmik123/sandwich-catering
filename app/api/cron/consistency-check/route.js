@@ -28,25 +28,43 @@ const escapeHtml = (s) =>
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 
+// Same look as the customer mails (lib/email.js): logo, white card, aubergine headings.
+const BRAND = "#4D343F";
+
 function renderSection(title, findings) {
   if (!findings.length) return { html: "", text: "" };
   const byKind = new Map();
   for (const f of findings) {
     byKind.set(f.kind, [...(byKind.get(f.kind) || []), f]);
   }
-  let html = `<h2 style="font-size:16px;margin:24px 0 8px">${escapeHtml(title)}</h2>`;
+  let html = `<h2 style="color:${BRAND};font-size:18px;margin:30px 0 10px;padding-bottom:5px;border-bottom:2px solid ${BRAND}">${escapeHtml(title)}</h2>`;
   let text = `\n${title.toUpperCase()}\n`;
   for (const [kind, items] of byKind) {
-    html += `<h3 style="font-size:14px;margin:16px 0 4px">${escapeHtml(KIND_LABELS[kind] || kind)} (${items.length})</h3><ul style="margin:0;padding-left:18px">`;
+    html += `<p style="font-weight:bold;color:${BRAND};margin:18px 0 6px">${escapeHtml(KIND_LABELS[kind] || kind)} (${items.length})</p>`;
     text += `\n${KIND_LABELS[kind] || kind} (${items.length})\n`;
     for (const f of items) {
       const who = [f.invoiceNumber, f.customer].filter(Boolean).join(" · ");
-      html += `<li style="margin:2px 0"><strong>${escapeHtml(who)}</strong>${who ? " — " : ""}${escapeHtml(f.detail)}</li>`;
-      text += `- ${who}${who ? " — " : ""}${f.detail}\n`;
+      html += `<div style="padding:8px 0;border-bottom:1px solid #eee"><strong>${escapeHtml(who)}</strong><br/><span style="color:#555">${escapeHtml(f.detail)}</span></div>`;
+      text += `- ${who}${who ? ": " : ""}${f.detail}\n`;
     }
-    html += "</ul>";
   }
   return { html, text };
+}
+
+function renderReport(intro, sectionsHtml) {
+  return `<div style="background-color:#f9f9f9;margin:0;padding:0">
+  <div style="max-width:600px;margin:0 auto;padding:20px;background-color:#ffffff;font-family:Arial,sans-serif;line-height:1.6;color:#333;font-size:14px">
+    <div style="text-align:center;padding:20px 0">
+      <img src="https://catering.thesandwichbar.nl/tsb-logo-full.png" alt="The Sandwich Bar" style="max-width:150px;height:auto" />
+    </div>
+    <h1 style="color:${BRAND};font-size:22px;text-align:center;margin:0 0 20px">Wekelijkse controle facturen</h1>
+    <p style="margin:0">${escapeHtml(intro)}</p>
+    ${sectionsHtml}
+    <p style="margin-top:40px;padding-top:20px;border-top:1px solid ${BRAND};font-size:12px;color:#666;text-align:center">
+      Automatische controle van Sanity en Yuki, elke maandag. Per factuur meer details in de Studio, tab <em>Reminders</em>.
+    </p>
+  </div>
+</div>`;
 }
 
 export async function GET(request) {
@@ -101,7 +119,7 @@ export async function GET(request) {
               severity: ACTION,
               invoiceNumber: v.invoiceNumber,
               customer: row?.customer || null,
-              detail: `Marked as sent, but not in Yuki's revenue ledger. ${v.detail}`,
+              detail: "Staat als verstuurd, maar staat niet in de omzet in Yuki.",
             });
           }
         } catch (e) {
@@ -125,17 +143,12 @@ export async function GET(request) {
 
     let mailedTo = null;
     if (shouldSend) {
-      const a = renderSection("Needs action", action);
-      const b = renderSection("For the bookkeeper", bookkeeping);
-      const intro = action.length
-        ? `${action.length} invoice issue(s) need attention.`
-        : "Nothing needs action.";
+      const a = renderSection("Actie nodig", action);
+      const b = renderSection("Voor de boekhouding", bookkeeping);
+      const intro = `Deze week: ${action.length} ${action.length === 1 ? "punt" : "punten"} met actie nodig, ${bookkeeping.length} voor de boekhouding.`;
       mailedTo = await sendAdminReport({
-        subject: `Catering invoices, weekly check: ${action.length} to act on, ${bookkeeping.length} for the bookkeeper`,
-        html: `<div style="font-family:system-ui,sans-serif;font-size:14px;color:#111">
-          <p>${escapeHtml(intro)} Details per invoice are also in the Studio <em>Reminders</em> tab.</p>
-          ${a.html}${b.html}
-        </div>`,
+        subject: `Cateringfacturen: ${action.length} actie nodig, ${bookkeeping.length} voor de boekhouding`,
+        html: renderReport(intro, a.html + b.html),
         text: `${intro}\n${a.text}${b.text}`,
       });
     }
