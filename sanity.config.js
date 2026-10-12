@@ -11,6 +11,7 @@ import {structure} from './sanity/structure'
 import {SendInvoiceAction} from './sanity/actions/SendInvoiceAction'
 import {AmendInvoiceAction} from './sanity/actions/AmendInvoiceAction'
 import {BookReplacementAction} from './sanity/actions/BookReplacementAction'
+import {withReissue} from './sanity/actions/ReissuePublishAction'
 import {RemindersTool} from './sanity/tools/RemindersTool'
 
 export default defineConfig({
@@ -35,7 +36,9 @@ export default defineConfig({
     actions: (prev, context) => {
       // Add the SendInvoiceAction for invoice documents
       if (context.schemaType === 'invoice') {
-        return [...prev, SendInvoiceAction, BookReplacementAction, AmendInvoiceAction]
+        // Publishing a new name / address on an issued invoice re-issues it.
+        const actions = prev.map((a) => (a.action === 'publish' ? withReissue(a) : a))
+        return [...actions, SendInvoiceAction, BookReplacementAction, AmendInvoiceAction]
       }
       return prev
     },

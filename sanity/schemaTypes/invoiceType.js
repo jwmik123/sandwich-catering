@@ -1,32 +1,23 @@
 // schemas/invoice.js
 import { defineField, defineType } from "sanity";
+import { ADDRESSEE_ORDER_FIELDS } from "../../lib/addressee";
 
 // Once booked in Yuki the invoice has been issued: what it bills is fixed.
 // A changed order is handled by crediting it and issuing a new invoice (ADR 0004).
-const lockedOnceBooked = ({ document }) => Boolean(document?.yukiSent);
+// Name, address and e-mail stay editable: publishing a change to them on a
+// booked invoice re-issues it (sanity/actions/ReissuePublishAction.js). The
+// replacement of a paid invoice also keeps what it bills locked.
 const LOCKED_NOTE =
-  "Locked: this invoice is booked in Yuki. To change the order, credit it and issue a new invoice.";
+  "Order lines are locked once booked in Yuki. Name, address and e-mail can change: publishing re-issues the invoice. To change the order, use Change order.";
 
-// The replacement of a paid invoice only corrects the addressee: what it bills
-// stays exactly what the customer paid (ADR 0004).
 const lockedBilling = ({ document }) =>
   Boolean(document?.yukiSent) || Boolean(document?.paymentCarriedOver);
-const ADDRESSEE_FIELDS = new Set([
-  "name",
-  "email",
-  "invoiceEmail",
-  "phoneNumber",
-  "street",
-  "houseNumber",
-  "houseNumberAddition",
-  "postalCode",
-  "city",
-]);
+const ADDRESSEE_FIELDS = new Set(ADDRESSEE_ORDER_FIELDS);
 const lockBilledLines = (fields) =>
   fields.map((f) =>
     ADDRESSEE_FIELDS.has(f.name)
       ? f
-      : { ...f, readOnly: ({ document }) => Boolean(document?.paymentCarriedOver) }
+      : { ...f, readOnly: lockedBilling }
   );
 
 export const invoice = defineType({
@@ -127,7 +118,6 @@ export const invoice = defineType({
       name: "companyDetails",
       title: "Company Details",
       type: "object",
-      readOnly: lockedOnceBooked,
       fields: [
         defineField({ name: "name", type: "string" }),
         defineField({
@@ -188,7 +178,6 @@ export const invoice = defineType({
       name: "orderDetails",
       title: "Order Details",
       type: "object",
-      readOnly: lockedOnceBooked,
       description:
         "A snapshot of the order details at the time of invoice creation. " + LOCKED_NOTE,
       fields: lockBilledLines([
