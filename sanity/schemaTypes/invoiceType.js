@@ -4,11 +4,11 @@ import { ADDRESSEE_ORDER_FIELDS } from "../../lib/addressee";
 
 // Once booked in Yuki the invoice has been issued: what it bills is fixed.
 // A changed order is handled by crediting it and issuing a new invoice (ADR 0004).
-// Name, address and e-mail stay editable: publishing a change to them on a
-// booked invoice re-issues it (sanity/actions/ReissuePublishAction.js). The
-// replacement of a paid invoice also keeps what it bills locked.
+// Name, address and e-mail stay editable: a corrected addressee is simply
+// re-sent with Send Invoice, same number and amount. The replacement of a paid
+// invoice also keeps what it bills locked.
 const LOCKED_NOTE =
-  "Order lines are locked once booked in Yuki. Name, address and e-mail can change: publishing re-issues the invoice. To change the order, use Change order.";
+  "Order lines are locked once booked in Yuki. Name, address and e-mail can change: publish, then Send Invoice to send the corrected invoice. To change the order, use Change order.";
 
 const lockedBilling = ({ document }) =>
   Boolean(document?.yukiSent) || Boolean(document?.paymentCarriedOver);

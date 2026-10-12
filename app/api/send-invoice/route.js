@@ -73,7 +73,11 @@ export async function POST(request) {
       // If email is sent successfully, also create the Yuki invoice (matching cron job).
       // Awaited on purpose: unawaited work gets killed on serverless once the
       // response returns, leaving yukiSent unset (breaks reconciliation).
-      if (process.env.YUKI_ENABLED === "true") {
+      // Already booked and verified (e.g. re-sent after correcting the address):
+      // Yuki has it, nothing to book.
+      if (invoice.yukiSent && invoice.yukiVerifiedAt) {
+        console.log(`${invoice.invoiceNumber} already booked in Yuki — not rebooking.`);
+      } else if (process.env.YUKI_ENABLED === "true") {
         console.log(
           `Creating Yuki invoice for quote: ${invoice.quoteId}`
         );
