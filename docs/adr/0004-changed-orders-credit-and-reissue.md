@@ -16,7 +16,11 @@ Decision: an issued invoice is never edited.
   "Book in Yuki (no e-mail)" does steps 1, 2 and 4 without mailing, for when the customer already has the corrected invoice by hand (`emailSkippedAt` records it). Send Invoice can still mail it later.
 - **Full credit only.** Crediting part of an invoice (single lines) is not offered. "Credit all and reissue" covers every change with a single path. The customer simply pays the new invoice.
 - **The credit note goes to the customer.** A business customer may already have deducted VAT on the issued invoice. A credit note that only exists in our books does not undo that.
-- **Unpaid invoices only.** Changing a paid invoice (including ones paid online via Mollie) means a refund. This flow refuses those.
+- **Name / address change.** Name, address, e-mail, phone, reference and company details are required invoice details, so correcting them also goes through "Change order", even when the amount stays the same. No separate action: on sending, the app compares the replacement with the old invoice. When only the addressee changed, the mail says so ("amount unchanged"). Every replacement is booked on the same Yuki contact as the old invoice, so the bookkeeper can match the credit note.
+- **Paid invoices: name / address only.** Changing what a paid invoice bills (including ones paid online via Mollie) means a refund. This flow refuses that. "Change order" on a paid invoice gives a replacement with `paymentCarriedOver: true` (`status: "paid"`, `paidAt`, `paidAmount`, Mollie fields copied). Its `amount` and order lines are read-only, and Send Invoice refuses when they differ anyway.
+  - The paid invoice is no longer on Yuki's open list, so the credit note (`creditsPaidInvoice: true`) can't be checked against an open item. Its proof is the invoice's own verified booking (`yukiVerifiedAt`), and it is booked on the contact stored there.
+  - In Yuki the old invoice stays matched to the payment. The credit (−) and the new invoice (+) stay open until the bookkeeper matches them against each other. The weekly check names both. Until then the new invoice is open in Yuki while Sanity says paid. That is expected (`paidByReplaced`), so it is not reported as a mismatch and gets no reminders.
+  - The customer gets the new invoice marked as paid ("nothing to pay"), with the credit note attached.
 
 ## Credit notes in Yuki
 

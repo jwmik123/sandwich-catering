@@ -2,6 +2,7 @@
 // "Change order" on an issued invoice: it is never edited, it is credited and
 // replaced by a new invoice (ADR 0004). This creates the replacement and opens
 // it; "Send Invoice" on the replacement credits the old one and mails both.
+// On a paid invoice only name, address and e-mail can change.
 import { EditIcon } from "@sanity/icons";
 import { useRouter } from "sanity/router";
 
@@ -10,10 +11,10 @@ export function AmendInvoiceAction(props) {
   const router = useRouter();
 
   if (type !== "invoice" || !published?.yukiSent) return null;
-  if (published.status === "cancelled" || published.status === "paid") return null;
-  if (typeof published.paidAmount === "number") return null;
+  if (published.status === "cancelled") return null;
 
   const existing = published.replacedBy?._ref;
+  const paid = published.status === "paid" || typeof published.paidAmount === "number";
 
   return {
     label: existing ? "Open replacement invoice" : "Change order",
@@ -28,7 +29,11 @@ export function AmendInvoiceAction(props) {
       const confirmed = window.confirm(
         `${published.invoiceNumber} is already booked and sent, so it can't be edited.\n\n` +
           "This creates a new invoice to edit. When you press Send Invoice on the new one, " +
-          `${published.invoiceNumber} is credited in Yuki and the customer gets the new invoice with the credit note.\n\nContinue?`
+          `${published.invoiceNumber} is credited in Yuki and the customer gets the new invoice with the credit note.` +
+          (paid
+            ? "\n\nThe invoice is paid, so only name, address and e-mail can change. The payment carries over and the new invoice says nothing is left to pay."
+            : "") +
+          "\n\nContinue?"
       );
       if (!confirmed) {
         onComplete();

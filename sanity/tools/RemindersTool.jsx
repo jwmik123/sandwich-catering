@@ -82,7 +82,7 @@ function AgeBadge({ inv }) {
   }
   // Online-paid invoices are only waiting on payout matching — age is
   // informational, never urgent.
-  if (inv.paidOnline || inv.paymentReceived) {
+  if (inv.paidOnline || inv.paidByReplaced || inv.paymentReceived) {
     return (
       <Badge tone="default" fontSize={0} style={NUM_STYLE}>
         {inv.daysOpen}d
@@ -110,6 +110,8 @@ const isRemindable = (inv) =>
   // Credited: open in Yuki only until it is matched against its credit note.
   inv.status !== "cancelled" &&
   !inv.paidOnline &&
+  // Re-issued paid invoice: paid via the invoice it replaces.
+  !inv.paidByReplaced &&
   !inv.paymentReceived &&
   !inv.settledPerInvoice;
 

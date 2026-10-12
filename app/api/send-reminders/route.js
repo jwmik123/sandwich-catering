@@ -36,7 +36,11 @@ async function sendOneReminder(invoiceId, sandwichOptions, message) {
   if (invoice.status === "cancelled") {
     return { invoiceId, success: false, error: "Invoice is cancelled — reminder blocked" };
   }
-  // Server-side guard: never send a payment reminder for an order that was
+  // Re-issued paid invoice: the customer paid the invoice it replaces.
+  if (invoice.paymentCarriedOver) {
+    return { invoiceId, success: false, error: "Already paid (re-issued invoice) — reminder blocked" };
+  }
+    // Server-side guard: never send a payment reminder for an order that was
   // already paid online via Mollie (Yuki may still show it open until the
   // payout is matched, but the customer owes nothing).
   if (invoice.molliePaymentId) {

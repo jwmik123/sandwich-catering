@@ -7,6 +7,28 @@ const lockedOnceBooked = ({ document }) => Boolean(document?.yukiSent);
 const LOCKED_NOTE =
   "Locked: this invoice is booked in Yuki. To change the order, credit it and issue a new invoice.";
 
+// The replacement of a paid invoice only corrects the addressee: what it bills
+// stays exactly what the customer paid (ADR 0004).
+const lockedBilling = ({ document }) =>
+  Boolean(document?.yukiSent) || Boolean(document?.paymentCarriedOver);
+const ADDRESSEE_FIELDS = new Set([
+  "name",
+  "email",
+  "invoiceEmail",
+  "phoneNumber",
+  "street",
+  "houseNumber",
+  "houseNumberAddition",
+  "postalCode",
+  "city",
+]);
+const lockBilledLines = (fields) =>
+  fields.map((f) =>
+    ADDRESSEE_FIELDS.has(f.name)
+      ? f
+      : { ...f, readOnly: ({ document }) => Boolean(document?.paymentCarriedOver) }
+  );
+
 export const invoice = defineType({
   name: "invoice",
   title: "Invoices",
@@ -34,7 +56,7 @@ export const invoice = defineType({
       name: "amount",
       title: "Amount",
       type: "object",
-      readOnly: lockedOnceBooked,
+      readOnly: lockedBilling,
       fields: [
         defineField({ name: "total", type: "number", title: "Total" }),
         defineField({ name: "subtotal", type: "number", title: "Subtotal" }),
@@ -50,6 +72,15 @@ export const invoice = defineType({
       to: [{ type: "invoice" }],
       weak: true,
       readOnly: true,
+    }),
+    defineField({
+      name: "paymentCarriedOver",
+      title: "Paid via the invoice it replaces",
+      description:
+        "The replaced invoice was already paid; that payment counts for this one. Only name, address and e-mail can change. Nothing to pay, no reminders.",
+      type: "boolean",
+      readOnly: true,
+      hidden: ({ document }) => !document?.paymentCarriedOver,
     }),
     defineField({
       name: "replacedBy",
@@ -160,7 +191,7 @@ export const invoice = defineType({
       readOnly: lockedOnceBooked,
       description:
         "A snapshot of the order details at the time of invoice creation. " + LOCKED_NOTE,
-      fields: [
+      fields: lockBilledLines([
         { name: "name", title: "Customer Name", type: "string" },
         { name: "email", title: "Email", type: "string" },
         {
@@ -259,7 +290,7 @@ export const invoice = defineType({
             },
           ],
         },
-      ],
+      ]),
     }),
 
     defineField({

@@ -34,6 +34,13 @@ export const creditNote = defineType({
       weak: true,
     }),
     defineField({
+      name: "creditsPaidInvoice",
+      title: "Credits a paid invoice",
+      description:
+        "The invoice was paid and re-issued to a corrected addressee for the same amount. Match this credit note in Yuki against the new invoice.",
+      type: "boolean",
+    }),
+    defineField({
       name: "reason",
       title: "Reason",
       type: "text",

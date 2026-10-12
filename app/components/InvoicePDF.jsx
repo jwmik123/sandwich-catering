@@ -162,6 +162,8 @@ const InvoicePDF = ({
   // { number, invoiceNumber } renders this as the credit note cancelling that
   // invoice: same lines, amounts shown negative, nothing to pay (ADR 0004).
   creditNote = null,
+  // Already paid: a paid invoice re-issued to a corrected addressee (ADR 0004).
+  paid = false,
 }) => {
   // Plain "-": the PDF font has no glyph for the minus sign U+2212.
   const money = (n) => `${creditNote ? "-" : ""}€${(n || 0).toFixed(2)}`;
@@ -489,6 +491,10 @@ const InvoicePDF = ({
                   <Text style={styles.value}>
                     No payment needed: this credit note cancels invoice {creditNote.invoiceNumber}.
                   </Text>
+                </View>
+              ) : paid ? (
+                <View style={styles.row}>
+                  <Text style={styles.value}>Paid: nothing to pay.</Text>
                 </View>
               ) : (
                 <View style={styles.row}>
