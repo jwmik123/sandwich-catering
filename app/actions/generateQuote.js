@@ -65,7 +65,8 @@ export async function generateQuote(formData, sandwichOptions) {
       howDidYouFindUs: formData.howDidYouFindUs || [],
       howDidYouFindUsOther: formData.howDidYouFindUsOther || "",
       orderDetails: {
-        totalSandwiches: formData.totalSandwiches,
+        // The quantity input hands over a string once typed in; the schema is a number.
+        totalSandwiches: Number(formData.totalSandwiches) || 0,
         selectionType: formData.selectionType,
         // CustomSelection should ONLY contain sandwich selections (custom orders)
         customSelection:

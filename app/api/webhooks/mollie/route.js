@@ -320,7 +320,7 @@ async function handlePaidStatus(quoteId, paidAmount) {
         // order with delivery reached Yuki without it.
         deliveryCost: order.deliveryDetails?.deliveryCost || 0,
         // Order info
-        totalSandwiches: order.orderDetails?.totalSandwiches || 0,
+        totalSandwiches: Number(order.orderDetails?.totalSandwiches) || 0,
         selectionType: order.orderDetails?.selectionType || "variety",
         allergies: order.orderDetails?.allergies || "",
         // Convert customSelection from Sanity array format to structured array (custom orders only)
@@ -487,7 +487,7 @@ async function handlePaidStatus(quoteId, paidAmount) {
 
       // Format orderDetails
       orderDetails: {
-        totalSandwiches: order.orderDetails?.totalSandwiches || 0,
+        totalSandwiches: Number(order.orderDetails?.totalSandwiches) || 0,
         selectionType: order.orderDetails?.selectionType || "variety",
         allergies: order.orderDetails?.allergies || "",
         addDrinks: order.orderDetails?.addDrinks || false,

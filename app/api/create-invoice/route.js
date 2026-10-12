@@ -69,6 +69,8 @@ export async function POST(request) {
       email: orderDetails.email || "",
       invoiceEmail: (orderDetails.invoiceEmail || "").trim(),
       phoneNumber: orderDetails.phoneNumber || "",
+      // A number in the schema; older quotes stored it as a string.
+      totalSandwiches: Number(orderDetails.totalSandwiches) || 0,
       // Ensure delivery address fields are included (they might be at the top level of orderDetails)
       street: orderDetails.street || "",
       houseNumber: orderDetails.houseNumber || "",
