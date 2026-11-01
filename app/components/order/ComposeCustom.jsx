@@ -1,12 +1,13 @@
 "use client";
 import React, { useMemo, useState } from "react";
 import Image from "next/image";
-import { Info, Plus, Search } from "lucide-react";
+import { ChevronRight, Info, Plus, Search, Wheat } from "lucide-react";
 import SelectionModal from "@/app/components/SelectionModal";
 import { breadTypes } from "@/app/assets/constants";
 import { isDrink } from "@/lib/product-helpers";
 import {
   countCustomItems,
+  defaultBreadType,
   formatEuro,
   productQuantity,
   setProductQuantity,
@@ -33,6 +34,11 @@ const DIET_BADGES = {
 function ProductCard({ product, quantity, onQuantity, onCustomize }) {
   const badge = DIET_BADGES[product.dietaryType];
   const selected = quantity > 0;
+  const defaultBread = breadTypes.find((b) => b.id === defaultBreadType(product));
+  // The chip opens all options, so name every one this product has.
+  const extras = [product.hasSauceOptions && "sauce", product.hasToppings && "toppings"].filter(Boolean);
+  const optionsLabel = [defaultBread && "bread", ...extras].filter(Boolean).join(", ");
+  const showOptions = !isDrink(product) && optionsLabel !== "";
   return (
     <article
       className={cn(
@@ -81,7 +87,35 @@ function ProductCard({ product, quantity, onQuantity, onCustomize }) {
             {product.description}
           </p>
         )}
-        <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+        {showOptions && (
+          // Shows what "Add" gives you (the default bread) and opens the
+          // options; coloured so it is not missed next to the Add button.
+          <button
+            type="button"
+            onClick={onCustomize}
+            aria-label={`${defaultBread ? `${defaultBread.name}: ` : ""}choose ${optionsLabel}`}
+            className="mt-auto flex h-8 max-w-full items-center gap-1.5 self-start whitespace-nowrap rounded-full bg-sun px-3 text-xs font-semibold text-ink transition-colors hover:bg-plum hover:text-cream"
+          >
+            <Wheat className="h-3.5 w-3.5 shrink-0" strokeWidth={2.2} />
+            {defaultBread ? (
+              <>
+                {defaultBread.name}
+                <span className="min-w-0 truncate font-normal opacity-75">
+                  · {extras.length ? `+ ${extras.join(" & ")}` : "Change"}
+                </span>
+              </>
+            ) : (
+              <span className="min-w-0 truncate first-letter:uppercase">{extras.join(" & ")}</span>
+            )}
+            <ChevronRight className="hidden h-3.5 w-3.5 shrink-0 sm:block" strokeWidth={2.2} />
+          </button>
+        )}
+        <div
+          className={cn(
+            "flex items-center justify-between gap-2 pt-2",
+            !showOptions && "mt-auto"
+          )}
+        >
           <span className="text-base font-semibold">{formatEuro(product.price)}</span>
           {selected ? (
             <QuantityStepper
@@ -102,20 +136,15 @@ function ProductCard({ product, quantity, onQuantity, onCustomize }) {
             </button>
           )}
         </div>
-        <button
-          type="button"
-          onClick={onCustomize}
-          className="self-start pt-1 text-xs text-plum underline underline-offset-[3px]"
-        >
-          {isDrink(product) ? (
-            "Details & allergens"
-          ) : (
-            <>
-              <span className="sm:hidden">Customise</span>
-              <span className="hidden sm:inline">Choose bread, sauce or toppings</span>
-            </>
-          )}
-        </button>
+        {isDrink(product) && (
+          <button
+            type="button"
+            onClick={onCustomize}
+            className="self-start pt-1 text-xs text-plum underline underline-offset-[3px]"
+          >
+            Details & allergens
+          </button>
+        )}
       </div>
     </article>
   );
