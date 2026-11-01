@@ -60,7 +60,7 @@ export const structure = (S, context) =>
       ...S.documentTypeListItems()
         .filter(
           (listItem) =>
-            !['product', 'category', 'siteSettings', 'invoiceCounter'].includes(
+            !['product', 'category', 'siteSettings', 'deliveryZones', 'invoiceCounter'].includes(
               listItem.getId()
             )
         )
@@ -86,5 +86,16 @@ export const structure = (S, context) =>
             .schemaType('siteSettings')
             .documentId('siteSettings')
             .title('Site Settings')
+        ),
+
+      // Delivery Zones singleton
+      S.listItem()
+        .title('Delivery Zones')
+        .id('deliveryZones')
+        .child(
+          S.document()
+            .schemaType('deliveryZones')
+            .documentId('deliveryZones')
+            .title('Delivery Zones')
         ),
     ])

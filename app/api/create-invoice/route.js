@@ -7,6 +7,7 @@ import { createYukiInvoice } from "@/lib/yuki-api";
 import { getDrinksWithDetails } from "@/lib/product-helpers";
 import { round2 } from "@/lib/vat-calculations";
 import { PAYMENT_TERM_DAYS } from "@/app/assets/constants";
+import { verifyDeliveryCost } from "@/lib/verify-delivery-cost";
 
 export async function POST(request) {
   console.log("===== CREATE INVOICE API CALLED =====");
@@ -41,6 +42,19 @@ export async function POST(request) {
           success: false,
           error: "Missing required fields",
         },
+        { status: 400 }
+      );
+    }
+
+    const deliveryProblem = await verifyDeliveryCost({
+      postalCode: orderDetails.postalCode,
+      amount,
+      deliveryCost: orderDetails.deliveryCost,
+    });
+    if (deliveryProblem) {
+      console.error(`Refused invoice for ${quoteId}: ${deliveryProblem}`);
+      return NextResponse.json(
+        { success: false, error: deliveryProblem },
         { status: 400 }
       );
     }

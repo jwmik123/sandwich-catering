@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import { client } from "@/sanity/lib/client";
-import { PRODUCT_QUERY, DRINK_QUERY, POPUP_CONFIG_QUERY, SITE_SETTINGS_QUERY } from "@/sanity/lib/queries";
+import { PRODUCT_QUERY, DRINK_QUERY, POPUP_CONFIG_QUERY, SITE_SETTINGS_QUERY, DELIVERY_ZONES_QUERY } from "@/sanity/lib/queries";
 import UpsellPopup from "@/app/components/UpsellPopup";
 import StartScreen from "@/app/components/order/StartScreen";
 import ComposeCustom from "@/app/components/order/ComposeCustom";
@@ -32,6 +32,7 @@ const Home = () => {
   const [drinks, setDrinks] = useState([]);
   const [popupConfig, setPopupConfig] = useState(null);
   const [disabledDates, setDisabledDates] = useState([]);
+  const [deliveryZones, setDeliveryZones] = useState(null);
   const [showUpsellPopup, setShowUpsellPopup] = useState(false);
   const [lastOrder, setLastOrder] = useState(null);
   // Addons picked in the upsell popup, held until the popup closes so the
@@ -46,7 +47,7 @@ const Home = () => {
     totalAmount,
     calculateTotal,
     restoreQuote,
-  } = useOrderForm(drinks);
+  } = useOrderForm(drinks, deliveryZones);
 
   const { isStepValid, getValidationMessage } = useOrderValidation(formData, deliveryError);
 
@@ -260,6 +261,17 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
+    client
+      .fetch(DELIVERY_ZONES_QUERY)
+      .then((zones) => setDeliveryZones(zones || []))
+      .catch((error) => {
+        // Without zones no postcode resolves to a city, so ordering stays blocked.
+        console.error("Failed to load delivery zones:", error);
+        toast.error("Delivery costs could not be loaded. Please refresh the page.");
+      });
+  }, []);
+
+  useEffect(() => {
     setLastOrder(getLastOrder());
   }, []);
 
@@ -353,6 +365,7 @@ const Home = () => {
           totalAmount={totalAmount}
           deliveryCost={deliveryCost}
           deliveryError={deliveryError}
+          deliveryZones={deliveryZones}
           disabledDates={disabledDates}
           isStepValid={isStepValid}
           getValidationMessage={getValidationMessage}

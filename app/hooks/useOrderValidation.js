@@ -1,4 +1,5 @@
 "use client";
+import { NO_DELIVERY } from "@/lib/delivery-zones";
 
 export const useOrderValidation = (formData, deliveryError) => {
   const isStepValid = (step) => {
@@ -31,7 +32,7 @@ export const useOrderValidation = (formData, deliveryError) => {
           formData.houseNumber &&
           formData.postalCode &&
           formData.city &&
-          deliveryError !== "We do not deliver to this postal code."
+          deliveryError !== NO_DELIVERY
         );
 
       case 5:

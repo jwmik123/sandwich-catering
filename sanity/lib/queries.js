@@ -56,6 +56,12 @@ export const SITE_SETTINGS_QUERY = defineQuery(`*[_type == "siteSettings" && _id
   }
 }`);
 
+export const DELIVERY_ZONES_QUERY = defineQuery(`*[_type == "deliveryZones" && _id == "deliveryZones"][0].zones[] {
+  cost,
+  freeDeliveryFrom,
+  postcodes
+}`);
+
 export const POPUP_CONFIG_QUERY = defineQuery(`*[_type == "popupConfig" && active == true][0] {
   _id,
   active,

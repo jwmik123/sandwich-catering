@@ -1,11 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
-import { postalCodeDeliveryCosts } from "@/app/assets/postals";
+import { getDeliveryQuote, deliveryMessage } from "@/lib/delivery-zones";
 import { SANDWICH_PRICE_VARIETY, GLUTEN_FREE_SURCHARGE } from "@/app/assets/constants";
 import { calculateDrinksTotal } from "@/lib/product-helpers";
 import { round2 } from "@/lib/vat-calculations";
 
-export const useOrderForm = (drinks = []) => {
+// deliveryZones is null until the zones have been fetched from Sanity.
+export const useOrderForm = (drinks = [], deliveryZones = null) => {
   const [formData, setFormData] = useState({
     // Stap 1
     totalSandwiches: 20,
@@ -52,38 +53,6 @@ export const useOrderForm = (drinks = []) => {
   const [deliveryCost, setDeliveryCost] = useState(null);
   const [deliveryError, setDeliveryError] = useState(null);
 
-  const calculateDeliveryCost = (postalCode, orderAmount) => {
-    if (!postalCode) return null;
-    // Format postal code - remove spaces and take first 4 digits
-    const formattedPostal = postalCode.replace(/\s/g, "").substring(0, 4);
-    // Check if postal code exists in our delivery zones
-    const deliveryZone = postalCodeDeliveryCosts[formattedPostal];
-    if (!deliveryZone) {
-      return { error: "We do not deliver to this postal code." };
-    }
-
-    // For special always-charge postal codes
-    if (typeof deliveryZone === "object" && deliveryZone.alwaysCharge) {
-      return {
-        cost: deliveryZone.cost,
-      };
-    }
-
-    // For regular postal codes (not special zones)
-    if (typeof deliveryZone === "number") {
-      return {
-        cost: orderAmount >= 150 ? 0 : deliveryZone,
-      };
-    }
-
-    // For special zones (postal codes that require €150 for free delivery)
-    if (typeof deliveryZone === "object") {
-      return {
-        cost: orderAmount >= 150 ? 0 : deliveryZone.cost,
-      };
-    }
-  };
-
   const calculateTotal = (formData) => {
     let subtotal = 0;
 
@@ -128,31 +97,24 @@ export const useOrderForm = (drinks = []) => {
 
   const totalAmount = calculateTotal(formData);
 
-  // Effect to recalculate delivery cost when total amount changes
+  // Recalculate delivery cost when the postcode, order amount or zones change
   useEffect(() => {
-    if (formData.postalCode && totalAmount > 0) {
-      const result = calculateDeliveryCost(formData.postalCode, totalAmount);
-      if (result && !result.error) {
-        setDeliveryCost(result.cost || null);
-
-        // Update delivery messages based on new cost
-        const formattedPostal = formData.postalCode
-          .replace(/\s/g, "")
-          .substring(0, 4);
-        const deliveryZone = postalCodeDeliveryCosts[formattedPostal];
-
-        if (typeof deliveryZone === "object" && deliveryZone.alwaysCharge) {
-          setDeliveryError(``);
-        } else if (result.cost > 0) {
-          setDeliveryError(
-            `Free delivery available for orders over €150 in your area`
-          );
-        } else if (result.cost === 0 && totalAmount >= 150) {
-          setDeliveryError(null);
-        }
-      }
+    if (!formData.postalCode) {
+      setDeliveryCost(null);
+      setDeliveryError(null);
+      return;
     }
-  }, [totalAmount, formData.postalCode]);
+    if (!deliveryZones) return;
+
+    const quote = getDeliveryQuote(deliveryZones, formData.postalCode, totalAmount);
+    if (quote.error) {
+      setDeliveryCost(null);
+      setDeliveryError(quote.error);
+    } else {
+      setDeliveryCost(quote.cost || null);
+      setDeliveryError(deliveryMessage(quote) || null);
+    }
+  }, [totalAmount, formData.postalCode, deliveryZones]);
 
   const updateFormData = (field, value) => {
     setFormData((prev) => {
@@ -178,35 +140,6 @@ export const useOrderForm = (drinks = []) => {
         });
       }
 
-      if (field === "postalCode") {
-        const result = calculateDeliveryCost(value, totalAmount);
-        if (result?.error) {
-          setDeliveryError(result.error);
-          setDeliveryCost(null);
-        } else {
-          setDeliveryError(null);
-          setDeliveryCost(result?.cost || null);
-
-          // Add message about delivery costs or free delivery threshold
-          const formattedPostal = value.replace(/\s/g, "").substring(0, 4);
-          const deliveryZone = postalCodeDeliveryCosts[formattedPostal];
-
-          // Special case for postal codes that always have a delivery fee
-          if (typeof deliveryZone === "object" && deliveryZone.alwaysCharge) {
-            setDeliveryError(``);
-          }
-          // Regular case with minimum order for free delivery
-          else if (typeof deliveryZone === "object" && result.cost > 0) {
-            setDeliveryError(
-              `Free delivery available for orders over €150 in your area`
-            );
-          } else if (result?.cost > 0) {
-            setDeliveryError(
-              `Free delivery available for orders over €150 in your area`
-            );
-          }
-        }
-      }
       return newData;
     });
   };
@@ -282,7 +215,6 @@ export const useOrderForm = (drinks = []) => {
     setDeliveryError,
     totalAmount,
     calculateTotal,
-    calculateDeliveryCost,
     restoreQuote,
   };
 }; 

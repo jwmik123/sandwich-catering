@@ -16,7 +16,7 @@ import {
 import { rememberPendingOrder } from "@/lib/last-order";
 import { houseNumberDigits, isCompletePostcode, lookupStreet } from "@/lib/address-lookup";
 import { TIME_SLOTS, cityForPostcode, formatLongDate } from "@/lib/delivery-dates";
-import { postalCodeDeliveryCosts } from "@/app/assets/postals";
+import { NO_DELIVERY } from "@/lib/delivery-zones";
 import { cn } from "@/lib/utils";
 import DeliveryDatePicker from "./DeliveryDatePicker";
 import OrderLines from "./OrderLines";
@@ -24,7 +24,6 @@ import { Totals } from "./OrderPanel";
 import { downloadInvoicePreview } from "./invoicePreview";
 import { Card, Heading, PrimaryButton } from "./ui";
 
-const NO_DELIVERY = "We do not deliver to this postal code.";
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const FIND_US_OPTIONS = [
@@ -93,6 +92,7 @@ export default function Checkout({
   totalAmount,
   deliveryCost,
   deliveryError,
+  deliveryZones,
   disabledDates,
   isStepValid,
   getValidationMessage,
@@ -404,7 +404,7 @@ export default function Checkout({
                 value={formData.postalCode}
                 onChange={(e) => {
                   updateFormData("postalCode", e.target.value);
-                  updateFormData("city", cityForPostcode(e.target.value, postalCodeDeliveryCosts));
+                  updateFormData("city", cityForPostcode(e.target.value, deliveryZones));
                 }}
                 autoComplete="postal-code"
                 placeholder="1075 XN"

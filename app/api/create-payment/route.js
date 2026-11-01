@@ -1,5 +1,6 @@
 import { createMollieClient } from "@mollie/api-client";
 import { NextResponse } from "next/server";
+import { verifyDeliveryCost } from "@/lib/verify-delivery-cost";
 
 const mollieClient = createMollieClient({
   apiKey: process.env.MOLLIE_LIVE_API_KEY,
@@ -7,7 +8,20 @@ const mollieClient = createMollieClient({
 
 export async function POST(request) {
   try {
-    const { quoteId, amount } = await request.json();
+    const { quoteId, amount, orderDetails } = await request.json();
+
+    const deliveryProblem = await verifyDeliveryCost({
+      postalCode: orderDetails?.postalCode,
+      amount,
+      deliveryCost: orderDetails?.deliveryCost,
+    });
+    if (deliveryProblem) {
+      console.error(`Refused payment for ${quoteId}: ${deliveryProblem}`);
+      return NextResponse.json(
+        { success: false, error: deliveryProblem },
+        { status: 400 }
+      );
+    }
 
     // Create payment
     const payment = await mollieClient.payments.create({

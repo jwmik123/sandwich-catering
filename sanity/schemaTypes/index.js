@@ -7,7 +7,8 @@ import { category } from "./categoryType";
 import { drink } from "./drinkType";
 import { popupConfig } from "./popupConfigType";
 import { siteSettings } from "./siteSettingsType";
+import { deliveryZones } from "./deliveryZonesType";
 
 export const schema = {
-  types: [category, product, drink, quote, invoice, creditNote, invoiceCounter, popupConfig, siteSettings],
+  types: [category, product, drink, quote, invoice, creditNote, invoiceCounter, popupConfig, siteSettings, deliveryZones],
 };
