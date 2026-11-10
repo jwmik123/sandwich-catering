@@ -53,10 +53,12 @@ export default function ComposeVariety({
   const selection = formData.varietySelection;
   const distributed = sumSelection(selection);
 
-  // Start from a balanced mix the first time this screen opens.
+  // Start from a balanced mix when nothing has been split yet: the first visit,
+  // or after the amount changed on the start screen.
   useEffect(() => {
-    if (sumSelection(formData.varietySelection) === 0 && total > 0) {
-      updateFormData("varietySelection", splitMix(total, "balanced"));
+    const { nonVega, vega, vegan, glutenFree } = formData.varietySelection;
+    if (!nonVega && !vega && !vegan && total > 0) {
+      updateFormData("varietySelection", splitMix(total, "balanced", glutenFree || 0));
     } else {
       setMix("custom");
     }

@@ -132,6 +132,18 @@ export default function StartScreen({
     updateFormData("deliveryTime", "");
   };
 
+  // A mix made earlier was split for the old amount. Clearing it lets the mix
+  // screen split the new amount. Gluten-free stays: it is only ever picked by hand.
+  const changeTotal = (value) => {
+    updateFormData("totalSandwiches", value);
+    updateFormData("varietySelection", {
+      nonVega: 0,
+      vega: 0,
+      vegan: 0,
+      glutenFree: formData.varietySelection.glutenFree || 0,
+    });
+  };
+
   return (
     <div className="flex min-h-[calc(100vh-0px)] overflow-x-clip bg-cream">
       <div className="flex w-full flex-col lg:w-[54%] lg:shrink-0">
@@ -188,7 +200,7 @@ export default function StartScreen({
                   id="totalSandwiches"
                   label="sandwiches"
                   value={formData.totalSandwiches}
-                  onChange={(value) => updateFormData("totalSandwiches", value)}
+                  onChange={changeTotal}
                   step={5}
                   min={20}
                   size="lg"
