@@ -360,6 +360,7 @@ export default function Checkout({
                 value={formData.deliveryDate}
                 onChange={pickDate}
                 disabledDates={disabledDates}
+                totalSandwiches={formData.totalSandwiches}
               />
             </div>
             <div className="flex flex-1 flex-col gap-3">

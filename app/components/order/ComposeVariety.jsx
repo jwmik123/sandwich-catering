@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { GLUTEN_FREE_SURCHARGE, SANDWICH_PRICE_VARIETY } from "@/app/assets/constants";
 import { formatEuro } from "@/lib/selection-pricing";
+import { minSandwichesFor } from "@/lib/order-minimum";
 import { cn } from "@/lib/utils";
 import OrderLines from "./OrderLines";
 import OrderPanel, { DeliveryDateNote, FreeDeliveryMeter, Totals } from "./OrderPanel";
@@ -50,6 +51,7 @@ export default function ComposeVariety({
 }) {
   const [mix, setMix] = useState("balanced");
   const total = Number(formData.totalSandwiches) || 0;
+  const minimum = minSandwichesFor(formData.deliveryDate);
   const selection = formData.varietySelection;
   const distributed = sumSelection(selection);
 
@@ -73,7 +75,7 @@ export default function ComposeVariety({
   const changeTotal = (value) => {
     updateFormData("totalSandwiches", value);
     const next = Number(value) || 0;
-    if (mix !== "custom" && next >= 20) {
+    if (mix !== "custom" && next >= minimum) {
       updateFormData("varietySelection", splitMix(next, mix, selection.glutenFree || 0));
     }
   };
@@ -163,7 +165,7 @@ export default function ComposeVariety({
                   value={formData.totalSandwiches}
                   onChange={changeTotal}
                   step={5}
-                  min={20}
+                  min={minimum}
                   size="sm"
                   variant="outline"
                 />

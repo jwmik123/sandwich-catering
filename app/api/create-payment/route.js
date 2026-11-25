@@ -1,6 +1,7 @@
 import { createMollieClient } from "@mollie/api-client";
 import { NextResponse } from "next/server";
 import { verifyDeliveryCost } from "@/lib/verify-delivery-cost";
+import { orderMinimumProblem } from "@/lib/order-minimum";
 
 const mollieClient = createMollieClient({
   apiKey: process.env.MOLLIE_LIVE_API_KEY,
@@ -19,6 +20,15 @@ export async function POST(request) {
       console.error(`Refused payment for ${quoteId}: ${deliveryProblem}`);
       return NextResponse.json(
         { success: false, error: deliveryProblem },
+        { status: 400 }
+      );
+    }
+
+    const minimumProblem = orderMinimumProblem(orderDetails);
+    if (minimumProblem) {
+      console.error(`Refused payment for ${quoteId}: ${minimumProblem}`);
+      return NextResponse.json(
+        { success: false, error: minimumProblem },
         { status: 400 }
       );
     }

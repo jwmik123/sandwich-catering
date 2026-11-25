@@ -13,6 +13,7 @@ import {
   setProductQuantity,
 } from "@/lib/selection-pricing";
 import { productImageKey, productImageLoader } from "@/lib/sanity-image";
+import { minSandwichesFor } from "@/lib/order-minimum";
 import { cn } from "@/lib/utils";
 import OrderLines from "./OrderLines";
 import OrderPanel, { DeliveryDateNote, FreeDeliveryMeter, Totals } from "./OrderPanel";
@@ -204,6 +205,7 @@ export default function ComposeCustom({
     });
 
   const target = Number(formData.totalSandwiches) || 0;
+  const minimum = minSandwichesFor(formData.deliveryDate);
   const count = countCustomItems(formData.customSelection);
   const remaining = target - count;
 
@@ -225,7 +227,7 @@ export default function ComposeCustom({
             value={formData.totalSandwiches}
             onChange={(value) => updateFormData("totalSandwiches", value)}
             step={5}
-            min={20}
+            min={minimum}
             size="sm"
           />
           <span className="ml-auto text-sm font-semibold text-plum">
@@ -233,7 +235,9 @@ export default function ComposeCustom({
           </span>
         </div>
         <ProgressBar value={target > 0 ? (count / target) * 100 : 0} />
-        <span className="text-xs text-taupe">Minimum order: 20 sandwiches</span>
+        <span className="text-xs text-taupe">
+          Minimum order: {minimum} sandwiches{minimum > 20 ? " for weekend delivery" : ""}
+        </span>
       </div>
 
       <div className="border-t border-plum/10 pt-4">

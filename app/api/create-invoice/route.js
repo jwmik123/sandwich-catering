@@ -8,6 +8,7 @@ import { getDrinksWithDetails } from "@/lib/product-helpers";
 import { round2 } from "@/lib/vat-calculations";
 import { PAYMENT_TERM_DAYS } from "@/app/assets/constants";
 import { verifyDeliveryCost } from "@/lib/verify-delivery-cost";
+import { orderMinimumProblem } from "@/lib/order-minimum";
 
 export async function POST(request) {
   console.log("===== CREATE INVOICE API CALLED =====");
@@ -55,6 +56,15 @@ export async function POST(request) {
       console.error(`Refused invoice for ${quoteId}: ${deliveryProblem}`);
       return NextResponse.json(
         { success: false, error: deliveryProblem },
+        { status: 400 }
+      );
+    }
+
+    const minimumProblem = orderMinimumProblem(orderDetails);
+    if (minimumProblem) {
+      console.error(`Refused invoice for ${quoteId}: ${minimumProblem}`);
+      return NextResponse.json(
+        { success: false, error: minimumProblem },
         { status: 400 }
       );
     }

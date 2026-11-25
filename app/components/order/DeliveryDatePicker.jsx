@@ -10,21 +10,32 @@ import {
   nextAvailableDates,
   toDateString,
 } from "@/lib/delivery-dates";
+import { isWeekendDate, MIN_SANDWICHES_WEEKEND } from "@/lib/order-minimum";
 import { cn } from "@/lib/utils";
 
 // Closed days get a dot, and a "Fully booked" (or "Closed") tag on hover,
-// instead of the browser's not-allowed cursor.
+// instead of the browser's not-allowed cursor. Weekend days get a tag with
+// their higher minimum, and a dot too when the order is too small for them.
 function Day({ day, modifiers, className, children, ...props }) {
-  const tag = modifiers.booked ? "Fully booked" : modifiers.closed ? "Closed" : null;
+  const tag = modifiers.booked
+    ? "Fully booked"
+    : modifiers.closed
+      ? "Closed"
+      : modifiers.tooSmall || modifiers.weekend
+        ? `From ${MIN_SANDWICHES_WEEKEND} sandwiches`
+        : null;
+  const dot = modifiers.booked || modifiers.closed || modifiers.tooSmall;
   return (
     <td {...props} className={cn(className, tag && "group relative")}>
       {children}
       {tag && (
         <>
-          <span
-            aria-hidden
-            className="pointer-events-none absolute bottom-1.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-[#C98B4E]"
-          />
+          {dot && (
+            <span
+              aria-hidden
+              className="pointer-events-none absolute bottom-1.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-[#C98B4E]"
+            />
+          )}
           <span
             role="tooltip"
             className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-plum px-2.5 py-1 text-[11px] font-semibold text-cream opacity-0 shadow-[0_8px_20px_-8px_rgba(56,38,40,0.6)] transition-opacity group-hover:opacity-100"
@@ -37,7 +48,18 @@ function Day({ day, modifiers, className, children, ...props }) {
   );
 }
 
-export default function DeliveryDatePicker({ value, onChange, disabledDates = [] }) {
+// totalSandwiches: when given, weekend days are off limits below the weekend
+// minimum. Without it (the start screen, where the amount can still change)
+// weekend days only carry the tag.
+export default function DeliveryDatePicker({
+  value,
+  onChange,
+  disabledDates = [],
+  totalSandwiches,
+}) {
+  const tooSmallForWeekend =
+    totalSandwiches !== undefined && (Number(totalSandwiches) || 0) < MIN_SANDWICHES_WEEKEND;
+  const isWeekend = (date) => isWeekendDate(toDateString(date));
   const selected = fromDateString(value);
   // Open on the selected date, or else on the first date we can deliver.
   const [month, setMonth] = useState(
@@ -51,10 +73,15 @@ export default function DeliveryDatePicker({ value, onChange, disabledDates = []
       onSelect={(date) => date && onChange(toDateString(date))}
       month={month}
       onMonthChange={setMonth}
-      disabled={(date) => isDateDisabled(date, disabledDates)}
+      disabled={(date) =>
+        isDateDisabled(date, disabledDates) || (tooSmallForWeekend && isWeekend(date))
+      }
       modifiers={{
         booked: (date) => isFullyBooked(date, disabledDates),
         closed: (date) => isClosed(date, disabledDates),
+        tooSmall: (date) =>
+          tooSmallForWeekend && isWeekend(date) && !isDateDisabled(date, disabledDates),
+        weekend: (date) => isWeekend(date) && !isDateDisabled(date, disabledDates),
       }}
       weekStartsOn={1}
       showOutsideDays

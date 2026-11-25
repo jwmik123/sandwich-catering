@@ -9,6 +9,7 @@ import {
   nextAvailableDates,
   toDateString,
 } from "@/lib/delivery-dates";
+import { isWeekendDate, minSandwichesFor, MIN_SANDWICHES_WEEKEND } from "@/lib/order-minimum";
 import { cn } from "@/lib/utils";
 import DeliveryDatePicker from "./DeliveryDatePicker";
 import DrivingCar from "./DrivingCar";
@@ -79,6 +80,7 @@ export default function StartScreen({
   useEffect(() => {
     if (Date.now() >= NEW_DESIGN_BANNER_UNTIL.getTime()) setShowNewDesignBanner(false);
   }, []);
+  const minimum = minSandwichesFor(formData.deliveryDate);
   const datesRef = useRef(null);
   const carRef = useRef(null);
   const leaving = useRef(false);
@@ -87,7 +89,7 @@ export default function StartScreen({
   // page shows its validation message instead, so the car stays.
   const choose = async (type) => {
     if (leaving.current) return;
-    if ((Number(formData.totalSandwiches) || 0) >= 20 && carRef.current) {
+    if ((Number(formData.totalSandwiches) || 0) >= minimum && carRef.current) {
       leaving.current = true;
       await carRef.current.driveOff();
       leaving.current = false;
@@ -193,7 +195,9 @@ export default function StartScreen({
                     How many sandwiches?
                   </label>
                   <span className="text-[13px] text-taupe">
-                    Type any amount or use − / + · minimum 20, we recommend 2 per person
+                    {minimum > 20
+                      ? `Weekend delivery · minimum ${minimum}, we recommend 2 per person`
+                      : `Type any amount or use − / + · minimum 20 (${MIN_SANDWICHES_WEEKEND} on weekends), we recommend 2 per person`}
                   </span>
                 </div>
                 <QuantityStepper
@@ -202,7 +206,7 @@ export default function StartScreen({
                   value={formData.totalSandwiches}
                   onChange={changeTotal}
                   step={5}
-                  min={20}
+                  min={minimum}
                   size="lg"
                 />
               </div>
@@ -228,6 +232,7 @@ export default function StartScreen({
                       >
                         <span className={cn("text-xs", active ? "opacity-80" : "text-taupe")}>
                           {dayLabel(date, index)}
+                          {isWeekendDate(value) && ` · ${MIN_SANDWICHES_WEEKEND}+`}
                         </span>
                         <span className="text-[15px] font-semibold">{shortDate(date)}</span>
                       </button>
@@ -288,7 +293,7 @@ export default function StartScreen({
                   onClick={() => choose("variety")}
                 />
                 <ChoiceCard
-                  badge="20+ sandwiches"
+                  badge={`${minimum}+ sandwiches`}
                   title="Build your own"
                   subtitle="Pick every sandwich from the menu"
                   onClick={() => choose("custom")}

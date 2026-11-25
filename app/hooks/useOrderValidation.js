@@ -1,12 +1,18 @@
 "use client";
 import { NO_DELIVERY } from "@/lib/delivery-zones";
+import { minSandwichesFor, minimumMessage } from "@/lib/order-minimum";
 
 export const useOrderValidation = (formData, deliveryError) => {
+  // 20 on weekdays, more on weekends (see lib/order-minimum).
+  const meetsMinimum = () =>
+    (Number(formData.totalSandwiches) || 0) >= minSandwichesFor(formData.deliveryDate);
+
   const isStepValid = (step) => {
     switch (step) {
       case 1:
-        return formData.totalSandwiches >= 20; // Minimum order requirement
+        return meetsMinimum();
       case 2:
+        if (!meetsMinimum()) return false;
         if (formData.selectionType === "custom") {
           const totalSelected = Object.values(formData.customSelection)
             .flat()
@@ -32,7 +38,8 @@ export const useOrderValidation = (formData, deliveryError) => {
           formData.houseNumber &&
           formData.postalCode &&
           formData.city &&
-          deliveryError !== NO_DELIVERY
+          deliveryError !== NO_DELIVERY &&
+          meetsMinimum()
         );
 
       case 5:
@@ -74,7 +81,12 @@ export const useOrderValidation = (formData, deliveryError) => {
   };
 
   const getValidationMessage = (step) => {
+    if (step <= 4 && formData.deliveryDate && !meetsMinimum()) {
+      return minimumMessage(formData.deliveryDate);
+    }
     switch (step) {
+      case 1:
+        return minimumMessage(formData.deliveryDate);
       case 2:
         if (formData.selectionType === "custom") {
           const totalSelected = Object.values(formData.customSelection)

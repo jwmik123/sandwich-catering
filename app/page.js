@@ -119,7 +119,7 @@ const Home = () => {
 
   const handleChooseType = (selectionType) => {
     if (!isStepValid(1)) {
-      toast.error("The minimum order is 20 sandwiches", { toastId: "start-validation" });
+      toast.error(getValidationMessage(1), { toastId: "start-validation" });
       return;
     }
     trackAmountStep(formData.totalSandwiches);
